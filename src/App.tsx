@@ -524,7 +524,7 @@ function DetailPanel({
       </div>
 
       {/* Divisória minimalista */}
-      <div className={`w-full ${isDesktop ? 'px-12 pt-6' : 'px-6 pt-2 pb-3'} shrink-0 transition-colors duration-500 ${panelBg}`}>
+      <div className={`w-full ${isDesktop ? 'px-12 pt-1' : 'px-6 pt-1 pb-3'} shrink-0 transition-colors duration-500 ${panelBg}`}>
         <div className={`w-full h-[1px] transition-colors duration-500 ${isDark ? 'bg-stone-700' : 'bg-aster-dark/[0.08]'}`} />
       </div>
 
@@ -1134,7 +1134,7 @@ export default function App() {
 
       {/* Divisória minimalista (Mobile Home) */}
       {!isDesktop && (
-        <div className="w-full px-6 pt-2 pb-3 shrink-0 transition-colors duration-500">
+        <div className="w-full px-6 pt-1 pb-3 shrink-0 transition-colors duration-500">
           <div className={`w-full h-[1px] transition-colors duration-500 ${isDark ? 'bg-stone-700' : 'bg-aster-dark/[0.08]'}`} />
         </div>
       )}
@@ -1169,7 +1169,7 @@ export default function App() {
   // ─── Render ────────────────────────────────────────────────
 
   return (
-    <div className={`h-dvh w-full relative overflow-hidden transition-colors duration-500 ${isDark ? 'bg-aster-dark' : 'bg-aster-beige'}`}>
+    <div className={`h-[100dvh] w-full relative overflow-hidden transition-colors duration-500 ${isDark ? 'bg-aster-dark' : 'bg-aster-beige'}`}>
       <SplashScreen isBooting={isBooting} ui={ui} />
 
       {/* Ambient glows (desktop only) */}
@@ -1188,7 +1188,7 @@ export default function App() {
 
       {/* ── MOBILE LAYOUT ── */}
       {!isDesktop && (
-        <div ref={containerRef} className={`@container w-full h-dvh flex flex-col relative transition-colors duration-500 ${isDark ? 'bg-stone-900' : 'bg-aster-beige'}`}>
+        <div ref={containerRef} className={`@container w-full h-[100dvh] flex flex-col relative transition-colors duration-500 ${isDark ? 'bg-stone-900' : 'bg-aster-beige'}`}>
           {phoneContent}
           {/* Floating home button — always visible, even over detail panel */}
           <HomeButton
