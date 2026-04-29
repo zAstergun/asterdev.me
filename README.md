@@ -109,10 +109,10 @@ src/
 
 ```bash
 # Clone o repositório
-git clone https://github.com/zAstergun/aster-dev.git
+git clone https://github.com/zAstergun/asterdev.me.git
 
 # Entre no diretório
-cd aster-dev
+cd asterdev.me
 
 # Instale as dependências
 npm install
