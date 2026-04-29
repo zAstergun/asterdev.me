@@ -1169,7 +1169,7 @@ export default function App() {
   // ─── Render ────────────────────────────────────────────────
 
   return (
-    <div className={`min-h-screen w-full relative overflow-hidden transition-colors duration-500 ${isDark ? 'bg-aster-dark' : 'bg-aster-beige'}`}>
+    <div className={`h-dvh w-full relative overflow-hidden transition-colors duration-500 ${isDark ? 'bg-aster-dark' : 'bg-aster-beige'}`}>
       <SplashScreen isBooting={isBooting} ui={ui} />
 
       {/* Ambient glows (desktop only) */}
@@ -1188,7 +1188,7 @@ export default function App() {
 
       {/* ── MOBILE LAYOUT ── */}
       {!isDesktop && (
-        <div ref={containerRef} className={`@container w-full min-h-screen flex flex-col relative transition-colors duration-500 ${isDark ? 'bg-stone-900' : 'bg-aster-beige'}`}>
+        <div ref={containerRef} className={`@container w-full h-dvh flex flex-col relative transition-colors duration-500 ${isDark ? 'bg-stone-900' : 'bg-aster-beige'}`}>
           {phoneContent}
           {/* Floating home button — always visible, even over detail panel */}
           <HomeButton

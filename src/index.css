@@ -26,7 +26,8 @@ body {
   font-family: "Inter", system-ui, sans-serif;
   background: var(--bg-color);
   overflow: hidden;
-  height: 100vh;
+  height: 100vh;   /* fallback for older browsers */
+  height: 100dvh;  /* dynamic viewport height — respects mobile browser chrome */
   width: 100vw;
 }
 
