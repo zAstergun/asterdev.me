@@ -167,7 +167,7 @@ export function getHomeItems(lang: Language, itemsText: TranslationDict["items"]
       links: [
         { title: "LinkedIn", url: "#", icon: "linkedin" },
         { title: "GitHub", url: "https://github.com/zAstergun", icon: "github" },
-        { title: "Email", url: "mailto:contact@aster.dev", icon: "mail" },
+        { title: "Email", url: "mailto:hello@asterdev.me", icon: "mail" },
       ],
       tags: ["Frontend", "Mobile", "UI/UX"],
       lang,
