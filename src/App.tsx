@@ -61,14 +61,14 @@ function useClockTime(): string {
   return time;
 }
 
-/** Hook: detect if viewport matches `md` breakpoint (768px) */
+/** Hook: detect if viewport matches `xl` breakpoint (1280px) */
 function useIsDesktop(): boolean {
   const [isDesktop, setIsDesktop] = useState(
-    () => window.matchMedia("(min-width: 768px)").matches
+    () => window.matchMedia("(min-width: 1280px)").matches
   );
 
   useEffect(() => {
-    const mql = window.matchMedia("(min-width: 768px)");
+    const mql = window.matchMedia("(min-width: 1280px)");
     const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
     mql.addEventListener("change", handler);
     return () => mql.removeEventListener("change", handler);
@@ -120,7 +120,7 @@ function GridIcon({
           img.src = item.previewMedia as string;
         }
       }}
-      className={`app-icon relative flex flex-col items-center gap-2 p-2 rounded-2xl transition-all duration-200 cursor-pointer scroll-m-6 ${
+      className={`app-icon relative flex flex-col items-center gap-2 tablet:gap-4 p-2 tablet:p-4 rounded-2xl transition-all duration-200 cursor-pointer scroll-m-6 ${
         isFocused ? "focused" : ""
       }`}
       aria-label={
@@ -135,12 +135,12 @@ function GridIcon({
     >
       {/* Focus ring — asymmetric inset to balance the 5px cel-shading shadow */}
       {isFocused && (
-        <div className="hidden md:block absolute -top-[3px] -left-[3px] -bottom-[8px] -right-[8px] rounded-2xl border-2 border-aster-accent/60 animate-pulse-glow pointer-events-none" />
+        <div className="hidden xl:block absolute -top-[3px] -left-[3px] -bottom-[8px] -right-[8px] rounded-2xl border-2 border-aster-accent/60 animate-pulse-glow pointer-events-none" />
       )}
 
       {/* Icon */}
       <div
-        className={`relative w-16 h-16 rounded-2xl flex items-center justify-center text-2xl transition-all duration-200 ${
+        className={`relative w-16 h-16 tablet:w-28 tablet:h-28 rounded-2xl tablet:rounded-3xl flex items-center justify-center text-2xl tablet:text-5xl transition-all duration-200 ${
           isFocused ? "shadow-cel scale-105" : "shadow-md hover:shadow-cel-sm"
         }`}
         style={{
@@ -165,7 +165,7 @@ function GridIcon({
 
         {/* Folder badge */}
         {isFolder_ && (
-          <span className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-aster-beige border-2 border-white shadow-sm flex items-center justify-center text-[9px]">
+          <span className="absolute -bottom-0.5 -right-0.5 w-5 h-5 tablet:w-8 tablet:h-8 rounded-full bg-aster-beige border-2 border-white shadow-sm flex items-center justify-center text-[9px] tablet:text-sm">
             📂
           </span>
         )}
@@ -173,7 +173,7 @@ function GridIcon({
 
       {/* Label */}
       <span
-        className={`text-[11px] font-medium leading-tight text-center max-w-[72px] truncate transition-colors duration-500 ${
+        className={`text-[11px] tablet:text-base font-medium leading-tight text-center max-w-[72px] tablet:max-w-[120px] truncate transition-colors duration-500 ${
           isFocused
             ? (isDark ? "text-stone-100 font-semibold" : "text-aster-dark font-semibold")
             : (isDark ? "text-stone-400" : "text-aster-dark/70")
@@ -276,7 +276,7 @@ function DetailPanel({
       {/* Body — unified scroll area with title at top */}
       <div
         className={`flex-1 overflow-y-auto detail-scroll-area ${isDesktop ? "ipad-content-reveal" : ""} ${
-          isDesktop ? "px-20 py-10" : "px-6 py-8"
+          isDesktop ? "px-20 py-10" : "px-6 tablet:px-12 py-8 tablet:py-10"
         }`}
       >
         {/* Back button (mobile only) */}
@@ -284,7 +284,7 @@ function DetailPanel({
           <button
             type="button"
             onClick={onClose}
-            className={`mb-6 w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-500 cursor-pointer ${isDark ? 'bg-stone-600 text-stone-300 hover:bg-stone-600' : 'bg-aster-dark/10 text-aster-dark/60 hover:bg-aster-dark/20'}`}
+            className={`mb-6 w-8 h-8 tablet:w-10 tablet:h-10 rounded-full flex items-center justify-center transition-colors duration-500 cursor-pointer text-sm tablet:text-base ${isDark ? 'bg-stone-600 text-stone-300 hover:bg-stone-600' : 'bg-aster-dark/10 text-aster-dark/60 hover:bg-aster-dark/20'}`}
             aria-label={ui.back}
           >
             ←
@@ -293,7 +293,7 @@ function DetailPanel({
 
         {/* Icon */}
         <div
-          className="relative w-24 h-24 rounded-[2rem] flex items-center justify-center shadow-md shrink-0 mb-6"
+          className="relative w-24 h-24 tablet:w-32 tablet:h-32 rounded-[2rem] flex items-center justify-center shadow-md shrink-0 mb-6"
           style={{
             background: `linear-gradient(135deg, ${item.gradient[0]}, ${item.gradient[1]})`,
           }}
@@ -305,7 +305,7 @@ function DetailPanel({
               className="w-full h-full object-cover rounded-[2rem] drop-shadow-sm"
             />
           ) : (
-            <span className="text-5xl drop-shadow-sm select-none">
+            <span className="text-5xl tablet:text-6xl drop-shadow-sm select-none">
               {item.icon}
             </span>
           )}
@@ -314,7 +314,7 @@ function DetailPanel({
         {/* Name */}
         <h2
           className={`font-bold leading-tight transition-colors duration-500 ${panelText} ${
-            isDesktop ? "text-3xl mb-4" : "text-2xl mb-4"
+            isDesktop ? "text-3xl mb-4" : "text-2xl tablet:text-3xl mb-4"
           }`}
         >
           {item.name}
@@ -344,7 +344,7 @@ function DetailPanel({
             </h3>
             <div
               className={`grid gap-3 mb-10 ${
-                isDesktop ? "grid-cols-2 max-w-2xl" : "grid-cols-1"
+                isDesktop ? "grid-cols-2 max-w-2xl" : "grid-cols-1 tablet:grid-cols-2 tablet:max-w-2xl"
               }`}
             >
               {item.links.map((link) => {
@@ -370,7 +370,7 @@ function DetailPanel({
                     href={link.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`flex items-center gap-3 px-5 py-3.5 rounded-xl border transition-colors duration-500 group ${
+                    className={`flex items-center gap-3 tablet:gap-4 px-5 tablet:px-6 py-3.5 tablet:py-4 rounded-xl border transition-colors duration-500 group ${
                       isDark
                         ? "bg-stone-700/60 border-stone-600 hover:bg-stone-700"
                         : "bg-aster-beige-dark/60 border-aster-dark/[0.08] hover:bg-aster-beige-dark"
@@ -384,7 +384,7 @@ function DetailPanel({
                       )}
                     </span>
                     <span
-                      className={`text-sm font-medium group-hover:text-aster-accent transition-colors duration-500 ${
+                      className={`text-sm tablet:text-base font-medium group-hover:text-aster-accent transition-colors duration-500 ${
                         isDark ? "text-stone-300" : "text-aster-dark/80"
                       }`}
                     >
@@ -405,12 +405,12 @@ function DetailPanel({
         )}
 
         {/* Resumo Section */}
-        <h3 className={`text-xs font-bold uppercase tracking-widest mb-3 transition-colors duration-500 ${panelFaint}`}>
+        <h3 className={`text-xs tablet:text-sm font-bold uppercase tracking-widest mb-3 transition-colors duration-500 ${panelFaint}`}>
           {ui.summary}
         </h3>
         <p
           className={`leading-relaxed transition-colors duration-500 ${isDark ? 'text-stone-300' : 'text-aster-dark/80'} ${
-            isDesktop ? "text-base mb-0" : "text-sm mb-8"
+            isDesktop ? "text-base mb-0" : "text-sm tablet:text-base mb-8"
           } whitespace-pre-wrap`}
         >
           {item.summary}
@@ -485,7 +485,7 @@ function HomeButton({ onClick, isDark }: { onClick: () => void; isDark: boolean 
       <button
         type="button"
         onClick={onClick}
-        className={`home-btn pointer-events-auto w-14 h-14 rounded-full flex items-center justify-center cursor-pointer transition-all duration-500 ${isDark ? 'bg-stone-900/80 border border-stone-700 shadow-[inset_0_4px_8px_rgba(0,0,0,0.6)] hover:bg-stone-800' : 'bg-aster-beige-dark/80 border border-aster-dark/10 shadow-[inset_0_3px_6px_rgba(0,0,0,0.08)] backdrop-blur-sm hover:bg-aster-beige-dark'}`}
+        className={`home-btn pointer-events-auto w-14 h-14 tablet:w-16 tablet:h-16 rounded-full flex items-center justify-center cursor-pointer transition-all duration-500 ${isDark ? 'bg-stone-900/80 border border-stone-700 shadow-[inset_0_4px_8px_rgba(0,0,0,0.6)] hover:bg-stone-800' : 'bg-aster-beige-dark/80 border border-aster-dark/10 shadow-[inset_0_3px_6px_rgba(0,0,0,0.08)] backdrop-blur-sm hover:bg-aster-beige-dark'}`}
         aria-label="Home"
       >
       </button>
@@ -565,11 +565,11 @@ function FolderHeader({
   const label = count === 1 ? singular : plural;
 
   return (
-    <div className="flex items-center gap-2 px-5 pt-4 pb-2">
+    <div className="flex items-center gap-2 tablet:gap-3 px-5 tablet:px-8 pt-4 tablet:pt-6 pb-2 tablet:pb-3">
       <button
         type="button"
         onClick={onBack}
-        className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors duration-500 cursor-pointer text-sm ${isDark ? 'bg-stone-700 text-stone-400 hover:bg-stone-600' : 'bg-aster-dark/[0.06] text-aster-dark/50 hover:bg-aster-dark/10'}`}
+        className={`w-7 h-7 tablet:w-9 tablet:h-9 rounded-full flex items-center justify-center transition-colors duration-500 cursor-pointer text-sm tablet:text-base ${isDark ? 'bg-stone-700 text-stone-400 hover:bg-stone-600' : 'bg-aster-dark/[0.06] text-aster-dark/50 hover:bg-aster-dark/10'}`}
         aria-label={ui.back}
       >
         ←
@@ -578,15 +578,15 @@ function FolderHeader({
         <img
           src={folder.icon}
           alt={folder.name}
-          className="w-5 h-5 object-contain"
+          className="w-5 h-5 tablet:w-7 tablet:h-7 object-contain"
         />
       ) : (
         <span className="text-sm">{folder.icon}</span>
       )}
-      <h2 className={`text-sm font-bold tracking-tight transition-colors duration-500 ${isDark ? 'text-stone-100' : 'text-aster-dark'}`}>
+      <h2 className={`text-sm tablet:text-lg font-bold tracking-tight transition-colors duration-500 ${isDark ? 'text-stone-100' : 'text-aster-dark'}`}>
         {folder.name}
       </h2>
-      <span className={`text-[10px] font-medium ml-auto transition-colors duration-500 ${isDark ? 'text-stone-500' : 'text-aster-dark/30'}`}>
+      <span className={`text-[10px] tablet:text-sm font-medium ml-auto transition-colors duration-500 ${isDark ? 'text-stone-500' : 'text-aster-dark/30'}`}>
         {count} {label}
       </span>
     </div>
@@ -987,22 +987,22 @@ export default function App() {
       {openFolder ? (
         <FolderHeader folder={openFolder} onBack={goBackFromFolder} isDark={isDark} ui={ui} />
       ) : (
-        <div className="px-5 pt-4 pb-2">
-          <div className="flex items-center gap-2 mb-1">
-            <div className="w-2 h-2 rounded-full bg-aster-accent animate-pulse" />
-            <h1 className={`text-lg font-extrabold tracking-tight transition-colors duration-500 ${text}`}>
+        <div className="px-5 tablet:px-8 pt-4 tablet:pt-6 pb-2 tablet:pb-3">
+          <div className="flex items-center gap-2 tablet:gap-3 mb-1">
+            <div className="w-2 h-2 tablet:w-3 tablet:h-3 rounded-full bg-aster-accent animate-pulse" />
+            <h1 className={`text-lg tablet:text-2xl font-extrabold tracking-tight transition-colors duration-500 ${text}`}>
               Aster<span className="text-aster-accent">Dev</span>
             </h1>
           </div>
-          <p className={`text-[11px] font-medium tracking-wide transition-colors duration-500 ${textFaint}`}>
+          <p className={`text-[11px] tablet:text-sm font-medium tracking-wide transition-colors duration-500 ${textFaint}`}>
             Frontend &amp; Mobile Development
           </p>
         </div>
       )}
 
       {/* Grid */}
-      <div className="flex-1 px-4 py-3 overflow-y-auto">
-        <div className="grid grid-cols-3 gap-3 justify-items-center">
+      <div className="flex-1 px-4 tablet:px-8 py-3 tablet:py-6 overflow-y-auto">
+        <div className="grid grid-cols-3 tablet:grid-cols-4 gap-3 tablet:gap-5 justify-items-center">
           {currentItems.map((item, index) => {
             const displayItem = getDarkModeItem(item, isDark);
             return (
