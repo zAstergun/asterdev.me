@@ -4,7 +4,10 @@ export default {
   theme: {
     extend: {
       screens: {
-        'tablet': {'min': '768px', 'max': '1279px'},
+        'tablet': {'min': '640px', 'max': '1279px'},
+      },
+      containers: {
+        'tablet': '640px',
       },
       fontFamily: {
         sans: ["Inter", "system-ui", "sans-serif"],
@@ -60,5 +63,5 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [require('@tailwindcss/container-queries')],
 };

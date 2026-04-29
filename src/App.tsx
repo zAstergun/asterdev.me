@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   GRID_COLS,
   isDetailable,
@@ -13,6 +13,10 @@ import {
   type Language,
   type TranslationDict,
 } from "./data/aster";
+
+/** Tablet container query breakpoint (must match tailwind containers.tablet) */
+const TABLET_BREAKPOINT = 640;
+const TABLET_COLS = 4;
 
 // ─── Helpers ─────────────────────────────────────────────────
 
@@ -77,6 +81,76 @@ function useIsDesktop(): boolean {
   return isDesktop;
 }
 
+/**
+ * Hook: observe a @container element's inline-size and return the active
+ * column count (GRID_COLS or TABLET_COLS) based on the container-query
+ * breakpoint.  This keeps the React state perfectly in sync with what
+ * CSS container queries resolve.
+ */
+function useContainerCols(ref: React.RefObject<HTMLElement | null>): number {
+  const [cols, setCols] = useState(GRID_COLS);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const ro = new ResizeObserver(([entry]) => {
+      const w = entry.contentRect.width;
+      setCols(w >= TABLET_BREAKPOINT ? TABLET_COLS : GRID_COLS);
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [ref]);
+
+  return cols;
+}
+
+/**
+ * Given a logical item array and the current column count, produce
+ * a *visual index mapping* that accounts for CSS `order` changes.
+ *
+ * When `activeCols === TABLET_COLS` (4-col tablet layout) and the
+ * array is the home screen (not a folder), the dark-mode item is
+ * visually moved to the last position by CSS `order-last`.
+ * This function computes:
+ *   - `logicalToVisual[logicalIdx]` → position on screen
+ *   - `visualToLogical[visualPos]` → index in `items` array
+ *
+ * When no reordering applies both arrays are simple identity maps.
+ */
+function buildVisualMap(
+  items: GridItem[],
+  activeCols: number,
+  isInsideFolder: boolean,
+): { logicalToVisual: number[]; visualToLogical: number[] } {
+  const n = items.length;
+  const identity = Array.from({ length: n }, (_, i) => i);
+
+  // Reorder only on 4-col tablet, and only on the home grid
+  if (activeCols !== TABLET_COLS || isInsideFolder) {
+    return { logicalToVisual: identity, visualToLogical: identity };
+  }
+
+  const darkIdx = items.findIndex((it) => it.id === 'dark-mode');
+  if (darkIdx === -1) {
+    return { logicalToVisual: identity, visualToLogical: identity };
+  }
+
+  // Build visual order: everyone keeps relative order, dark-mode goes last
+  const visualToLogical: number[] = [];
+  for (let i = 0; i < n; i++) {
+    if (i !== darkIdx) visualToLogical.push(i);
+  }
+  visualToLogical.push(darkIdx); // dark-mode is last visually
+
+  const logicalToVisual: number[] = new Array(n);
+  for (let v = 0; v < n; v++) {
+    logicalToVisual[visualToLogical[v]] = v;
+  }
+
+  return { logicalToVisual, visualToLogical };
+}
+
 // ─── Sub-components ──────────────────────────────────────────
 
 function StatusBar({ time, isDark }: { time: string; isDark: boolean }) {
@@ -100,12 +174,14 @@ function GridIcon({
   onClick,
   onHover,
   isDark,
+  extraClassName,
 }: {
   item: GridItem;
   isFocused: boolean;
   onClick: (e: React.MouseEvent) => void;
   onHover: () => void;
   isDark: boolean;
+  extraClassName?: string;
 }) {
   const isFolder_ = item.type === "folder";
 
@@ -120,9 +196,9 @@ function GridIcon({
           img.src = item.previewMedia as string;
         }
       }}
-      className={`app-icon relative flex flex-col items-center gap-2 tablet:gap-4 p-2 tablet:p-4 rounded-2xl transition-all duration-200 cursor-pointer scroll-m-6 ${
+      className={`app-icon relative flex flex-col items-center gap-2 @tablet:gap-4 p-2 @tablet:p-4 rounded-2xl transition-all duration-200 cursor-pointer scroll-m-6 ${
         isFocused ? "focused" : ""
-      }`}
+      } ${extraClassName ?? ""}`}
       aria-label={
         isFolder_
           ? `Abrir pasta ${item.name}`
@@ -140,7 +216,7 @@ function GridIcon({
 
       {/* Icon */}
       <div
-        className={`relative w-16 h-16 tablet:w-28 tablet:h-28 rounded-2xl tablet:rounded-3xl flex items-center justify-center text-2xl tablet:text-5xl transition-all duration-200 ${
+        className={`relative w-16 h-16 @tablet:w-28 @tablet:h-28 rounded-2xl @tablet:rounded-3xl flex items-center justify-center text-2xl @tablet:text-5xl transition-all duration-200 ${
           isFocused ? "shadow-cel scale-105" : "shadow-md hover:shadow-cel-sm"
         }`}
         style={{
@@ -165,7 +241,7 @@ function GridIcon({
 
         {/* Folder badge */}
         {isFolder_ && (
-          <span className="absolute -bottom-0.5 -right-0.5 w-5 h-5 tablet:w-8 tablet:h-8 rounded-full bg-aster-beige border-2 border-white shadow-sm flex items-center justify-center text-[9px] tablet:text-sm">
+          <span className="absolute -bottom-0.5 -right-0.5 w-5 h-5 @tablet:w-8 @tablet:h-8 rounded-full bg-aster-beige border-2 border-white shadow-sm flex items-center justify-center text-[9px] @tablet:text-sm">
             📂
           </span>
         )}
@@ -173,7 +249,7 @@ function GridIcon({
 
       {/* Label */}
       <span
-        className={`text-[11px] tablet:text-base font-medium leading-tight text-center max-w-[72px] tablet:max-w-[120px] truncate transition-colors duration-500 ${
+        className={`text-[11px] @tablet:text-base font-medium leading-tight text-center max-w-[72px] @tablet:max-w-[120px] truncate transition-colors duration-500 ${
           isFocused
             ? (isDark ? "text-stone-100 font-semibold" : "text-aster-dark font-semibold")
             : (isDark ? "text-stone-400" : "text-aster-dark/70")
@@ -276,7 +352,7 @@ function DetailPanel({
       {/* Body — unified scroll area with title at top */}
       <div
         className={`flex-1 overflow-y-auto detail-scroll-area ${isDesktop ? "ipad-content-reveal" : ""} ${
-          isDesktop ? "px-20 py-10" : "px-6 tablet:px-12 py-8 tablet:py-10"
+          isDesktop ? "px-20 py-10" : "px-6 @tablet:px-12 py-8 @tablet:py-10"
         }`}
       >
         {/* Back button (mobile only) */}
@@ -284,7 +360,7 @@ function DetailPanel({
           <button
             type="button"
             onClick={onClose}
-            className={`mb-6 w-8 h-8 tablet:w-10 tablet:h-10 rounded-full flex items-center justify-center transition-colors duration-500 cursor-pointer text-sm tablet:text-base ${isDark ? 'bg-stone-600 text-stone-300 hover:bg-stone-600' : 'bg-aster-dark/10 text-aster-dark/60 hover:bg-aster-dark/20'}`}
+            className={`mb-6 w-8 h-8 @tablet:w-10 @tablet:h-10 rounded-full flex items-center justify-center transition-colors duration-500 cursor-pointer text-sm @tablet:text-base ${isDark ? 'bg-stone-600 text-stone-300 hover:bg-stone-600' : 'bg-aster-dark/10 text-aster-dark/60 hover:bg-aster-dark/20'}`}
             aria-label={ui.back}
           >
             ←
@@ -293,7 +369,7 @@ function DetailPanel({
 
         {/* Icon */}
         <div
-          className="relative w-24 h-24 tablet:w-32 tablet:h-32 rounded-[2rem] flex items-center justify-center shadow-md shrink-0 mb-6"
+          className="relative w-24 h-24 @tablet:w-32 @tablet:h-32 rounded-[2rem] flex items-center justify-center shadow-md shrink-0 mb-6"
           style={{
             background: `linear-gradient(135deg, ${item.gradient[0]}, ${item.gradient[1]})`,
           }}
@@ -305,7 +381,7 @@ function DetailPanel({
               className="w-full h-full object-cover rounded-[2rem] drop-shadow-sm"
             />
           ) : (
-            <span className="text-5xl tablet:text-6xl drop-shadow-sm select-none">
+            <span className="text-5xl @tablet:text-6xl drop-shadow-sm select-none">
               {item.icon}
             </span>
           )}
@@ -314,7 +390,7 @@ function DetailPanel({
         {/* Name */}
         <h2
           className={`font-bold leading-tight transition-colors duration-500 ${panelText} ${
-            isDesktop ? "text-3xl mb-4" : "text-2xl tablet:text-3xl mb-4"
+            isDesktop ? "text-3xl mb-4" : "text-2xl @tablet:text-3xl mb-4"
           }`}
         >
           {item.name}
@@ -344,7 +420,7 @@ function DetailPanel({
             </h3>
             <div
               className={`grid gap-3 mb-10 ${
-                isDesktop ? "grid-cols-2 max-w-2xl" : "grid-cols-1 tablet:grid-cols-2 tablet:max-w-2xl"
+                isDesktop ? "grid-cols-2 max-w-2xl" : "grid-cols-1 @tablet:grid-cols-2 @tablet:max-w-2xl"
               }`}
             >
               {item.links.map((link) => {
@@ -370,7 +446,7 @@ function DetailPanel({
                     href={link.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`flex items-center gap-3 tablet:gap-4 px-5 tablet:px-6 py-3.5 tablet:py-4 rounded-xl border transition-colors duration-500 group ${
+                    className={`flex items-center gap-3 @tablet:gap-4 px-5 @tablet:px-6 py-3.5 @tablet:py-4 rounded-xl border transition-colors duration-500 group ${
                       isDark
                         ? "bg-stone-700/60 border-stone-600 hover:bg-stone-700"
                         : "bg-aster-beige-dark/60 border-aster-dark/[0.08] hover:bg-aster-beige-dark"
@@ -384,7 +460,7 @@ function DetailPanel({
                       )}
                     </span>
                     <span
-                      className={`text-sm tablet:text-base font-medium group-hover:text-aster-accent transition-colors duration-500 ${
+                      className={`text-sm @tablet:text-base font-medium group-hover:text-aster-accent transition-colors duration-500 ${
                         isDark ? "text-stone-300" : "text-aster-dark/80"
                       }`}
                     >
@@ -405,12 +481,12 @@ function DetailPanel({
         )}
 
         {/* Resumo Section */}
-        <h3 className={`text-xs tablet:text-sm font-bold uppercase tracking-widest mb-3 transition-colors duration-500 ${panelFaint}`}>
+        <h3 className={`text-xs @tablet:text-sm font-bold uppercase tracking-widest mb-3 transition-colors duration-500 ${panelFaint}`}>
           {ui.summary}
         </h3>
         <p
           className={`leading-relaxed transition-colors duration-500 ${isDark ? 'text-stone-300' : 'text-aster-dark/80'} ${
-            isDesktop ? "text-base mb-0" : "text-sm tablet:text-base mb-8"
+            isDesktop ? "text-base mb-0" : "text-sm @tablet:text-base mb-8"
           } whitespace-pre-wrap`}
         >
           {item.summary}
@@ -485,7 +561,7 @@ function HomeButton({ onClick, isDark }: { onClick: () => void; isDark: boolean 
       <button
         type="button"
         onClick={onClick}
-        className={`home-btn pointer-events-auto w-14 h-14 tablet:w-16 tablet:h-16 rounded-full flex items-center justify-center cursor-pointer transition-all duration-500 ${isDark ? 'bg-stone-900/80 border border-stone-700 shadow-[inset_0_4px_8px_rgba(0,0,0,0.6)] hover:bg-stone-800' : 'bg-aster-beige-dark/80 border border-aster-dark/10 shadow-[inset_0_3px_6px_rgba(0,0,0,0.08)] backdrop-blur-sm hover:bg-aster-beige-dark'}`}
+        className={`home-btn pointer-events-auto w-14 h-14 @tablet:w-16 @tablet:h-16 rounded-full flex items-center justify-center cursor-pointer transition-all duration-500 ${isDark ? 'bg-stone-900/80 border border-stone-700 shadow-[inset_0_4px_8px_rgba(0,0,0,0.6)] hover:bg-stone-800' : 'bg-aster-beige-dark/80 border border-aster-dark/10 shadow-[inset_0_3px_6px_rgba(0,0,0,0.08)] backdrop-blur-sm hover:bg-aster-beige-dark'}`}
         aria-label="Home"
       >
       </button>
@@ -565,11 +641,11 @@ function FolderHeader({
   const label = count === 1 ? singular : plural;
 
   return (
-    <div className="flex items-center gap-2 tablet:gap-3 px-5 tablet:px-8 pt-4 tablet:pt-6 pb-2 tablet:pb-3">
+    <div className="flex items-center gap-2 @tablet:gap-3 px-5 @tablet:px-8 pt-4 @tablet:pt-6 pb-2 @tablet:pb-3">
       <button
         type="button"
         onClick={onBack}
-        className={`w-7 h-7 tablet:w-9 tablet:h-9 rounded-full flex items-center justify-center transition-colors duration-500 cursor-pointer text-sm tablet:text-base ${isDark ? 'bg-stone-700 text-stone-400 hover:bg-stone-600' : 'bg-aster-dark/[0.06] text-aster-dark/50 hover:bg-aster-dark/10'}`}
+        className={`w-7 h-7 @tablet:w-9 @tablet:h-9 rounded-full flex items-center justify-center transition-colors duration-500 cursor-pointer text-sm @tablet:text-base ${isDark ? 'bg-stone-700 text-stone-400 hover:bg-stone-600' : 'bg-aster-dark/[0.06] text-aster-dark/50 hover:bg-aster-dark/10'}`}
         aria-label={ui.back}
       >
         ←
@@ -578,15 +654,15 @@ function FolderHeader({
         <img
           src={folder.icon}
           alt={folder.name}
-          className="w-5 h-5 tablet:w-7 tablet:h-7 object-contain"
+          className="w-5 h-5 @tablet:w-7 @tablet:h-7 object-contain"
         />
       ) : (
         <span className="text-sm">{folder.icon}</span>
       )}
-      <h2 className={`text-sm tablet:text-lg font-bold tracking-tight transition-colors duration-500 ${isDark ? 'text-stone-100' : 'text-aster-dark'}`}>
+      <h2 className={`text-sm @tablet:text-lg font-bold tracking-tight transition-colors duration-500 ${isDark ? 'text-stone-100' : 'text-aster-dark'}`}>
         {folder.name}
       </h2>
-      <span className={`text-[10px] tablet:text-sm font-medium ml-auto transition-colors duration-500 ${isDark ? 'text-stone-500' : 'text-aster-dark/30'}`}>
+      <span className={`text-[10px] @tablet:text-sm font-medium ml-auto transition-colors duration-500 ${isDark ? 'text-stone-500' : 'text-aster-dark/30'}`}>
         {count} {label}
       </span>
     </div>
@@ -605,7 +681,10 @@ export default function App() {
   const [isDark, setIsDark] = useState(false);
   const [language, setLanguage] = useState<Language>('en');
   const [translations, setTranslations] = useState<TranslationDict | null>(null);
-  
+
+  /** Ref to the @container element that drives container queries */
+  const containerRef = useRef<HTMLDivElement>(null);
+
   const time = useClockTime();
   const isDesktop = useIsDesktop();
 
@@ -791,6 +870,15 @@ export default function App() {
     [openFolder, HOME_ITEMS]
   );
 
+  /** Detect active column count from the @container element */
+  const activeCols = useContainerCols(containerRef);
+
+  /** Visual ↔ Logical index maps (accounts for CSS order-last on tablet) */
+  const { logicalToVisual, visualToLogical } = useMemo(
+    () => buildVisualMap(currentItems, activeCols, !!openFolder),
+    [currentItems, activeCols, openFolder]
+  );
+
   /** Clamped index — always safe for the current grid */
   const safeFocusedIndex = useMemo(
     () => clampIndex(focusedIndex, currentItems.length),
@@ -915,26 +1003,33 @@ export default function App() {
       }
 
       const total = currentItems.length;
-      const cols = GRID_COLS;
+      const cols = activeCols;
+
+      // Navigate in *visual* space, then map back to logical index
+      const moveVisual = (logicalIdx: number, delta: number) => {
+        const visualPos = logicalToVisual[logicalIdx];
+        const newVisual = clampIndex(visualPos + delta, total);
+        return visualToLogical[newVisual];
+      };
 
       const keyActions: Record<string, () => void> = {
-        ArrowRight: () => setFocusedIndex((i) => clampIndex(i + 1, total)),
-        d: () => setFocusedIndex((i) => clampIndex(i + 1, total)),
-        D: () => setFocusedIndex((i) => clampIndex(i + 1, total)),
+        ArrowRight: () => setFocusedIndex((i) => moveVisual(i, 1)),
+        d: () => setFocusedIndex((i) => moveVisual(i, 1)),
+        D: () => setFocusedIndex((i) => moveVisual(i, 1)),
 
-        ArrowLeft: () => setFocusedIndex((i) => clampIndex(i - 1, total)),
-        a: () => setFocusedIndex((i) => clampIndex(i - 1, total)),
-        A: () => setFocusedIndex((i) => clampIndex(i - 1, total)),
+        ArrowLeft: () => setFocusedIndex((i) => moveVisual(i, -1)),
+        a: () => setFocusedIndex((i) => moveVisual(i, -1)),
+        A: () => setFocusedIndex((i) => moveVisual(i, -1)),
 
         ArrowDown: () =>
-          setFocusedIndex((i) => clampIndex(i + cols, total)),
-        s: () => setFocusedIndex((i) => clampIndex(i + cols, total)),
-        S: () => setFocusedIndex((i) => clampIndex(i + cols, total)),
+          setFocusedIndex((i) => moveVisual(i, cols)),
+        s: () => setFocusedIndex((i) => moveVisual(i, cols)),
+        S: () => setFocusedIndex((i) => moveVisual(i, cols)),
 
         ArrowUp: () =>
-          setFocusedIndex((i) => clampIndex(i - cols, total)),
-        w: () => setFocusedIndex((i) => clampIndex(i - cols, total)),
-        W: () => setFocusedIndex((i) => clampIndex(i - cols, total)),
+          setFocusedIndex((i) => moveVisual(i, -cols)),
+        w: () => setFocusedIndex((i) => moveVisual(i, -cols)),
+        W: () => setFocusedIndex((i) => moveVisual(i, -cols)),
 
         Enter: () => {
           const item = currentItems[safeFocusedIndex];
@@ -964,6 +1059,9 @@ export default function App() {
       selectedDetail,
       isDesktop,
       currentItems,
+      activeCols,
+      logicalToVisual,
+      visualToLogical,
       safeFocusedIndex,
       openFolder,
       closeDetail,
@@ -987,22 +1085,22 @@ export default function App() {
       {openFolder ? (
         <FolderHeader folder={openFolder} onBack={goBackFromFolder} isDark={isDark} ui={ui} />
       ) : (
-        <div className="px-5 tablet:px-8 pt-4 tablet:pt-6 pb-2 tablet:pb-3">
-          <div className="flex items-center gap-2 tablet:gap-3 mb-1">
-            <div className="w-2 h-2 tablet:w-3 tablet:h-3 rounded-full bg-aster-accent animate-pulse" />
-            <h1 className={`text-lg tablet:text-2xl font-extrabold tracking-tight transition-colors duration-500 ${text}`}>
+        <div className="px-5 @tablet:px-8 pt-4 @tablet:pt-6 pb-2 @tablet:pb-3">
+          <div className="flex items-center gap-2 @tablet:gap-3 mb-1">
+            <div className="w-2 h-2 @tablet:w-3 @tablet:h-3 rounded-full bg-aster-accent animate-pulse" />
+            <h1 className={`text-lg @tablet:text-2xl font-extrabold tracking-tight transition-colors duration-500 ${text}`}>
               Aster<span className="text-aster-accent">Dev</span>
             </h1>
           </div>
-          <p className={`text-[11px] tablet:text-sm font-medium tracking-wide transition-colors duration-500 ${textFaint}`}>
+          <p className={`text-[11px] @tablet:text-sm font-medium tracking-wide transition-colors duration-500 ${textFaint}`}>
             Frontend &amp; Mobile Development
           </p>
         </div>
       )}
 
       {/* Grid */}
-      <div className="flex-1 px-4 tablet:px-8 py-3 tablet:py-6 overflow-y-auto">
-        <div className="grid grid-cols-3 tablet:grid-cols-4 gap-3 tablet:gap-5 justify-items-center">
+      <div className="flex-1 px-4 @tablet:px-8 py-3 @tablet:py-6 overflow-y-auto">
+        <div className="grid grid-cols-3 @[640px]:grid-cols-4 gap-3 @[640px]:gap-5 justify-items-center">
           {currentItems.map((item, index) => {
             const displayItem = getDarkModeItem(item, isDark);
             return (
@@ -1013,6 +1111,11 @@ export default function App() {
                 onClick={(e) => activateItem(item, index, e)}
                 onHover={() => setFocusedIndex(index)}
                 isDark={isDark}
+                extraClassName={
+                  item.id === 'dark-mode' && !openFolder
+                    ? '@[640px]:order-last'
+                    : undefined
+                }
               />
             );
           })}
@@ -1085,7 +1188,7 @@ export default function App() {
 
       {/* ── MOBILE LAYOUT ── */}
       {!isDesktop && (
-        <div className={`w-full min-h-screen flex flex-col relative transition-colors duration-500 ${isDark ? 'bg-stone-900' : 'bg-aster-beige'}`}>
+        <div ref={containerRef} className={`@container w-full min-h-screen flex flex-col relative transition-colors duration-500 ${isDark ? 'bg-stone-900' : 'bg-aster-beige'}`}>
           {phoneContent}
           {/* Floating home button — always visible, even over detail panel */}
           <HomeButton
@@ -1113,7 +1216,7 @@ export default function App() {
 
           {/* Phone (left) */}
           <div className="phone-shell flex-shrink-0 w-[340px] h-[680px] relative z-10">
-            <div className={`phone-screen w-full h-full flex flex-col relative transition-colors duration-500 ${isDark ? 'bg-stone-900' : 'bg-aster-beige'}`}>
+            <div ref={containerRef} className={`@container phone-screen w-full h-full flex flex-col relative transition-colors duration-500 ${isDark ? 'bg-stone-900' : 'bg-aster-beige'}`}>
               {phoneContent}
             </div>
           </div>
@@ -1121,7 +1224,7 @@ export default function App() {
           {/* Detail Panel (right) — iPad shell frame */}
           <div className="flex-1 max-w-[1400px] h-[750px] relative z-10">
             <div className="ipad-shell w-full h-full">
-              <div className={`ipad-screen relative overflow-hidden transition-colors duration-500 ${isDark ? 'bg-stone-900' : 'bg-aster-beige'}`}>
+              <div className={`@container ipad-screen relative overflow-hidden transition-colors duration-500 ${isDark ? 'bg-stone-900' : 'bg-aster-beige'}`}>
                 {/* Empty State — wallpaper, fills 100% */}
                 <div className="h-full w-full flex flex-col items-center justify-center relative overflow-hidden">
                   {/* Decorative ambient circles */}
