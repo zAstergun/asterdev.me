@@ -1,6 +1,8 @@
 // ─── Heuristic Intent Classifier for Aster.Dev ────────────────────────────
-// Pure TypeScript client-side classifier using rule-based pattern matching,
-// weighted n-grams, text normalization, and confidence scoring.
+// Pure TypeScript client-side classifier with full support for 15 languages:
+// br, pt, en, es, fr, de, it, nl, ru, ar, jp, cn, kr, vn, id.
+
+import { resolveBotLanguage, BOT_RESPONSES, type BotLanguage } from "./botI18n";
 
 export type IntentId =
   | "GREETING"
@@ -52,8 +54,8 @@ export function normalizeText(raw: string): string {
     .toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "") // strip diacritics / accents
-    .replace(/[-_]+/g, "-") // normalize multiple dashes/underscores to single hyphen
-    .replace(/[^\w\s-]/g, " ") // remove punctuation except hyphens
+    .replace(/[-_]+/g, "-") // normalize dashes/underscores
+    .replace(/[^\p{L}\p{N}\s-]/gu, " ") // keep Unicode letters & numbers across scripts (Arabic, CJK, Cyrillic, Latin)
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -61,69 +63,150 @@ export function normalizeText(raw: string): string {
 export function extractTokens(normalized: string): string[] {
   if (!normalized) return [];
   const words = normalized.split(" ").filter((w) => w.length > 0);
-  const bigrams: string[] = [];
+  const ngrams: string[] = [...words];
+
+  // Word-level bigrams and trigrams
   for (let i = 0; i < words.length - 1; i++) {
-    bigrams.push(`${words[i]} ${words[i + 1]}`);
+    ngrams.push(`${words[i]} ${words[i + 1]}`);
   }
-  const trigrams: string[] = [];
   for (let i = 0; i < words.length - 2; i++) {
-    trigrams.push(`${words[i]} ${words[i + 1]} ${words[i + 2]}`);
+    ngrams.push(`${words[i]} ${words[i + 1]} ${words[i + 2]}`);
   }
-  return [...words, ...bigrams, ...trigrams];
+
+  // Character-level ngrams for non-segmented languages (CJK: Japanese, Chinese, Korean)
+  const compact = normalized.replace(/\s+/g, "");
+  if (/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uac00-\ud7af]/u.test(compact)) {
+    for (let len = 2; len <= 4; len++) {
+      for (let i = 0; i <= compact.length - len; i++) {
+        ngrams.push(compact.substring(i, i + len));
+      }
+    }
+  }
+
+  return ngrams;
 }
 
-// ─── Intent Definitions ───────────────────────────────────────────────────
+// ─── Multilingual Intent Definitions ──────────────────────────────────────
 
 const INTENT_DEFINITIONS: IntentDefinition[] = [
   {
     id: "GREETING",
     patterns: [
       /^(oi|ola|opa|e ai|eai|fala|hey|hello|hi|salve|oie|bom dia|boa tarde|boa noite)\b/,
-      /^como vai|^tudo bem|^beleza/,
+      /^(hola|buenos dias|buenas tardes|buenas noches)\b/,
+      /^(bonjour|salut|bon apres-midi|bonsoir)\b/,
+      /^(hallo|guten morgen|guten tag|guten abend|moin)\b/,
+      /^(ciao|buongiorno|buonasera)\b/,
+      /^(hallo|goedemorgen|goedenavond)\b/,
+      /^(привет|здравствуйте|добрый день|добрый вечер|хай)\b/u,
+      /^(مرحبا|اهلا|سلام|صباح الخير|مساء الخير)\b/u,
+      /^(こんにちは|こんばんは|おはよう|やあ)\b/u,
+      /^(你好|您好|早上好|下午好|晚上好|嗨)\b/u,
+      /^(안녕하세요|안녕|반갑습니다)\b/u,
+      /^(xin chao|chao ban)\b/,
+      /^(halo|selamat pagi|selamat siang|selamat sore|selamat malam)\b/,
     ],
     keywords: [
+      // Portuguese & Spanish
       { term: "ola", weight: 3 },
       { term: "oi", weight: 3 },
       { term: "opa", weight: 3 },
+      { term: "hola", weight: 3 },
+      { term: "buenos dias", weight: 3 },
+      // English
       { term: "hello", weight: 3 },
+      { term: "hi", weight: 3 },
       { term: "hey", weight: 3 },
-      { term: "tudo bem", weight: 2 },
-      { term: "bom dia", weight: 3 },
-      { term: "boa tarde", weight: 3 },
-      { term: "boa noite", weight: 3 },
+      // French & Italian & German & Dutch
+      { term: "bonjour", weight: 3 },
+      { term: "salut", weight: 3 },
+      { term: "ciao", weight: 3 },
+      { term: "guten tag", weight: 3 },
+      // Russian & Arabic
+      { term: "привет", weight: 3 },
+      { term: "здравствуйте", weight: 3 },
+      { term: "مرحبا", weight: 3 },
+      { term: "اهلا", weight: 3 },
+      // Japanese, Chinese, Korean, Vietnamese, Indonesian
+      { term: "こんにちは", weight: 4 },
+      { term: "你好", weight: 4 },
+      { term: "안녕하세요", weight: 4 },
+      { term: "xin chao", weight: 4 },
+      { term: "halo", weight: 3 },
     ],
-    negativeKeywords: ["ideal", "calc", "projeto", "stack", "curriculo"],
+    negativeKeywords: ["ideal", "calc", "projeto", "projects", "stack", "curriculo", "resume", "cv"],
   },
   {
     id: "HOW_CLASSIFIER_WORKS",
     patterns: [
       /como (voce|o bot|esse bot|o classificador) (funciona|foi feito|opera)/,
-      /voce (usa|e) (ia|inteligencia artificial|chatgpt|openai|llm)/,
-      /o que e (um )?classificador heuristico/,
+      /how does (this|the) (bot|classifier) work/,
+      /como funciona el (bot|clasificador)/,
+      /comment fonctionne (le bot|le classificateur)/,
+      /wie funktioniert der (bot|klassifikator)/,
+      /come funziona il (bot|classificatore)/,
+      /как работает (бот|классификатор)/u,
+      /كيف يعمل (البوت|المصنف)/u,
+      /(ボット|分類器)の仕組み/u,
+      /(机器人|分类器)如何运作/u,
+      /(봇|분류기) 작동 원리/u,
     ],
     keywords: [
-      { term: "classificador", weight: 5 },
-      { term: "heuristico", weight: 5 },
-      { term: "heuristica", weight: 5 },
-      { term: "como funciona o bot", weight: 5 },
-      { term: "chatgpt", weight: 4 },
-      { term: "llm", weight: 4 },
-      { term: "como voce foi feito", weight: 5 },
+      { term: "classificador", weight: 6 },
+      { term: "heuristico", weight: 6 },
+      { term: "heuristica", weight: 6 },
+      { term: "classifier", weight: 6 },
+      { term: "heuristic", weight: 6 },
+      { term: "clasificador", weight: 6 },
+      { term: "heuristique", weight: 6 },
+      { term: "klassifikator", weight: 6 },
+      { term: "classificatore", weight: 6 },
+      { term: "классификатор", weight: 6 },
+      { term: "эвристический", weight: 6 },
+      { term: "مصنف", weight: 6 },
+      { term: "ارتقائي", weight: 6 },
+      { term: "分類器", weight: 6 },
+      { term: "ヒューリスティック", weight: 6 },
+      { term: "分类器", weight: 6 },
+      { term: "启发式", weight: 6 },
+      { term: "분류기", weight: 6 },
+      { term: "휴리스틱", weight: 6 },
+      { term: "phân loại", weight: 6 },
+      { term: "pengklasifikasi", weight: 6 },
     ],
   },
   {
     id: "BOT_CAPABILITIES",
     patterns: [
       /o que (voce|o bot) (sabe|faz|pode fazer|consegue responder)/,
-      /o que posso (perguntar|saber)/,
-      /^(ajuda|help|comandos|menu|opcoes)$/,
+      /what can (you|this bot) do/,
+      /que puedes hacer/,
+      /que pouvez vous faire/,
+      /was kannst du tun/,
+      /cosa puoi fare/,
+      /что ты умеешь/u,
+      /ماذا يمكنك ان تفعل/u,
+      /何ができますか/u,
+      /你能做什么/u,
+      /무엇을 할 수 있나요/u,
+      /ban co the lam gi/,
+      /apa yang bisa kamu lakukan/,
+      /^(ajuda|help|ayuda|aide|hilfe|aiuto|hulp|помощь|مساعدة|ヘルプ|帮助|도움말|tro giup|bantuan)$/i,
     ],
     keywords: [
       { term: "ajuda", weight: 4 },
       { term: "help", weight: 4 },
-      { term: "o que voce faz", weight: 5 },
-      { term: "o que perguntar", weight: 5 },
-      { term: "comandos", weight: 4 },
+      { term: "ayuda", weight: 4 },
+      { term: "aide", weight: 4 },
+      { term: "hilfe", weight: 4 },
+      { term: "aiuto", weight: 4 },
+      { term: "помощь", weight: 4 },
+      { term: "مساعدة", weight: 4 },
+      { term: "ヘルプ", weight: 4 },
+      { term: "帮助", weight: 4 },
+      { term: "도움말", weight: 4 },
+      { term: "tro giup", weight: 4 },
+      { term: "bantuan", weight: 4 },
       { term: "capacidades", weight: 4 },
     ],
   },
@@ -131,117 +214,192 @@ const INTENT_DEFINITIONS: IntentDefinition[] = [
     id: "REVERSE_ENGINEERING",
     patterns: [
       /engenharia reversa/,
+      /reverse engineering/,
+      /ingenieria inversa/,
+      /retro-ingenierie/,
+      /обратная разработка|реверс-инжиниринг/u,
+      /الهندسة العكسية/u,
+      /リバースエンジニアリング/u,
+      /逆向工程/u,
+      /리버스 엔지니어링/u,
+      /ky thuat dich nguoc/,
+      /rekayasa balik/,
       /como comecou a programar/,
-      /servidores de jogos/,
-      /criacao de cheats/,
+      /how did (he|you) start coding/,
     ],
     keywords: [
-      { term: "engenharia reversa", weight: 6 },
-      { term: "reversa", weight: 4 },
-      { term: "cheats", weight: 5 },
-      { term: "cheat", weight: 5 },
-      { term: "servidores", weight: 3 },
+      { term: "engenharia reversa", weight: 7 },
+      { term: "reverse engineering", weight: 7 },
+      { term: "ingenieria inversa", weight: 7 },
+      { term: "cheats", weight: 6 },
+      { term: "cheat", weight: 6 },
+      { term: "servidores de jogos", weight: 5 },
+      { term: "game servers", weight: 5 },
       { term: "baixo nivel", weight: 4 },
-      { term: "memoria", weight: 3 },
-      { term: "como comecou", weight: 4 },
+      { term: "low level", weight: 4 },
+      { term: "реверс", weight: 6 },
+      { term: "العكسية", weight: 6 },
+      { term: "リバース", weight: 6 },
+      { term: "逆向", weight: 6 },
+      { term: "리버스", weight: 6 },
     ],
   },
   {
     id: "IRONMAN_TRIATHLON",
     patterns: [
       /ironman/,
-      /triathlon/,
-      /treino|atleta|rotina esportiva/,
+      /triathlon|triatlo|triatlon/,
+      /триатлон/u,
+      /ترياثلون/u,
+      /トライアスロン/u,
+      /铁人三项/u,
+      /철인3종|철인 3종/u,
     ],
     keywords: [
-      { term: "ironman", weight: 7 },
-      { term: "triathlon", weight: 7 },
-      { term: "triatlo", weight: 6 },
-      { term: "treino", weight: 3 },
-      { term: "esporte", weight: 3 },
+      { term: "ironman", weight: 8 },
+      { term: "triathlon", weight: 8 },
+      { term: "triatlo", weight: 7 },
+      { term: "triatlon", weight: 7 },
+      { term: "триатлон", weight: 8 },
+      { term: "ترياثلون", weight: 8 },
+      { term: "トライアスロン", weight: 8 },
+      { term: "铁人三项", weight: 8 },
+      { term: "철인3종", weight: 8 },
       { term: "natacao", weight: 3 },
       { term: "ciclismo", weight: 3 },
       { term: "corrida", weight: 3 },
+      { term: "marathon", weight: 3 },
     ],
   },
   {
     id: "PROJECT_IDEAL_CALC",
     patterns: [
-      /ideal calc|calculadora ideal/,
-      /calculadora estatistica/,
+      /ideal calc|idealcalc/,
+      /calculadora (ideal|estatistica)/,
+      /statistical calculator/,
       /ibge|censo 2022|pnad/,
     ],
     keywords: [
       { term: "ideal calc", weight: 8 },
       { term: "idealcalc", weight: 8 },
+      { term: "ibge", weight: 7 },
       { term: "calculadora", weight: 4 },
-      { term: "ibge", weight: 6 },
+      { term: "calculator", weight: 4 },
+      { term: "calculatrice", weight: 4 },
+      { term: "rechner", weight: 4 },
+      { term: "calcolatrice", weight: 4 },
+      { term: "rekenmachine", weight: 4 },
+      { term: "калькулятор", weight: 5 },
+      { term: "حاسبة", weight: 5 },
+      { term: "計算機", weight: 5 },
+      { term: "计算器", weight: 5 },
+      { term: "계산기", weight: 5 },
+      { term: "may tinh", weight: 4 },
+      { term: "kalkulator", weight: 4 },
       { term: "censo", weight: 4 },
       { term: "pnad", weight: 4 },
-      { term: "parceiro ideal", weight: 6 },
     ],
   },
   {
     id: "PROJECT_SOUL_FIGHTER",
     patterns: [
-      /soul fighter/,
-      /jogo da memoria/,
+      /soul fighter|soulfighter/,
+      /jogo da memoria|juego de memoria|jeu de memoire|gedachtnisspiel|gioco di memoria/,
       /memory game/,
+      /игра на память/u,
+      /لعبة الذاكرة/u,
+      /記憶ゲーム/u,
+      /记忆游戏/u,
+      /기억력 게임/u,
+      /tro choi tri nho/,
+      /game memori/,
     ],
     keywords: [
       { term: "soul fighter", weight: 8 },
       { term: "soulfighter", weight: 8 },
-      { term: "jogo da memoria", weight: 6 },
-      { term: "memory game", weight: 6 },
-      { term: "league of legends", weight: 4 },
-      { term: "lol", weight: 3 },
-      { term: "card flip", weight: 3 },
+      { term: "memory game", weight: 7 },
+      { term: "jogo da memoria", weight: 7 },
+      { term: "juego de memoria", weight: 7 },
+      { term: "jeu de memoire", weight: 7 },
+      { term: "league of legends", weight: 5 },
+      { term: "lol", weight: 4 },
+      { term: "игра на память", weight: 7 },
+      { term: "لعبة الذاكرة", weight: 7 },
+      { term: "記憶ゲーム", weight: 7 },
+      { term: "记忆游戏", weight: 7 },
+      { term: "기억력 게임", weight: 7 },
+      { term: "tro choi tri nho", weight: 7 },
+      { term: "game memori", weight: 7 },
     ],
   },
   {
     id: "PROJECT_PEX_WIKI",
     patterns: [
       /pex wiki|pex-wiki/,
-      /projetos? de extensao/,
-      /ods da onu|blurple/,
+      /projetos? de extensao|extension projects/,
+      /ods da onu|un sdgs|ods/,
     ],
     keywords: [
       { term: "pex wiki", weight: 8 },
+      { term: "pex-wiki", weight: 8 },
       { term: "pex", weight: 6 },
-      { term: "wiki", weight: 4 },
-      { term: "ods", weight: 4 },
-      { term: "blurple", weight: 4 },
-      { term: "extensao", weight: 3 },
+      { term: "ods", weight: 5 },
+      { term: "sdg", weight: 5 },
+      { term: "blurple", weight: 5 },
+      { term: "uniamerica", weight: 5 },
     ],
   },
   {
     id: "PROJECT_MOBILE_DEMO",
     patterns: [
       /app mobile demo|mobile demo/,
-      /projeto mobile|aplicativo mobile/,
+      /projeto mobile|mobile showcase|aplicacion movil demo/,
     ],
     keywords: [
-      { term: "mobile demo", weight: 7 },
+      { term: "mobile demo", weight: 8 },
       { term: "app demo", weight: 6 },
-      { term: "react native", weight: 4 },
-      { term: "mobile", weight: 2 },
+      { term: "react native", weight: 5 },
+      { term: "mobile", weight: 3 },
+      { term: "movil", weight: 3 },
     ],
   },
   {
     id: "PROJECTS_OVERVIEW",
     patterns: [
       /quais (sao )?(os )?(seus )?projetos/,
-      /mostre (os )?projetos/,
-      /o que (voce|o aster) (ja )?(construiu|fez|desenvolveu)/,
-      /portfolio|trabalhos|cases/,
+      /what (are|is) (his|your|the) projects/,
+      /cuales son (los|sus) proyectos/,
+      /quels sont (les|ses) projets/,
+      /welche projekte/,
+      /quali sono i progetti/,
+      /wat zijn de projecten/,
+      /какие (есть )?проекты/u,
+      /ما هي المشاريع/u,
+      /どんなプロジェクト/u,
+      /有哪些项目/u,
+      /어떤 프로젝트/u,
+      /cac du an/,
+      /apa saja proyek/,
     ],
     keywords: [
-      { term: "projetos", weight: 5 },
+      { term: "projetos", weight: 6 },
+      { term: "projects", weight: 6 },
+      { term: "proyectos", weight: 6 },
+      { term: "projets", weight: 6 },
+      { term: "projekte", weight: 6 },
+      { term: "progetti", weight: 6 },
+      { term: "projecten", weight: 6 },
+      { term: "проекты", weight: 6 },
+      { term: "المشاريع", weight: 6 },
+      { term: "مشاريعه", weight: 7 },
+      { term: "مشاريع", weight: 6 },
+      { term: "プロジェクト", weight: 6 },
+      { term: "项目", weight: 6 },
+      { term: "프로젝트", weight: 6 },
+      { term: "du an", weight: 6 },
+      { term: "proyek", weight: 6 },
       { term: "portfolio", weight: 5 },
-      { term: "construiu", weight: 4 },
-      { term: "trabalhos", weight: 4 },
-      { term: "cases", weight: 4 },
-      { term: "apps", weight: 3 },
+      { term: "portafolio", weight: 5 },
     ],
     negativeKeywords: ["ideal", "soul", "pex", "mobile demo"],
   },
@@ -249,554 +407,258 @@ const INTENT_DEFINITIONS: IntentDefinition[] = [
     id: "TECH_STACK",
     patterns: [
       /qual (e )?(a )?(sua )?stack/,
-      /quais (sao )?(as )?(suas )?(tecnologias|habilidades|skills|linguagens)/,
-      /o que (voce|o aster) usa para programar/,
-      /quais frameworks/,
+      /what is (his|your|the) (tech )?stack/,
+      /cual es (su|el) stack/,
+      /quel est (son|le) stack/,
+      /welcher tech-stack/,
+      /qual e il suo stack/,
+      /wat is zijn stack/,
+      /какой стек/u,
+      /ما هو المكدس/u,
+      /技術スタック/u,
+      /技术栈/u,
+      /기술 스택/u,
+      /stack cong nghe/,
+      /tech stack/,
     ],
     keywords: [
       { term: "stack", weight: 6 },
-      { term: "tecnologias", weight: 5 },
-      { term: "linguagens", weight: 5 },
-      { term: "skills", weight: 5 },
-      { term: "habilidades", weight: 4 },
+      { term: "tecnologias", weight: 6 },
+      { term: "technologies", weight: 6 },
+      { term: "technologien", weight: 6 },
+      { term: "tecnologie", weight: 6 },
+      { term: "стек", weight: 6 },
+      { term: "технологии", weight: 6 },
+      { term: "التقنيات", weight: 6 },
+      { term: "技術スタック", weight: 7 },
+      { term: "技术栈", weight: 7 },
+      { term: "기술 스택", weight: 7 },
+      { term: "cong nghe", weight: 6 },
+      { term: "teknologi", weight: 6 },
+      { term: "linguagens", weight: 4 },
+      { term: "languages", weight: 4 },
       { term: "frameworks", weight: 4 },
       { term: "react", weight: 3 },
       { term: "typescript", weight: 3 },
-      { term: "next", weight: 3 },
       { term: "tailwind", weight: 3 },
-      { term: "astro", weight: 3 },
-      { term: "vue", weight: 3 },
-      { term: "ferramentas", weight: 3 },
     ],
   },
   {
     id: "EDUCATION",
     patterns: [
-      /onde (o aster )?estuda/,
-      /qual faculdade|formacao academica/,
-      /ciencia da computacao/,
-      /uniamerica/,
+      /onde (o aster )?estuda|qual faculdade/,
+      /where does (he|aster) study|what university/,
+      /donde estudia|universidad/,
+      /ou etudie-t-il|universite/,
+      /wo studiert er|universitat/,
+      /dove studia|universita/,
+      /где учится|университет/u,
+      /اين يدرس|الجامعة/u,
+      /大学|学歴/u,
+      /大学|就读/u,
+      /어디서 공부|대학교/u,
+      /hoc o dau|dai hoc/,
+      /kuliah di mana|universitas/,
     ],
     keywords: [
-      { term: "faculdade", weight: 5 },
-      { term: "uniamerica", weight: 7 },
+      { term: "faculdade", weight: 6 },
+      { term: "uniamerica", weight: 8 },
       { term: "ciencia da computacao", weight: 6 },
-      { term: "semestre", weight: 4 },
-      { term: "formacao", weight: 4 },
-      { term: "estudos", weight: 3 },
-      { term: "lideranca tecnica", weight: 5 },
-      { term: "comunidade academica", weight: 5 },
+      { term: "computer science", weight: 6 },
+      { term: "ciencias de la computacion", weight: 6 },
+      { term: "universidade", weight: 5 },
+      { term: "university", weight: 5 },
+      { term: "universidad", weight: 5 },
+      { term: "universite", weight: 5 },
+      { term: "universitat", weight: 5 },
+      { term: "университет", weight: 6 },
+      { term: "الجامعة", weight: 6 },
+      { term: "大学", weight: 6 },
+      { term: "대학교", weight: 6 },
+      { term: "dai hoc", weight: 6 },
+      { term: "universitas", weight: 6 },
     ],
   },
   {
     id: "RESUME_CV",
     patterns: [
-      /como (posso )?baixar o curriculo/,
-      /curriculo|resume|cv/,
-      /download (do )?curriculo/,
+      /curriculo|resume|cv|curriculum|lebenslauf/,
+      /резюме/u,
+      /السيرة الذاتية/u,
+      /履歴書/u,
+      /简历/u,
+      /이력서/u,
+      /so yeu ly lich/,
+      /baixar curriculo|download resume|descargar curriculum|telecharger cv/,
     ],
     keywords: [
       { term: "curriculo", weight: 7 },
       { term: "cv", weight: 7 },
-      { term: "resume", weight: 6 },
-      { term: "baixar curriculo", weight: 8 },
-      { term: "download cv", weight: 8 },
-      { term: "pdf", weight: 3 },
+      { term: "resume", weight: 7 },
+      { term: "curriculum", weight: 7 },
+      { term: "lebenslauf", weight: 7 },
+      { term: "резюме", weight: 7 },
+      { term: "السيرة الذاتية", weight: 7 },
+      { term: "履歴書", weight: 7 },
+      { term: "简历", weight: 7 },
+      { term: "이력서", weight: 7 },
+      { term: "so yeu ly lich", weight: 7 },
+      { term: "pdf", weight: 4 },
+      { term: "docx", weight: 4 },
     ],
   },
   {
     id: "CONTACT_SOCIAL",
     patterns: [
+      /contato|contact|contacto|kontakt|contatto/,
+      /контакты/u,
+      /الاتصال|تواصل/u,
+      /連絡先/u,
+      /联系/u,
+      /연락처/u,
+      /lien he/,
       /como (posso )?(entrar em )?contato/,
-      /como falar com (o aster|voce)/,
-      /redes sociais|links|linkedin|github|email/,
+      /how to contact/,
+      /como contactar/,
     ],
     keywords: [
-      { term: "contato", weight: 6 },
+      { term: "contato", weight: 7 },
+      { term: "contact", weight: 7 },
+      { term: "contacto", weight: 7 },
+      { term: "kontakt", weight: 7 },
+      { term: "contatto", weight: 7 },
+      { term: "контакты", weight: 7 },
+      { term: "اتصال", weight: 7 },
+      { term: "連絡先", weight: 7 },
+      { term: "联系", weight: 7 },
+      { term: "연락처", weight: 7 },
+      { term: "lien he", weight: 7 },
+      { term: "kontak", weight: 7 },
       { term: "email", weight: 6 },
       { term: "linkedin", weight: 6 },
       { term: "github", weight: 5 },
-      { term: "falar com", weight: 4 },
-      { term: "redes sociais", weight: 5 },
-      { term: "redes", weight: 3 },
     ],
   },
   {
     id: "BLOG_HACKATHONS",
     patterns: [
       /hackathon|hackathons/,
-      /blog|devlog|artigos/,
+      /blog|devlog|artigos|articles/,
+      /хакатон/u,
+      /هاكاثون/u,
+      /ハッカソン/u,
+      /黑客松/u,
+      /해커톤/u,
     ],
     keywords: [
-      { term: "hackathon", weight: 7 },
-      { term: "hackathons", weight: 7 },
-      { term: "blog", weight: 6 },
-      { term: "devlog", weight: 5 },
-      { term: "competicoes", weight: 4 },
+      { term: "hackathon", weight: 8 },
+      { term: "hackathons", weight: 8 },
+      { term: "blog", weight: 7 },
+      { term: "devlog", weight: 6 },
+      { term: "хакатон", weight: 8 },
+      { term: "هاكاثون", weight: 8 },
+      { term: "ハッカソン", weight: 8 },
+      { term: "黑客松", weight: 8 },
+      { term: "해커톤", weight: 8 },
     ],
   },
   {
     id: "ABOUT_ASTER",
     patterns: [
-      /quem e (o )?aster/,
-      /quem e voce/,
-      /sobre o aster/,
-      /fale sobre (voce|o aster)/,
-      /apresente-se/,
-      /biografia/,
-      /who (is|are) (aster|you)/,
-      /about aster/,
+      /quem e (o )?aster|quem e voce/,
+      /who is (aster|you)|who are you|about aster/,
+      /quien es (aster|tu)|sobre aster/,
+      /qui est (aster|vous)/,
+      /wer ist aster/,
+      /chi e aster/,
+      /wie is aster/,
+      /кто такой (астер|aster)/u,
+      /من هو (استر|aster)/u,
+      /(アスター|aster)とは/u,
+      /(aster|阿斯特)\s*是谁|关于\s*(aster|阿斯特)/u,
+      /aster\s*는\s*누구/u,
+      /aster la ai/,
+      /siapa aster/,
     ],
     keywords: [
       { term: "quem e aster", weight: 8 },
-      { term: "quem e", weight: 4 },
-      { term: "sobre o aster", weight: 7 },
-      { term: "sobre voce", weight: 5 },
-      { term: "biografia", weight: 5 },
-      { term: "historia", weight: 4 },
       { term: "who is aster", weight: 8 },
+      { term: "quien es aster", weight: 8 },
+      { term: "qui est aster", weight: 8 },
+      { term: "wer ist aster", weight: 8 },
+      { term: "chi e aster", weight: 8 },
+      { term: "wie is aster", weight: 8 },
+      { term: "кто такой", weight: 6 },
+      { term: "кто такой aster", weight: 8 },
+      { term: "кто такой астер", weight: 8 },
+      { term: "من هو", weight: 6 },
+      { term: "من هو aster", weight: 8 },
+      { term: "من هو استر", weight: 8 },
+      { term: "asterとは", weight: 8 },
+      { term: "アスターとは", weight: 8 },
+      { term: "aster 是谁", weight: 8 },
+      { term: "aster是谁", weight: 8 },
+      { term: "是谁", weight: 6 },
+      { term: "aster는 누구", weight: 8 },
+      { term: "aster la ai", weight: 8 },
+      { term: "siapa aster", weight: 8 },
+      { term: "sobre o aster", weight: 7 },
       { term: "about aster", weight: 7 },
-      { term: "who are you", weight: 8 },
+      { term: "biografia", weight: 5 },
+      { term: "biography", weight: 5 },
       { term: "aster", weight: 2 },
     ],
   },
   {
     id: "FAREWELL",
     patterns: [
-      /^(tchau|adeus|ate mais|ate logo|falou|valeu|obrigado|obrigada|thanks|bye)\b/,
+      /^(tchau|adeus|ate mais|ate logo|falou|valeu|obrigado|obrigada)\b/,
+      /^(bye|goodbye|see you|thanks|thank you)\b/,
+      /^(adios|hasta luego|gracias)\b/,
+      /^(au revoir|merci)\b/,
+      /^(tschuss|auf wiedersehen|danke)\b/,
+      /^(arrivederci|grazie)\b/,
+      /^(tot ziens|bedankt)\b/,
+      /^(пока|до свидания|спасибо)\b/u,
+      /^(مع السلامة|شكرا|وداعا)\b/u,
+      /^(さようなら|またね|ありがとう)\b/u,
+      /^(再见|谢谢)\b/u,
+      /^(안녕히|감사합니다|고마워)\b/u,
+      /^(tam biet|cam on)\b/,
+      /^(selamat tinggal|terima kasih)\b/,
     ],
     keywords: [
-      { term: "tchau", weight: 4 },
+      { term: "tchau", weight: 5 },
+      { term: "bye", weight: 5 },
       { term: "valeu", weight: 4 },
       { term: "obrigado", weight: 4 },
-      { term: "obrigada", weight: 4 },
-      { term: "ate mais", weight: 4 },
-      { term: "bye", weight: 4 },
+      { term: "thanks", weight: 4 },
+      { term: "gracias", weight: 4 },
+      { term: "merci", weight: 4 },
+      { term: "danke", weight: 4 },
+      { term: "grazie", weight: 4 },
+      { term: "спасибо", weight: 4 },
+      { term: "شكرا", weight: 4 },
+      { term: "ありがとう", weight: 4 },
+      { term: "谢谢", weight: 4 },
+      { term: "감사", weight: 4 },
+      { term: "cam on", weight: 4 },
+      { term: "terima kasih", weight: 4 },
     ],
   },
 ];
-
-// ─── Response Knowledge Base ──────────────────────────────────────────────
-
-interface LocalizedResponse {
-  pt: {
-    text: string;
-    actions?: ActionButton[];
-    suggestions: string[];
-  };
-  en: {
-    text: string;
-    actions?: ActionButton[];
-    suggestions: string[];
-  };
-}
-
-const RESPONSES: Record<IntentId, LocalizedResponse> = {
-  GREETING: {
-    pt: {
-      text: "Olá! 👋 Sou o AsterBot, o assistente virtual do Aster. Estou aqui para responder dúvidas sobre a trajetória dele, projetos (Ideal Calc, PEX Wiki, Soul Fighter...), stack técnica e contatos. Sobre o que você gostaria de conversar?",
-      suggestions: [
-        "Quem é o Aster?",
-        "Quais são os projetos?",
-        "Qual é a sua stack?",
-        "Como entrar em contato?",
-      ],
-    },
-    en: {
-      text: "Hello! 👋 I am AsterBot, Aster's virtual assistant. I am here to answer questions about his career, projects (Ideal Calc, PEX Wiki, Soul Fighter...), tech stack, and contacts. What would you like to know?",
-      suggestions: [
-        "Who is Aster?",
-        "What are his projects?",
-        "What is his tech stack?",
-        "How can I contact him?",
-      ],
-    },
-  },
-  ABOUT_ASTER: {
-    pt: {
-      text: "O Aster é Desenvolvedor Frontend focado em interfaces fluidas, de alta performance e arquiteturas limpas. Está atualmente no 5º semestre de Ciência da Computação na UniAmérica, onde lidera uma comunidade acadêmica voltada a projetos colaborativos e mentoria.\n\nSua mentalidade de engenharia une curiosidade de baixo nível (veio da engenharia reversa e servidores de jogos), disciplina física (treina para completar um triathlon Ironman) e estudo contínuo de idiomas (Mandarim e Japonês).",
-      suggestions: [
-        "Como começou na programação?",
-        "Treino para o Ironman?",
-        "Quais são os projetos?",
-        "Qual a formação acadêmica?",
-      ],
-    },
-    en: {
-      text: "Aster is a Frontend Developer focused on fluid interfaces, high performance, and clean architectures. He is currently in his 5th semester of Computer Science at UniAmérica, where he leads an academic community for collaborative projects and mentorship.\n\nHis engineering mindset combines low-level curiosity (rooted in reverse engineering and online game servers), physical discipline (training for an Ironman triathlon), and continuous language learning (Mandarin and Japanese).",
-      suggestions: [
-        "How did he start coding?",
-        "Ironman training?",
-        "What are his projects?",
-        "Education & Community?",
-      ],
-    },
-  },
-  REVERSE_ENGINEERING: {
-    pt: {
-      text: "A porta de entrada do Aster para a programação não foi convencional: começou configurando servidores de jogos online e dissecando executáveis via engenharia reversa para criar cheats.\n\nEssa exploração prática o forçou a entender desde muito cedo como a memória da máquina opera, como pacotes e fluxos de dados são interceptados e como as estruturas funcionam em baixo nível. Hoje, ele canaliza essa mentalidade analítica para construir aplicações web extremamente performáticas e seguras.",
-      suggestions: [
-        "Qual a stack atual?",
-        "Quais os projetos dele?",
-        "Quem é o Aster?",
-      ],
-    },
-    en: {
-      text: "Aster's entry into programming was hands-on: he started by configuring online game servers and dissecting binaries through reverse engineering to develop cheats.\n\nThis early exploration taught him machine memory structures, packet inspection, and low-level system logic. Today, he channels that sharp analytical edge into creating performant, rock-solid web applications.",
-      suggestions: [
-        "What is his tech stack?",
-        "Show projects",
-        "Who is Aster?",
-      ],
-    },
-  },
-  IRONMAN_TRIATHLON: {
-    pt: {
-      text: "Para além do código, o Aster aplica uma disciplina inegociável na vida real: treina com a meta de completar um triathlon Ironman (3.8 km de natação, 180 km de ciclismo e 42.2 km de corrida).\n\nEssa rotina de alta exigência reflete diretamente em sua atuação como engenheiro: consistência diária, foco em metas de longo prazo e resiliência diante de desafios complexos.",
-      suggestions: [
-        "Quem é o Aster?",
-        "Quais são os projetos?",
-        "Qual a stack técnica?",
-      ],
-    },
-    en: {
-      text: "Beyond code, Aster maintains rigorous discipline: he is actively training to complete an Ironman triathlon (3.8 km swim, 180 km bike, 42.2 km marathon run).\n\nThis endurance mindset directly informs his work as a software engineer: daily consistency, long-term focus, and grit when solving complex technical hurdles.",
-      suggestions: [
-        "Who is Aster?",
-        "What are his projects?",
-        "What is his tech stack?",
-      ],
-    },
-  },
-  TECH_STACK: {
-    pt: {
-      text: "A stack técnica do Aster é construída com foco em modernidade, velocidade e tipagem sólida:\n\n• Frontend: React, Next.js, Vue.js, Astro, TypeScript, JavaScript (ES6+), Tailwind CSS\n• Mobile & Sistemas: Flutter, Dart, React Native, C++\n• Backend & Infra: Node.js, SQL, Vercel, Cloudflare, Git/GitHub\n• Produtividade & PKM: Notion e Obsidian (fluxos de documentação e gestão do conhecimento)\n• Idiomas: Português (nativo), Inglês (avançado), Mandarim e Japonês (em aprendizado)",
-      suggestions: [
-        "Quais projetos usam essa stack?",
-        "Baixar Currículo",
-        "Ver Ideal Calc",
-      ],
-    },
-    en: {
-      text: "Aster's tech stack is centered on modernity, speed, and strict type safety:\n\n• Frontend: React, Next.js, Vue.js, Astro, TypeScript, JavaScript (ES6+), Tailwind CSS\n• Mobile & Systems: Flutter, Dart, React Native, C++\n• Backend & Infra: Node.js, SQL, Vercel, Cloudflare, Git/GitHub\n• Productivity & PKM: Notion and Obsidian\n• Human Languages: Portuguese (Native), English (Advanced), Mandarin & Japanese (Learning)",
-      suggestions: [
-        "Which projects use this stack?",
-        "Download Resume",
-        "Check Ideal Calc",
-      ],
-    },
-  },
-  PROJECTS_OVERVIEW: {
-    pt: {
-      text: "Aqui estão os principais projetos em destaque no portfólio:\n\n1. 📊 Ideal Calc: Calculadora estatística interativa cruzando 12 filtros demográficos com microdados oficiais do IBGE (Censo 2022 / PNAD 2023).\n2. 🎮 Soul Fighter: Memory Game: Jogo da memória temático de LoL com JavaScript vanilla e card-flip dinâmico.\n3. 📚 PEX Wiki: Hub de projetos acadêmicos e ODS da ONU para alunos de Ciência da Computação (SPA em Vanilla JS).\n4. 📱 Mobile Demo: Aplicação mobile em React Native.",
-      actions: [
-        { label: "Abrir Ideal Calc ↗", url: "https://idealcalc.app/" },
-        { label: "Jogar Soul Fighter ↗", url: "https://zastergun.github.io/Soul-Fighter-Memory-Game/" },
-        { label: "Visitar PEX Wiki ↗", url: "https://pex-wiki.vercel.app/" },
-      ],
-      suggestions: [
-        "Me fale sobre o Ideal Calc",
-        "Me fale sobre a PEX Wiki",
-        "Qual é a sua stack?",
-      ],
-    },
-    en: {
-      text: "Here are the featured projects highlighted in Aster's portfolio:\n\n1. 📊 Ideal Calc: Interactive demographic calculator crossing 12 filters with official Brazilian IBGE microdata.\n2. 🎮 Soul Fighter: Memory Game: LoL-themed card game built in vanilla JS with custom animations.\n3. 📚 PEX Wiki: Academic knowledge base for Computer Science students with UN SDG mapping (SPA in Vanilla JS).\n4. 📱 Mobile Demo: React Native mobile showcase application.",
-      actions: [
-        { label: "Open Ideal Calc ↗", url: "https://idealcalc.app/" },
-        { label: "Play Soul Fighter ↗", url: "https://zastergun.github.io/Soul-Fighter-Memory-Game/" },
-        { label: "Visit PEX Wiki ↗", url: "https://pex-wiki.vercel.app/" },
-      ],
-      suggestions: [
-        "Tell me about Ideal Calc",
-        "Tell me about PEX Wiki",
-        "What is his tech stack?",
-      ],
-    },
-  },
-  PROJECT_IDEAL_CALC: {
-    pt: {
-      text: "O Ideal Calc é uma aplicação estatística que processa microdados públicos do IBGE (Censo 2022 e PNAD Contínua 2023). Permite cruzar 12 variáveis simultâneas (faixa etária, escolaridade, renda, estado civil, região, etc.) para calcular a probabilidade real de encontrar um parceiro com determinadas características no Brasil.\n\nPossui cálculo em tempo real no cliente, geração de card viral para compartilhamento e metodologia auditável.",
-      actions: [
-        { label: "Acessar Ideal Calc ↗", url: "https://idealcalc.app/" },
-        { label: "Código no GitHub ↗", url: "https://github.com/zAstergun/ideal-calculator" },
-      ],
-      suggestions: [
-        "Ver outros projetos",
-        "Qual a stack do Aster?",
-        "Como entrar em contato?",
-      ],
-    },
-    en: {
-      text: "Ideal Calc is a statistical web application that processes official IBGE microdata (2022 Census & 2023 PNAD). It crosses 12 demographic variables simultaneously to calculate the probability of finding a partner with chosen traits in Brazil.\n\nFeatures client-side instant calculation, viral card generation, and audit-ready data sources.",
-      actions: [
-        { label: "Launch Ideal Calc ↗", url: "https://idealcalc.app/" },
-        { label: "GitHub Repository ↗", url: "https://github.com/zAstergun/ideal-calculator" },
-      ],
-      suggestions: [
-        "Show other projects",
-        "What is Aster's stack?",
-        "Contact info",
-      ],
-    },
-  },
-  PROJECT_SOUL_FIGHTER: {
-    pt: {
-      text: "O Soul Fighter: Memory Game é um jogo da memória web ambientado no torneio Soul Fighter de League of Legends. Foi construído com JavaScript Vanilla, empregando lógica de embaralhamento determinístico, flip cards 3D com CSS e design responsivo com identidade visual rica e imersiva.",
-      actions: [
-        { label: "Jogar Online ↗", url: "https://zastergun.github.io/Soul-Fighter-Memory-Game/" },
-        { label: "Código no GitHub ↗", url: "https://github.com/zAstergun/Soul-Fighter-Memory-Game" },
-      ],
-      suggestions: [
-        "Ver outros projetos",
-        "Fale sobre o Ideal Calc",
-        "Qual a stack do Aster?",
-      ],
-    },
-    en: {
-      text: "Soul Fighter: Memory Game is a browser game set in Riot Games' Soul Fighter universe. Built with pure Vanilla JavaScript, it implements shuffle algorithms, 3D card flips with CSS, and responsive styling matching the game's official visual aesthetic.",
-      actions: [
-        { label: "Play Game ↗", url: "https://zastergun.github.io/Soul-Fighter-Memory-Game/" },
-        { label: "GitHub Code ↗", url: "https://github.com/zAstergun/Soul-Fighter-Memory-Game" },
-      ],
-      suggestions: [
-        "Show other projects",
-        "Tell me about Ideal Calc",
-        "What is Aster's stack?",
-      ],
-    },
-  },
-  PROJECT_PEX_WIKI: {
-    pt: {
-      text: "A PEX Wiki é um hub acadêmico criado para os alunos de Ciência da Computação da UniAmérica. Centraliza a documentação dos Projetos de Extensão (PEX), alinhados aos 17 Objetivos de Desenvolvimento Sustentável (ODS) da ONU.\n\nDesenvolvido com roteamento SPA em Vanilla JS, tema 'Blurple Gamer' em Dark Mode e checklists interativos de conformidade.",
-      actions: [
-        { label: "Visitar PEX Wiki ↗", url: "https://pex-wiki.vercel.app/" },
-        { label: "Código no GitHub ↗", url: "https://github.com/zAstergun/pex-wiki" },
-      ],
-      suggestions: [
-        "O que o Aster faz na faculdade?",
-        "Ver outros projetos",
-        "Como entrar em contato?",
-      ],
-    },
-    en: {
-      text: "PEX Wiki is an academic platform built for Computer Science students at UniAmérica. It centralizes documentation for Extension Projects (PEX), aligned with the 17 UN Sustainable Development Goals (SDGs).\n\nBuilt as a fast SPA in Vanilla JS, featuring a 'Blurple Gamer' dark mode and interactive compliance checklists.",
-      actions: [
-        { label: "Visit PEX Wiki ↗", url: "https://pex-wiki.vercel.app/" },
-        { label: "GitHub Code ↗", url: "https://github.com/zAstergun/pex-wiki" },
-      ],
-      suggestions: [
-        "What does Aster do in college?",
-        "Show other projects",
-        "Contact info",
-      ],
-    },
-  },
-  PROJECT_MOBILE_DEMO: {
-    pt: {
-      text: "O App Mobile Demo é uma prova de conceito para mobile construída com React Native, explorando navegação por gestos, renderização otimizada de listas e consistência visual entre Android e iOS.",
-      actions: [
-        { label: "Código no GitHub ↗", url: "https://github.com/zAstergun/app-mobile-demo" },
-      ],
-      suggestions: [
-        "Ver outros projetos",
-        "Qual a stack técnica?",
-        "Baixar Currículo",
-      ],
-    },
-    en: {
-      text: "The App Mobile Demo is a mobile proof-of-concept crafted with React Native, exploring gesture-driven navigation, list rendering optimizations, and multi-platform consistency across Android and iOS.",
-      actions: [
-        { label: "GitHub Code ↗", url: "https://github.com/zAstergun/app-mobile-demo" },
-      ],
-      suggestions: [
-        "Show other projects",
-        "What is his tech stack?",
-        "Download Resume",
-      ],
-    },
-  },
-  BLOG_HACKATHONS: {
-    pt: {
-      text: "Na seção de Blog & Hackathons, o Aster documenta processos de engenharia, participações em maratonas de código, desafios e lições aprendidas em projetos colaborativos. A intenção é expor não apenas o código final, mas a tomada de decisão técnica.",
-      suggestions: [
-        "Quais são os projetos?",
-        "Qual a stack técnica?",
-        "Quem é o Aster?",
-      ],
-    },
-    en: {
-      text: "In the Blog & Hackathons section, Aster documents engineering decisions, hackathon sprints, coding challenges, and lessons learned in collaborative work. The goal is to highlight not just final code, but engineering problem solving.",
-      suggestions: [
-        "What are his projects?",
-        "What is his tech stack?",
-        "Who is Aster?",
-      ],
-    },
-  },
-  EDUCATION: {
-    pt: {
-      text: "O Aster está no 5º semestre de Ciência da Computação no Centro Universitário União das Américas (UniAmérica).\n\nAlém das disciplinas regulares, ele atua ativamente na governança técnica e liderança da comunidade acadêmica: coordena repositórios de projetos de extensão, padroniza documentações, revisa Pull Requests e auxilia no nivelamento técnico de outros estudantes.",
-      suggestions: [
-        "Quais são os projetos dele?",
-        "Baixar Currículo",
-        "Como entrar em contato?",
-      ],
-    },
-    en: {
-      text: "Aster is currently in his 5th semester of Computer Science at Centro Universitário União das Américas (UniAmérica).\n\nBeyond academics, he actively leads the student developer community: coordinating extension project repositories, establishing documentation standards, reviewing PRs, and mentoring fellow peers.",
-      suggestions: [
-        "What are his projects?",
-        "Download Resume",
-        "Contact info",
-      ],
-    },
-  },
-  RESUME_CV: {
-    pt: {
-      text: "Você pode conferir ou baixar o currículo completo do Aster nos formatos mais convenientes:\n\n• PDF (formatado para recrutadores)\n• DOCX (editável)\n• Markdown e JSON (estruturados)",
-      actions: [
-        { label: "Baixar PDF 📄", url: "/Currículo_Aster_Frontend.pdf", type: "download" },
-        { label: "Baixar DOCX 📘", url: "/Currículo_Aster_Frontend.docx", type: "download" },
-        { label: "Ver Markdown 📄", url: "/Currículo_Aster_Frontend.md", type: "download" },
-      ],
-      suggestions: [
-        "Qual é a stack técnica?",
-        "Quais são os projetos?",
-        "Como entrar em contato?",
-      ],
-    },
-    en: {
-      text: "You can download Aster's full resume in multiple formats:\n\n• PDF (tailored for recruiters)\n• DOCX (editable)\n• Markdown & JSON (structured data)",
-      actions: [
-        { label: "Download PDF 📄", url: "/Currículo_Aster_Frontend.pdf", type: "download" },
-        { label: "Download DOCX 📘", url: "/Currículo_Aster_Frontend.docx", type: "download" },
-        { label: "View Markdown 📄", url: "/Currículo_Aster_Frontend.md", type: "download" },
-      ],
-      suggestions: [
-        "What is his tech stack?",
-        "What are his projects?",
-        "Contact info",
-      ],
-    },
-  },
-  CONTACT_SOCIAL: {
-    pt: {
-      text: "Você pode se conectar com o Aster pelos seguintes canais oficiais:\n\n• GitHub: github.com/zAstergun\n• Email: hello@asterdev.me\n• LinkedIn: Disponível no app 'Sobre Mim' do celular",
-      actions: [
-        { label: "GitHub: zAstergun ↗", url: "https://github.com/zAstergun" },
-        { label: "Enviar Email ✉️", url: "mailto:hello@asterdev.me" },
-      ],
-      suggestions: [
-        "Baixar Currículo",
-        "Quais são os projetos?",
-        "Quem é o Aster?",
-      ],
-    },
-    en: {
-      text: "You can reach Aster through these official channels:\n\n• GitHub: github.com/zAstergun\n• Email: hello@asterdev.me\n• LinkedIn: Available in the 'About Me' phone app",
-      actions: [
-        { label: "GitHub: zAstergun ↗", url: "https://github.com/zAstergun" },
-        { label: "Send Email ✉️", url: "mailto:hello@asterdev.me" },
-      ],
-      suggestions: [
-        "Download Resume",
-        "What are his projects?",
-        "Who is Aster?",
-      ],
-    },
-  },
-  BOT_CAPABILITIES: {
-    pt: {
-      text: "Eu sou um assistente conversacional movido por um Classificador de Intenções Heurístico direto no seu navegador. Você pode me perguntar sobre:\n\n1. Trajetória e perfil do Aster (origem na engenharia reversa, Ironman, estudos)\n2. Projetos (Ideal Calc, Soul Fighter, PEX Wiki, Mobile Demo)\n3. Stack tecnológica e ferramentas\n4. Faculdade UniAmérica e liderança de comunidade\n5. Currículo e formas de contato",
-      suggestions: [
-        "Quem é o Aster?",
-        "Quais são os projetos?",
-        "Qual é a sua stack?",
-        "Como funciona o classificador?",
-      ],
-    },
-    en: {
-      text: "I am a client-side conversational assistant powered by a Heuristic Intent Classifier. You can ask me about:\n\n1. Aster's background (reverse engineering origins, Ironman, studies)\n2. Projects (Ideal Calc, Soul Fighter, PEX Wiki, Mobile Demo)\n3. Tech stack and tooling\n4. College & community leadership\n5. Resume and contact channels",
-      suggestions: [
-        "Who is Aster?",
-        "What are his projects?",
-        "What is his tech stack?",
-        "How does the classifier work?",
-      ],
-    },
-  },
-  HOW_CLASSIFIER_WORKS: {
-    pt: {
-      text: "Eu não dependo de chamadas para APIs externas ou servidores pesados! Fui construído com um Classificador de Intenções Heurístico em TypeScript puro executado 100% no cliente:\n\n1. 🔤 Normalização: Remoção de diacríticos/acentos, case folding e limpeza de pontuação.\n2. 🧩 Extração de N-Grams: Geração de uni-grams, bi-grams e tri-grams da frase.\n3. ⚖️ Matriz de Pesos: Combinação de padrões regex ponderados com palavras-chave de alta relevância e termos negativos de desambiguação.\n4. 🎯 Score e Confiança: Seleção determinística da melhor intenção com resposta instantânea (<1ms).",
-      suggestions: [
-        "Quem é o Aster?",
-        "Quais são os projetos?",
-        "Qual a stack técnica?",
-      ],
-    },
-    en: {
-      text: "I do not rely on remote external APIs or heavy servers! I was built with a pure TypeScript Heuristic Intent Classifier running 100% in your browser:\n\n1. 🔤 Normalization: Diacritics stripping, lowercasing, and punctuation cleanup.\n2. 🧩 N-Gram Extraction: Tokenization into unigrams, bigrams, and trigrams.\n3. ⚖️ Weight Matrix: Combining weighted regex patterns, domain keywords, and negative exclusion terms.\n4. 🎯 Deterministic Scoring: Selecting the best intent in <1ms latency.",
-      suggestions: [
-        "Who is Aster?",
-        "What are his projects?",
-        "What is his tech stack?",
-      ],
-    },
-  },
-  FAREWELL: {
-    pt: {
-      text: "Valeu por passar por aqui! Se precisar tirar mais dúvidas sobre o Aster ou os projetos, é só mandar mensagem. Até mais! 🚀",
-      suggestions: [
-        "Ver projetos",
-        "Baixar Currículo",
-        "Como entrar em contato?",
-      ],
-    },
-    en: {
-      text: "Thanks for stopping by! If you need any more info about Aster or his work, just message here. See you around! 🚀",
-      suggestions: [
-        "Show projects",
-        "Download Resume",
-        "Contact info",
-      ],
-    },
-  },
-  FALLBACK: {
-    pt: {
-      text: "Não consegui identificar com certeza o que você quis dizer, mas posso responder tudo sobre o Aster e os projetos dele! Tente escolher uma das opções abaixo ou formule a pergunta com outras palavras:",
-      suggestions: [
-        "Quem é o Aster?",
-        "Quais são os projetos?",
-        "Qual é a sua stack?",
-        "Como entrar em contato?",
-        "Baixar Currículo",
-      ],
-    },
-    en: {
-      text: "I couldn't quite match that with confidence, but I can answer everything about Aster and his work! Pick one of the topics below or ask with different words:",
-      suggestions: [
-        "Who is Aster?",
-        "What are his projects?",
-        "What is his tech stack?",
-        "How to contact him?",
-        "Download Resume",
-      ],
-    },
-  },
-};
 
 // ─── Core Classifier Function ─────────────────────────────────────────────
 
 export function classifyIntent(
   userInput: string,
-  lang: "pt" | "en" | string = "pt"
+  lang?: string
 ): ClassifierResult {
+  const targetLang = resolveBotLanguage(lang);
   const normalized = normalizeText(userInput);
 
   if (!normalized) {
-    const isEn = lang === "en";
-    const res = RESPONSES.GREETING[isEn ? "en" : "pt"];
+    const res = BOT_RESPONSES.GREETING[targetLang];
     return {
       intent: "GREETING",
       confidence: 1.0,
@@ -818,11 +680,11 @@ export function classifyIntent(
     let score = 0;
     const currentMatched: string[] = [];
 
-    // Check negative keywords (if matched, heavily penalize this intent)
+    // Check negative keywords (if matched, penalize this intent)
     if (def.negativeKeywords) {
       for (const neg of def.negativeKeywords) {
         const normNeg = normalizeText(neg);
-        if (tokenSet.has(normNeg)) {
+        if (tokenSet.has(normNeg) || normalized.includes(normNeg)) {
           score -= 4;
         }
       }
@@ -837,10 +699,10 @@ export function classifyIntent(
       }
     }
 
-    // Check weighted keywords / n-grams
+    // Check weighted keywords (exact token match or substring inclusion for CJK)
     for (const kw of def.keywords) {
       const normKw = normalizeText(kw.term);
-      if (tokenSet.has(normKw)) {
+      if (tokenSet.has(normKw) || normalized.includes(normKw)) {
         score += kw.weight;
         currentMatched.push(normKw);
       }
@@ -859,13 +721,12 @@ export function classifyIntent(
     bestIntent = "FALLBACK";
   }
 
-  // Calculate normalized confidence (clamped between 0.0 and 1.0)
+  // Normalized confidence (0.1 to 1.0)
   const confidence = Math.min(1.0, Math.max(0.1, Number((highestScore / 12).toFixed(2))));
 
-  // Resolve response by language
-  const isEn = lang === "en";
-  const localized = RESPONSES[bestIntent] || RESPONSES.FALLBACK;
-  const res = isEn ? localized.en : localized.pt;
+  // Get response in the user's active language
+  const localizedGroup = BOT_RESPONSES[bestIntent] || BOT_RESPONSES.FALLBACK;
+  const res = localizedGroup[targetLang] || localizedGroup.en || localizedGroup.br;
 
   return {
     intent: bestIntent,

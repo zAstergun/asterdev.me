@@ -1,5 +1,6 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { classifyIntent, type ClassifierResult } from "../utils/heuristicClassifier";
+import { resolveBotLanguage, BOT_UI_TRANSLATIONS } from "../utils/botI18n";
 
 export interface ChatMessage {
   id: string;
@@ -28,43 +29,41 @@ export function ChatBot({
   onAnimationEnd,
   origin,
   isDark = false,
-  language = "pt",
+  language = "br",
   ui,
 }: ChatBotProps) {
-  const isEn = language === "en";
+  const currentLang = useMemo(() => resolveBotLanguage(language), [language]);
+  const botUi = useMemo(
+    () => BOT_UI_TRANSLATIONS[currentLang] || BOT_UI_TRANSLATIONS.en,
+    [currentLang]
+  );
 
   const getInitialMessage = useCallback((): ChatMessage => {
     return {
       id: "welcome-msg",
       sender: "bot",
-      text: isEn
-        ? "Hello! 👋 I am AsterBot, Aster's virtual assistant.\n\nI can answer questions about his career, low-level reverse engineering origins, Ironman triathlon training, academic leadership, and projects like Ideal Calc, Soul Fighter, and PEX Wiki. How can I help you today?"
-        : "Olá! 👋 Sou o AsterBot, o assistente virtual do Aster.\n\nPosso tirar dúvidas sobre a trajetória dele, a origem na engenharia reversa, o treino para o Ironman, liderança acadêmica na UniAmérica e projetos como Ideal Calc, Soul Fighter e PEX Wiki. Sobre o que você gostaria de saber?",
+      text: botUi.welcomeMessage,
       timestamp: new Date().toLocaleTimeString(undefined, {
         hour: "2-digit",
         minute: "2-digit",
       }),
-      suggestions: isEn
-        ? [
-            "Who is Aster?",
-            "What are his projects?",
-            "What is his tech stack?",
-            "Download Resume",
-            "How to contact him?",
-          ]
-        : [
-            "Quem é o Aster?",
-            "Quais são os projetos?",
-            "Qual a sua stack?",
-            "Baixar Currículo",
-            "Como entrar em contato?",
-          ],
+      suggestions: botUi.initialSuggestions,
     };
-  }, [isEn]);
+  }, [botUi]);
 
   const [messages, setMessages] = useState<ChatMessage[]>(() => [getInitialMessage()]);
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+
+  // When language changes and only welcome message exists, update welcome message
+  useEffect(() => {
+    setMessages((prev) => {
+      if (prev.length <= 1 && prev[0]?.id === "welcome-msg") {
+        return [getInitialMessage()];
+      }
+      return prev;
+    });
+  }, [getInitialMessage]);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -113,7 +112,7 @@ export function ChatBot({
 
       // Natural conversational cadence delay (380ms)
       setTimeout(() => {
-        const result = classifyIntent(trimmed, language);
+        const result = classifyIntent(trimmed, currentLang);
 
         const botMsg: ChatMessage = {
           id: `bot-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
@@ -131,7 +130,7 @@ export function ChatBot({
         setIsTyping(false);
       }, 380);
     },
-    [isTyping, language]
+    [isTyping, currentLang]
   );
 
   const handleClearHistory = useCallback(() => {
@@ -148,6 +147,7 @@ export function ChatBot({
   return (
     <div
       className={containerClass}
+      dir={botUi.isRtl ? "rtl" : "ltr"}
       style={{
         willChange: "transform, opacity",
         transformOrigin: origin ? `${origin.x} ${origin.y}` : "50% 50%",
@@ -176,7 +176,7 @@ export function ChatBot({
               }`}
               aria-label={ui?.back || "Voltar"}
             >
-              ←
+              {botUi.isRtl ? "→" : "←"}
             </button>
           )}
 
@@ -194,7 +194,7 @@ export function ChatBot({
                 AsterBot
               </h2>
               <span className="px-1.5 py-0.5 rounded-full text-[9px] font-semibold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
-                Online
+                {botUi.statusOnline}
               </span>
             </div>
             <p
@@ -202,7 +202,7 @@ export function ChatBot({
                 isDark ? "text-stone-400" : "text-aster-dark/60"
               }`}
             >
-              {isEn ? "Heuristic Portfolio Assistant" : "Assistente Heurístico do Portfólio"}
+              {botUi.assistantTitle}
             </p>
           </div>
         </div>
@@ -212,7 +212,7 @@ export function ChatBot({
           <button
             type="button"
             onClick={handleClearHistory}
-            title={isEn ? "Clear conversation" : "Limpar conversa"}
+            title={botUi.clearButton}
             className={`px-2.5 py-1.5 rounded-xl text-xs font-medium transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
               isDark
                 ? "bg-stone-800/80 hover:bg-stone-700 text-stone-400 hover:text-stone-200"
@@ -220,7 +220,7 @@ export function ChatBot({
             }`}
           >
             <span className="text-xs">🔄</span>
-            <span className="hidden @tablet:inline">{isEn ? "Clear" : "Limpar"}</span>
+            <span className="hidden @tablet:inline">{botUi.clearButton}</span>
           </button>
 
           {isDesktop && (
@@ -363,11 +363,7 @@ export function ChatBot({
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             disabled={isTyping}
-            placeholder={
-              isEn
-                ? "Ask anything about Aster or his projects..."
-                : "Pergunte algo sobre o Aster ou projetos..."
-            }
+            placeholder={botUi.inputPlaceholder}
             className={`flex-1 px-3 py-1.5 text-xs @tablet:text-sm bg-transparent outline-none transition-colors duration-500 ${
               isDark
                 ? "text-stone-100 placeholder:text-stone-500"
@@ -385,7 +381,7 @@ export function ChatBot({
                 ? "bg-stone-700 text-stone-400"
                 : "bg-aster-dark/10 text-aster-dark/40"
             }`}
-            aria-label={isEn ? "Send message" : "Enviar mensagem"}
+            aria-label="Enviar"
           >
             <span className="-rotate-45 translate-x-0.5">🚀</span>
           </button>
