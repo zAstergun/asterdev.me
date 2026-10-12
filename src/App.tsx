@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ChatBot } from "./components/ChatBot";
 import {
   GRID_COLS,
   isDetailable,
@@ -973,9 +974,20 @@ export default function App() {
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      // Detail open on mobile — only Escape closes
+      // Don't intercept when user is typing inside an input or textarea
+      if (
+        document.activeElement?.tagName === "INPUT" ||
+        document.activeElement?.tagName === "TEXTAREA"
+      ) {
+        if (e.key === "Escape") {
+          (document.activeElement as HTMLElement)?.blur();
+        }
+        return;
+      }
+
+      // Detail open on mobile — only Escape closes (or Backspace if not in chatbot)
       if (selectedDetail && !isDesktop) {
-        if (e.key === "Escape" || e.key === "Backspace") {
+        if (e.key === "Escape" || (e.key === "Backspace" && selectedDetail.id !== "chatbot")) {
           e.preventDefault();
           closeDetail();
           return;
@@ -1146,22 +1158,45 @@ export default function App() {
         </div>
       )}
       
-      {/* Detail Panel as overlay (MOBILE ONLY) */}
+      {/* Detail Panel / ChatBot as overlay (MOBILE ONLY) */}
       {selectedDetail && !isDesktop && (
-        <DetailPanel
-          item={selectedDetail!}
-          onClose={closeDetail}
-          isDesktop={false}
-          isClosing={isClosing}
-          onAnimationEnd={
-            isClosing
-              ? () => { setSelectedDetail(null); setIsClosing(false); }
-              : undefined
-          }
-          origin={appOrigin}
-          isDark={isDark}
-          ui={ui}
-        />
+        selectedDetail.id === "chatbot" ? (
+          <ChatBot
+            onClose={closeDetail}
+            isDesktop={false}
+            isClosing={isClosing}
+            onAnimationEnd={
+              isClosing
+                ? () => {
+                    setSelectedDetail(null);
+                    setIsClosing(false);
+                  }
+                : undefined
+            }
+            origin={appOrigin}
+            isDark={isDark}
+            language={language}
+            ui={ui}
+          />
+        ) : (
+          <DetailPanel
+            item={selectedDetail!}
+            onClose={closeDetail}
+            isDesktop={false}
+            isClosing={isClosing}
+            onAnimationEnd={
+              isClosing
+                ? () => {
+                    setSelectedDetail(null);
+                    setIsClosing(false);
+                  }
+                : undefined
+            }
+            origin={appOrigin}
+            isDark={isDark}
+            ui={ui}
+          />
+        )
       )}
     </>
   );
@@ -1277,22 +1312,45 @@ export default function App() {
                   </p>
                 </div>
 
-                {/* DetailPanel — absolute overlay, covers the full screen */}
+                {/* DetailPanel / ChatBot — absolute overlay, covers the full screen */}
                 {selectedDetail && (
-                  <DetailPanel
-                    item={selectedDetail!}
-                    onClose={closeDetail}
-                    isDesktop
-                    isClosing={isClosing}
-                    onAnimationEnd={
-                      isClosing
-                        ? () => { setSelectedDetail(null); setIsClosing(false); }
-                        : undefined
-                    }
-                    origin={appOrigin}
-                    isDark={isDark}
-                    ui={ui}
-                  />
+                  selectedDetail.id === "chatbot" ? (
+                    <ChatBot
+                      onClose={closeDetail}
+                      isDesktop
+                      isClosing={isClosing}
+                      onAnimationEnd={
+                        isClosing
+                          ? () => {
+                              setSelectedDetail(null);
+                              setIsClosing(false);
+                            }
+                          : undefined
+                      }
+                      origin={appOrigin}
+                      isDark={isDark}
+                      language={language}
+                      ui={ui}
+                    />
+                  ) : (
+                    <DetailPanel
+                      item={selectedDetail!}
+                      onClose={closeDetail}
+                      isDesktop
+                      isClosing={isClosing}
+                      onAnimationEnd={
+                        isClosing
+                          ? () => {
+                              setSelectedDetail(null);
+                              setIsClosing(false);
+                            }
+                          : undefined
+                      }
+                      origin={appOrigin}
+                      isDark={isDark}
+                      ui={ui}
+                    />
+                  )
                 )}
               </div>
             </div>

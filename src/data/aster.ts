@@ -140,6 +140,8 @@ export type TranslationDict = {
     mobileName: string;
     demoName: string;
     demoSummary: string;
+    chatbotName?: string;
+    chatbotSummary?: string;
     tagStat: string;
     tagComp: string;
     tagCert: string;
@@ -156,7 +158,7 @@ export type TranslationDict = {
 export function getHomeItems(lang: Language, itemsText: TranslationDict["items"]): GridItem[] {
 
   const items: GridItem[] = [
-    // ─── Row 1: Sobre Mim · Blog · Certificações ───
+    // ─── Row 1: Sobre Mim · AsterBot · Blog ───
     {
       type: "app",
       id: "sobre-mim",
@@ -170,6 +172,21 @@ export function getHomeItems(lang: Language, itemsText: TranslationDict["items"]
         { title: "Email", url: "mailto:hello@asterdev.me", icon: "mail" },
       ],
       tags: ["Frontend", "Mobile", "UI/UX"],
+      lang,
+    },
+    {
+      type: "app",
+      id: "chatbot",
+      name: itemsText.chatbotName || "AsterBot",
+      icon: "🤖",
+      gradient: ["#6366f1", "#a855f7"],
+      summary:
+        itemsText.chatbotSummary ||
+        (lang === "en"
+          ? "Heuristic conversational assistant. Ask questions about Aster, his engineering journey, and projects."
+          : "Assistente conversacional com Classificador de Intenções Heurístico. Tire dúvidas sobre mim e meus projetos."),
+      links: [],
+      tags: ["Chatbot", "NLP", "IA"],
       lang,
     },
     {

@@ -45,6 +45,8 @@
     "mobileName": "Mobile",
     "demoName": "App Demo",
     "demoSummary": "Aplicação mobile de demonstração construída com React Native.",
+    "chatbotName": "AsterBot",
+    "chatbotSummary": "Assistente conversacional com Classificador de Intenções Heurístico. Tire dúvidas sobre mim e meus projetos.",
     "tagStat": "Estatística",
     "tagComp": "Competição",
     "tagCert": "Certificação",

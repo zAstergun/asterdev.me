@@ -45,6 +45,8 @@
     "mobileName": "Mobile",
     "demoName": "App Demo",
     "demoSummary": "Demo mobile application built with React Native.",
+    "chatbotName": "AsterBot",
+    "chatbotSummary": "Conversational assistant powered by a Heuristic Intent Classifier. Ask questions about Aster, his engineering journey, and projects.",
     "tagStat": "Statistics",
     "tagComp": "Competition",
     "tagCert": "Certification",
