@@ -2,7 +2,7 @@
 // Pure TypeScript client-side classifier with full support for 15 languages:
 // br, pt, en, es, fr, de, it, nl, ru, ar, jp, cn, kr, vn, id.
 
-import { resolveBotLanguage, BOT_RESPONSES, type BotLanguage } from "./botI18n";
+import { resolveBotLanguage, BOT_RESPONSES } from "./botI18n";
 
 export type IntentId =
   | "GREETING"

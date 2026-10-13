@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, memo } from "react";
 import { ChatBot } from "./components/ChatBot";
 import {
   GithubLogo,
@@ -15,9 +15,10 @@ import {
   FolderSimple,
   ArrowLeft,
   ArrowRight,
-  Sparkle,
   RocketLaunch,
   GraduationCap,
+  X,
+  ArrowCounterClockwise,
 } from "@phosphor-icons/react";
 import {
   GRID_COLS,
@@ -174,21 +175,43 @@ function buildVisualMap(
 // ─── Sub-components ──────────────────────────────────────────
 
 function StatusBar({ time, isDark }: { time: string; isDark: boolean }) {
+  const iconColor = isDark ? "#ffffff" : "#14131A";
+  const textColor = isDark ? "text-stone-100" : "text-aster-dark";
+
   return (
-    <div className={`status-bar flex items-center justify-between px-6 py-2 relative z-10 transition-colors duration-500 ${isDark ? 'bg-stone-900/80' : 'bg-aster-beige/80'}`}>
-      <span className={`text-xs font-semibold tracking-wide transition-colors duration-500 ${isDark ? 'text-stone-100' : 'text-aster-dark'}`}>
+    <div className="status-bar">
+      <span className={`text-[12px] font-bold tracking-tight transition-colors duration-500 ${textColor}`}>
         {time}
       </span>
-      <div className="flex items-center gap-1.5">
-        <div className={`w-4 h-2.5 border rounded-sm relative transition-colors duration-500 ${isDark ? 'border-stone-400' : 'border-aster-dark/60'}`}>
-          <div className={`absolute inset-[1px] right-[2px] rounded-[1px] transition-colors duration-500 ${isDark ? 'bg-stone-400' : 'bg-aster-dark/70'}`} />
-        </div>
+      <div className="status-symbols" aria-hidden="true">
+        {/* Wi-Fi Icon */}
+        <svg
+          viewBox="0 0 18 14"
+          fill="none"
+          className="w-[15px] h-[13px] transition-colors duration-500"
+          style={{ stroke: iconColor, strokeWidth: 1.4, strokeLinecap: "round", strokeLinejoin: "round" }}
+        >
+          <path d="M2 5.2a10 10 0 0 1 14 0M4.9 8a5.8 5.8 0 0 1 8.2 0M7.6 10.7a2 2 0 0 1 2.8 0" />
+          <circle cx="9" cy="12" r=".7" fill={iconColor} stroke="none" />
+        </svg>
+
+        {/* Battery Icon */}
+        <svg
+          viewBox="0 0 20 14"
+          fill="none"
+          className="w-[18px] h-[13px] transition-colors duration-500"
+          style={{ stroke: iconColor, strokeWidth: 1.4, strokeLinecap: "round", strokeLinejoin: "round" }}
+        >
+          <rect x="1" y="2" width="15.5" height="10" rx="2.2" />
+          <path d="M18 5v4" />
+          <rect x="3.2" y="4.1" width="10.7" height="5.8" rx="1" fill={iconColor} stroke="none" />
+        </svg>
       </div>
     </div>
   );
 }
 
-function GridIcon({
+const GridIcon = memo(function GridIcon({
   item,
   isFocused,
   onClick,
@@ -209,13 +232,7 @@ function GridIcon({
     <button
       type="button"
       onClick={onClick}
-      onMouseEnter={() => {
-        onHover();
-        if ('previewMedia' in item && item.previewMedia) {
-          const img = new Image();
-          img.src = item.previewMedia as string;
-        }
-      }}
+      onMouseEnter={onHover}
       className={`app-icon relative flex flex-col items-center gap-2 @tablet:gap-4 p-2 @tablet:p-4 rounded-2xl transition-all duration-200 cursor-pointer scroll-m-6 ${
         isFocused ? "focused" : ""
       } ${extraClassName ?? ""}`}
@@ -283,13 +300,39 @@ function GridIcon({
       </span>
     </button>
   );
+});
+
+function renderPhosphorLinkIcon(icon?: string) {
+  switch (icon) {
+    case "github":
+      return <GithubLogo weight="bold" className="w-5 h-5 shrink-0" />;
+    case "linkedin":
+      return <LinkedinLogo weight="bold" className="w-5 h-5 shrink-0" />;
+    case "mail":
+      return <EnvelopeSimple weight="bold" className="w-5 h-5 shrink-0" />;
+    case "file-pdf":
+      return <FilePdf weight="bold" className="w-5 h-5 shrink-0 text-rose-500" />;
+    case "file-word":
+      return <FileDoc weight="bold" className="w-5 h-5 shrink-0 text-sky-500" />;
+    case "file-text":
+      return <FileText weight="bold" className="w-5 h-5 shrink-0 text-amber-500" />;
+    case "file-code":
+      return <FileCode weight="bold" className="w-5 h-5 shrink-0 text-indigo-500" />;
+    case "users":
+      return <Users weight="bold" className="w-5 h-5 shrink-0" />;
+    case "external-link":
+      return <ArrowSquareOut weight="bold" className="w-5 h-5 shrink-0" />;
+    case "play":
+      return <Play weight="fill" className="w-5 h-5 shrink-0" />;
+    default:
+      return <LinkSimple weight="bold" className="w-5 h-5 shrink-0" />;
+  }
 }
 
 function PreviewVisual({
   src,
   alt,
   isDesktop,
-  isClosing,
 }: {
   src: string;
   alt: string;
@@ -300,16 +343,10 @@ function PreviewVisual({
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    if (isClosing) {
-      // Eager unmount: destroy media DOM the millisecond closing starts
-      setShouldRender(false);
-      setLoaded(false);
-    } else {
-      // Lazy mount: only create media after entry animation finishes (450ms)
-      const timer = setTimeout(() => setShouldRender(true), 450);
-      return () => clearTimeout(timer);
-    }
-  }, [isClosing]);
+    // Lazy mount after entry transition finishes
+    const timer = setTimeout(() => setShouldRender(true), 300);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div
@@ -332,6 +369,28 @@ function PreviewVisual({
       )}
     </div>
   );
+}
+
+function getCategoryTag(item: DetailableItem): string {
+  const map: Record<string, string> = {
+    "sobre-mim": "Perfil",
+    "chatbot": "Assistente",
+    "asterbot": "Assistente",
+    "blog": "Artigos",
+    "blog-placeholder": "Artigos",
+    "certificacoes": "Conquistas",
+    "cert-placeholder": "Conquistas",
+    "curriculo": "Documento",
+    "github": "Código",
+    "traducao": "Idiomas",
+    "frontend": "Stack",
+    "calc-dev": "Stack",
+    "soul-game": "Stack",
+    "pex-app": "Stack",
+    "mobile": "Apps",
+    "mobile-demo": "Apps",
+  };
+  return (map[item.id] || item.tags[0] || "Projeto").toUpperCase();
 }
 
 function DetailPanel({
@@ -357,7 +416,7 @@ function DetailPanel({
   const panelBg = isDark ? 'bg-stone-900' : 'bg-aster-beige';
   const panelText = isDark ? 'text-stone-100' : 'text-aster-dark';
   const panelFaint = isDark ? 'text-stone-500' : 'text-aster-dark/40';
-  // ui is passed or can be accessed differently... wait, DetailPanel doesn't receive ui as prop currently!
+  const categoryTag = getCategoryTag(item);
 
   const containerClass = isDesktop
     ? `detail-panel-desktop absolute inset-0 z-20 flex flex-col ${panelBg} overflow-hidden ${animClass} transition-colors duration-500`
@@ -371,29 +430,68 @@ function DetailPanel({
         transformOrigin: origin ? `${origin.x} ${origin.y}` : '50% 50%',
       }}
       key={item.id}
-      onAnimationEnd={onAnimationEnd}
+      onAnimationEnd={(e) => {
+        if (e.target !== e.currentTarget) return;
+        onAnimationEnd?.();
+      }}
     >
-      {/* Body — unified scroll area with title at top */}
-      <div
-        className={`flex-1 overflow-y-auto detail-scroll-area ${isDesktop ? "ipad-content-reveal" : ""} ${
-          isDesktop ? "px-20 py-10" : "px-6 @tablet:px-12 py-8 @tablet:py-10"
-        }`}
-      >
-        {/* Back button (mobile only) */}
-        {!isDesktop && (
+      {/* Top App Bar (Phone view) - follows FolderHeader pattern */}
+      {!isDesktop && (
+        <div className="flex items-center gap-2 @tablet:gap-3 px-5 @tablet:px-8 pt-12 pb-2 shrink-0">
           <button
             type="button"
             onClick={onClose}
-            className={`mb-6 w-8 h-8 @tablet:w-10 @tablet:h-10 rounded-full flex items-center justify-center transition-colors duration-500 cursor-pointer text-sm @tablet:text-base ${isDark ? 'bg-stone-600 text-stone-300 hover:bg-stone-600' : 'bg-aster-dark/10 text-aster-dark/60 hover:bg-aster-dark/20'}`}
-            aria-label={ui.back}
+            className={`w-7 h-7 @tablet:w-9 @tablet:h-9 rounded-full flex items-center justify-center transition-colors duration-500 cursor-pointer text-sm @tablet:text-base ${
+              isDark
+                ? "bg-stone-700 text-stone-400 hover:bg-stone-600"
+                : "bg-aster-dark/[0.06] text-aster-dark/50 hover:bg-aster-dark/10"
+            }`}
+            aria-label={ui?.back || "Voltar"}
           >
-            <ArrowLeft weight="bold" className="w-4 h-4 @tablet:w-5 @tablet:h-5" />
+            <ArrowLeft weight="bold" className="w-3.5 h-3.5 @tablet:w-4 @tablet:h-4" />
           </button>
-        )}
+          {isImageIcon(item.icon) ? (
+            <img
+              src={item.icon}
+              alt={item.name}
+              className="w-5 h-5 @tablet:w-7 @tablet:h-7 object-contain rounded-md"
+            />
+          ) : (
+            <div
+              className="w-5 h-5 @tablet:w-7 @tablet:h-7 rounded-md flex items-center justify-center text-xs text-white"
+              style={{ background: `linear-gradient(135deg, ${item.gradient[0]}, ${item.gradient[1]})` }}
+            >
+              {item.icon === "rocket" || item.icon === "🚀" ? (
+                <RocketLaunch weight="fill" className="w-3.5 h-3.5 text-white" />
+              ) : item.icon === "graduation" || item.icon === "🎓" ? (
+                <GraduationCap weight="fill" className="w-3.5 h-3.5 text-white" />
+              ) : (
+                <span>{item.icon}</span>
+              )}
+            </div>
+          )}
+          <h2 className={`text-sm @tablet:text-lg font-bold tracking-tight transition-colors duration-500 ${panelText}`}>
+            {item.name}
+          </h2>
+          <span className={`text-[10px] @tablet:text-sm font-mono tracking-wider uppercase font-semibold ml-auto transition-colors duration-500 ${panelFaint}`}>
+            {categoryTag}
+          </span>
+        </div>
+      )}
 
+      {/* Body — unified scroll area */}
+      <div
+        className={`flex-1 overflow-y-auto detail-scroll-area ${
+          isDesktop
+            ? "ipad-content-reveal px-16 @tablet:px-24 py-12 @tablet:py-16"
+            : "px-6 py-6"
+        }`}
+      >
         {/* Icon */}
         <div
-          className="relative w-24 h-24 @tablet:w-32 @tablet:h-32 rounded-[2rem] flex items-center justify-center shadow-md shrink-0 mb-6"
+          className={`relative rounded-[22.5%] flex items-center justify-center shadow-md shrink-0 mb-3 ${
+            isDesktop ? "w-28 h-28 @tablet:w-32 @tablet:h-32 mb-5" : "w-20 h-20"
+          }`}
           style={{
             background: `linear-gradient(135deg, ${item.gradient[0]}, ${item.gradient[1]})`,
           }}
@@ -402,30 +500,47 @@ function DetailPanel({
             <img
               src={item.icon}
               alt={item.name}
-              className="w-full h-full object-cover rounded-[2rem] drop-shadow-sm"
+              className="w-full h-full object-cover rounded-[22.5%] drop-shadow-sm"
             />
           ) : item.icon === "rocket" || item.icon === "🚀" ? (
-            <RocketLaunch weight="fill" className="w-12 h-12 @tablet:w-16 @tablet:h-16 text-white drop-shadow-sm" />
+            <RocketLaunch weight="fill" className={`text-white drop-shadow-sm ${isDesktop ? "w-14 h-14" : "w-10 h-10"}`} />
           ) : item.icon === "graduation" || item.icon === "🎓" ? (
-            <GraduationCap weight="fill" className="w-12 h-12 @tablet:w-16 @tablet:h-16 text-white drop-shadow-sm" />
+            <GraduationCap weight="fill" className={`text-white drop-shadow-sm ${isDesktop ? "w-14 h-14" : "w-10 h-10"}`} />
           ) : (
-            <span className="text-5xl @tablet:text-6xl drop-shadow-sm select-none">
+            <span className={`drop-shadow-sm select-none ${isDesktop ? "text-5xl" : "text-4xl"}`}>
               {item.icon}
             </span>
           )}
         </div>
 
+        {/* Category tag */}
+        <span className="text-[11px] @tablet:text-xs font-mono tracking-[0.2em] uppercase font-bold text-aster-accent mb-1 block">
+          {categoryTag}
+        </span>
+
         {/* Name */}
         <h2
-          className={`font-bold leading-tight transition-colors duration-500 ${panelText} ${
-            isDesktop ? "text-3xl mb-4" : "text-2xl @tablet:text-3xl mb-4"
+          className={`font-extrabold leading-tight tracking-tight transition-colors duration-500 mb-3 ${panelText} ${
+            isDesktop ? "text-4xl @tablet:text-5xl mb-4" : "text-2xl @tablet:text-3xl"
           }`}
         >
           {item.name}
         </h2>
 
         {/* Tags */}
-        <div className="flex flex-wrap gap-2 mb-10">
+        <div className="flex flex-wrap gap-1.5 mb-6">
+          {item.appUrl && (
+            <span
+              className={`tag-chip flex items-center gap-1.5 font-bold transition-colors duration-500 ${
+                isDark
+                  ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
+                  : "bg-emerald-50 text-emerald-700 border border-emerald-200"
+              }`}
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              Live App
+            </span>
+          )}
           {item.tags.map((tag) => (
             <span
               key={tag}
@@ -436,120 +551,72 @@ function DetailPanel({
           ))}
         </div>
 
-        {/* Links Section (Top) */}
-        {item.links.length > 0 && (
-          <>
-            <h3
-              className={`text-xs font-bold uppercase tracking-widest mb-4 transition-colors duration-500 ${panelFaint} ${
-                isDesktop ? "mt-2" : "mt-0"
-              }`}
-            >
-              Links
-            </h3>
-            <div
-              className={`grid gap-3 mb-10 ${
-                isDesktop ? "grid-cols-2 max-w-2xl" : "grid-cols-1 @tablet:grid-cols-2 @tablet:max-w-2xl"
-              }`}
-            >
-              {item.links.map((link) => {
-                const renderPhosphorLinkIcon = (icon?: string) => {
-                  switch (icon) {
-                    case "github":
-                      return <GithubLogo weight="bold" className="w-5 h-5 shrink-0" />;
-                    case "linkedin":
-                      return <LinkedinLogo weight="bold" className="w-5 h-5 shrink-0" />;
-                    case "mail":
-                      return <EnvelopeSimple weight="bold" className="w-5 h-5 shrink-0" />;
-                    case "file-pdf":
-                      return <FilePdf weight="bold" className="w-5 h-5 shrink-0 text-rose-500" />;
-                    case "file-word":
-                      return <FileDoc weight="bold" className="w-5 h-5 shrink-0 text-sky-500" />;
-                    case "file-text":
-                      return <FileText weight="bold" className="w-5 h-5 shrink-0 text-amber-500" />;
-                    case "file-code":
-                      return <FileCode weight="bold" className="w-5 h-5 shrink-0 text-indigo-500" />;
-                    case "users":
-                      return <Users weight="bold" className="w-5 h-5 shrink-0" />;
-                    case "external-link":
-                      return <ArrowSquareOut weight="bold" className="w-5 h-5 shrink-0" />;
-                    case "play":
-                      return <Play weight="fill" className="w-5 h-5 shrink-0" />;
-                    default:
-                      return <LinkSimple weight="bold" className="w-5 h-5 shrink-0" />;
-                  }
-                };
-
-                return (
-                  <a
-                    key={link.title}
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`flex items-center gap-3 @tablet:gap-4 px-5 @tablet:px-6 py-3.5 @tablet:py-4 rounded-xl border transition-colors duration-500 group ${
-                      isDark
-                        ? "bg-stone-700/60 border-stone-600 hover:bg-stone-700"
-                        : "bg-aster-beige-dark/60 border-aster-dark/[0.08] hover:bg-aster-beige-dark"
-                    }`}
-                  >
-                    <span className="text-base flex items-center justify-center">
-                      {isImageIcon(link.icon || "") ? (
-                        <img src={link.icon} alt={link.title} className="w-5 h-5 object-contain" />
-                      ) : (
-                        renderPhosphorLinkIcon(link.icon)
-                      )}
-                    </span>
-                    <span
-                      className={`text-sm @tablet:text-base font-medium group-hover:text-aster-accent transition-colors duration-500 ${
-                        isDark ? "text-stone-300" : "text-aster-dark/80"
-                      }`}
-                    >
-                      {link.title}
-                    </span>
-                    <span
-                      className={`ml-auto group-hover:text-aster-accent transition-colors duration-500 text-xs ${
-                        isDark ? "text-stone-600" : "text-aster-dark/30"
-                      }`}
-                    >
-                      <ArrowRight weight="bold" className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
-                    </span>
-                  </a>
-                );
-              })}
-            </div>
-          </>
-        )}
-
         {/* Resumo Section */}
-        <h3 className={`text-xs @tablet:text-sm font-bold uppercase tracking-widest mb-3 transition-colors duration-500 ${panelFaint}`}>
-          {ui.summary}
+        <h3 className={`text-xs @tablet:text-sm font-bold uppercase tracking-widest mb-2 transition-colors duration-500 ${panelFaint}`}>
+          {ui?.summary || "Resumo"}
         </h3>
         <p
-          className={`leading-relaxed transition-colors duration-500 ${isDark ? 'text-stone-300' : 'text-aster-dark/80'} ${
-            isDesktop ? "text-base mb-0" : "text-sm @tablet:text-base mb-8"
+          className={`leading-relaxed transition-colors duration-500 mb-6 ${isDark ? 'text-stone-300' : 'text-aster-dark/80'} ${
+            isDesktop ? "text-base max-w-2xl" : "text-xs @tablet:text-sm"
           } whitespace-pre-wrap`}
         >
           {item.summary}
         </p>
 
-        {/* Preview Visual — desktop */}
-        {isDesktop && item.previewMedia && (
-          <>
-            <h3 className={`text-xs font-bold uppercase tracking-widest mb-4 mt-8 transition-colors duration-500 ${panelFaint}`}>
-              Preview
+        {/* Links Section */}
+        {item.links.length > 0 && (
+          <div className="mb-6">
+            <h3 className={`text-xs font-bold uppercase tracking-widest mb-3 transition-colors duration-500 ${panelFaint}`}>
+              Links
             </h3>
-            <PreviewVisual
-              src={item.previewMedia}
-              alt={`Preview de ${item.name}`}
-              isDesktop={isDesktop}
-              isClosing={isClosing}
-            />
-          </>
+            <div
+              className={`grid gap-2.5 ${
+                isDesktop ? "grid-cols-2 max-w-2xl" : "grid-cols-1"
+              }`}
+            >
+              {item.links.map((link) => (
+                <a
+                  key={link.title}
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition-colors duration-500 group ${
+                    isDark
+                      ? "bg-stone-700/60 border-stone-600 hover:bg-stone-700"
+                      : "bg-aster-beige-dark/60 border-aster-dark/[0.08] hover:bg-aster-beige-dark"
+                  }`}
+                >
+                  <span className="text-base flex items-center justify-center">
+                    {isImageIcon(link.icon || "") ? (
+                      <img src={link.icon} alt={link.title} className="w-5 h-5 object-contain" />
+                    ) : (
+                      renderPhosphorLinkIcon(link.icon)
+                    )}
+                  </span>
+                  <span
+                    className={`text-xs @tablet:text-sm font-medium group-hover:text-aster-accent transition-colors duration-500 ${
+                      isDark ? "text-stone-300" : "text-aster-dark/80"
+                    }`}
+                  >
+                    {link.title}
+                  </span>
+                  <span
+                    className={`ml-auto group-hover:text-aster-accent transition-colors duration-500 text-xs ${
+                      isDark ? "text-stone-600" : "text-aster-dark/30"
+                    }`}
+                  >
+                    <ArrowRight weight="bold" className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                  </span>
+                </a>
+              ))}
+            </div>
+          </div>
         )}
 
-        {/* Preview Visual — mobile */}
-        {!isDesktop && item.previewMedia && (
-          <>
-            <h3 className={`text-xs font-bold uppercase tracking-widest mb-4 mt-8 transition-colors duration-500 ${panelFaint}`}>
+        {/* Preview Visual */}
+        {item.previewMedia && (
+          <div className="mb-6">
+            <h3 className={`text-xs font-bold uppercase tracking-widest mb-3 transition-colors duration-500 ${panelFaint}`}>
               Preview
             </h3>
             <PreviewVisual
@@ -558,38 +625,261 @@ function DetailPanel({
               isDesktop={isDesktop}
               isClosing={isClosing}
             />
-          </>
+          </div>
         )}
       </div>
 
       {/* Divisória minimalista */}
-      <div className={`w-full ${isDesktop ? 'px-12 pt-1' : 'px-6 pt-1 pb-3'} shrink-0 transition-colors duration-500 ${panelBg}`}>
+      <div className={`w-full ${isDesktop ? 'px-12 pt-1' : 'px-6 pt-1 pb-1'} shrink-0 transition-colors duration-500 ${panelBg}`}>
         <div className={`w-full h-[1px] transition-colors duration-500 ${isDark ? 'bg-stone-700' : 'bg-aster-dark/[0.08]'}`} />
       </div>
 
-      {/* iPad physical home button (desktop) */}
+      {/* iPad physical circular home button (desktop tablet) */}
       {isDesktop && (
-        <div className={`relative flex justify-center py-5 transition-colors duration-500 ${panelBg}`}>
-          {/* Textura inferior (Bevel/Gradient) */}
-          <div className={`absolute inset-0 pointer-events-none transition-colors duration-500 ${isDark ? 'bg-gradient-to-t from-black/80 to-transparent' : 'bg-gradient-to-t from-black/10 to-transparent'}`} />
-          
+        <div className={`relative flex justify-center py-4 shrink-0 transition-colors duration-500 ${panelBg}`}>
+          <div
+            className={`absolute inset-0 pointer-events-none transition-colors duration-500 ${
+              isDark
+                ? "bg-gradient-to-t from-black/80 to-transparent"
+                : "bg-gradient-to-t from-black/10 to-transparent"
+            }`}
+          />
           <button
             type="button"
             onClick={onClose}
-            className={`home-btn relative z-10 w-14 h-14 rounded-full flex items-center justify-center cursor-pointer transition-all duration-500 ${isDark ? 'bg-stone-900/50 border border-stone-700 shadow-[inset_0_4px_8px_rgba(0,0,0,0.6)] hover:bg-stone-800' : 'bg-black/[0.02] border border-aster-dark/10 shadow-[inset_0_3px_6px_rgba(0,0,0,0.08)] hover:bg-black/[0.04]'}`}
-            aria-label={ui.homeButton}
-          >
-          </button>
+            className={`home-btn relative z-10 w-12 h-12 rounded-full flex items-center justify-center cursor-pointer transition-all duration-500 ${
+              isDark
+                ? "bg-stone-900/50 border border-stone-700 shadow-[inset_0_4px_8px_rgba(0,0,0,0.6)] hover:bg-stone-800"
+                : "bg-black/[0.02] border border-aster-dark/10 shadow-[inset_0_3px_6px_rgba(0,0,0,0.08)] hover:bg-black/[0.04]"
+            }`}
+            aria-label={ui?.homeButton || "Botão Home"}
+          />
         </div>
       )}
 
-      {/* Bottom safe area with texture (mobile) */}
+      {/* Bottom bar pill (phone only) */}
       {!isDesktop && (
-        <div className={`relative h-20 w-full transition-colors duration-500 ${panelBg}`}>
-          {/* Textura inferior (Bevel/Gradient) */}
-          <div className={`absolute inset-0 pointer-events-none transition-colors duration-500 ${isDark ? 'bg-gradient-to-t from-black/80 to-transparent' : 'bg-gradient-to-t from-black/10 to-transparent'}`} />
+        <div className={`shrink-0 flex justify-center pb-2.5 pt-1 transition-colors duration-500 ${panelBg}`}>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Voltar ao início"
+            className="group py-1 px-4 cursor-pointer"
+          >
+            <div className={`w-28 h-1 rounded-full transition-colors duration-500 group-hover:bg-aster-accent/60 ${isDark ? 'bg-white/20' : 'bg-aster-dark/20'}`} />
+          </button>
         </div>
       )}
+    </div>
+  );
+}
+
+interface LiveAppFrameProps {
+  item: DetailableItem;
+  onClose: () => void;
+  isClosing?: boolean;
+  onAnimationEnd?: () => void;
+  origin?: { x: string; y: string };
+  isDark: boolean;
+  ui?: any;
+}
+
+function LiveAppFrame({
+  item,
+  onClose,
+  isClosing,
+  onAnimationEnd,
+  origin,
+  isDark,
+  ui,
+}: LiveAppFrameProps) {
+  const [iframeKey, setIframeKey] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const animClass = isClosing ? "animate-ipadAppClose" : "animate-ipadAppOpen";
+  const panelBg = isDark ? "bg-stone-900" : "bg-aster-beige";
+  const panelText = isDark ? "text-stone-100" : "text-aster-dark";
+  const panelFaint = isDark ? "text-stone-400" : "text-aster-dark/50";
+  const barBorder = isDark ? "border-stone-800" : "border-aster-dark/[0.08]";
+  const pillBg = isDark
+    ? "bg-stone-800/90 border-stone-700/80 text-stone-200"
+    : "bg-white/80 border-black/[0.08] text-stone-800";
+
+  const appUrl = item.appUrl || "#";
+  const hostname = useMemo(() => {
+    try {
+      return new URL(appUrl).hostname;
+    } catch {
+      return appUrl;
+    }
+  }, [appUrl]);
+
+  return (
+    <div
+      className={`detail-panel-desktop absolute inset-0 z-20 flex flex-col ${panelBg} overflow-hidden ${animClass} transition-colors duration-500`}
+      style={{
+        willChange: "transform, opacity",
+        transformOrigin: origin ? `${origin.x} ${origin.y}` : "50% 50%",
+      }}
+      key={item.id}
+      onAnimationEnd={(e) => {
+        if (e.target !== e.currentTarget) return;
+        onAnimationEnd?.();
+      }}
+    >
+      {/* iPad Top Window Bar / Browser Header */}
+      <div
+        className={`flex items-center justify-between gap-3 px-5 py-3 shrink-0 border-b ${barBorder} select-none transition-colors duration-500`}
+      >
+        {/* Left: Close button + App Icon & Name */}
+        <div className="flex items-center gap-3 min-w-0">
+          <button
+            type="button"
+            onClick={onClose}
+            className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer ${
+              isDark
+                ? "bg-stone-800 text-stone-400 hover:bg-stone-700 hover:text-white"
+                : "bg-aster-dark/[0.06] text-aster-dark/60 hover:bg-aster-dark/12 hover:text-aster-dark"
+            }`}
+            aria-label={ui?.back || "Voltar"}
+            title={ui?.back || "Voltar"}
+          >
+            <ArrowLeft weight="bold" className="w-4 h-4" />
+          </button>
+
+          <div className="flex items-center gap-2.5 min-w-0">
+            {isImageIcon(item.icon) ? (
+              <img
+                src={item.icon}
+                alt={item.name}
+                className="w-6 h-6 object-contain rounded-md shrink-0 shadow-sm"
+              />
+            ) : (
+              <div
+                className="w-6 h-6 rounded-md flex items-center justify-center text-xs text-white shrink-0 shadow-sm"
+                style={{
+                  background: `linear-gradient(135deg, ${item.gradient[0]}, ${item.gradient[1]})`,
+                }}
+              >
+                {item.icon === "rocket" || item.icon === "🚀" ? (
+                  <RocketLaunch weight="fill" className="w-3.5 h-3.5 text-white" />
+                ) : item.icon === "graduation" || item.icon === "🎓" ? (
+                  <GraduationCap weight="fill" className="w-3.5 h-3.5 text-white" />
+                ) : (
+                  <span>{item.icon}</span>
+                )}
+              </div>
+            )}
+            <span className={`text-sm font-bold tracking-tight truncate ${panelText}`}>
+              {item.name}
+            </span>
+          </div>
+        </div>
+
+        {/* Center: Address Bar Pill */}
+        <div
+          className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full border text-xs font-mono shadow-sm max-w-sm w-full justify-center mx-2 ${pillBg}`}
+        >
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+          <span className="truncate tracking-wide">{hostname}</span>
+          <span
+            className={`text-[10px] px-1.5 py-0.5 rounded uppercase font-bold tracking-wider shrink-0 ${
+              isDark ? "bg-emerald-500/15 text-emerald-400" : "bg-emerald-600/10 text-emerald-700"
+            }`}
+          >
+            Live
+          </span>
+        </div>
+
+        {/* Right: Actions (Reload, Open in New Tab, Close) */}
+        <div className="flex items-center gap-1.5 shrink-0">
+          <button
+            type="button"
+            onClick={() => {
+              setIsLoading(true);
+              setIframeKey((k) => k + 1);
+            }}
+            className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer ${
+              isDark
+                ? "bg-stone-800 text-stone-400 hover:bg-stone-700 hover:text-white"
+                : "bg-aster-dark/[0.06] text-aster-dark/60 hover:bg-aster-dark/12 hover:text-aster-dark"
+            }`}
+            title="Recarregar aplicativo"
+            aria-label="Recarregar"
+          >
+            <ArrowCounterClockwise
+              weight="bold"
+              className={`w-4 h-4 ${isLoading ? "animate-spin text-aster-accent" : ""}`}
+            />
+          </button>
+
+          <a
+            href={appUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer ${
+              isDark
+                ? "bg-stone-800 text-stone-400 hover:bg-stone-700 hover:text-white"
+                : "bg-aster-dark/[0.06] text-aster-dark/60 hover:bg-aster-dark/12 hover:text-aster-dark"
+            }`}
+            title="Abrir em nova aba"
+            aria-label="Abrir em nova aba"
+          >
+            <ArrowSquareOut weight="bold" className="w-4 h-4" />
+          </a>
+
+          <button
+            type="button"
+            onClick={onClose}
+            className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer ${
+              isDark
+                ? "bg-stone-800 text-stone-400 hover:bg-red-500/20 hover:text-red-400"
+                : "bg-aster-dark/[0.06] text-aster-dark/60 hover:bg-red-500/10 hover:text-red-600"
+            }`}
+            title="Fechar aplicativo"
+            aria-label="Fechar"
+          >
+            <X weight="bold" className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+
+      {/* Main App Canvas / Iframe */}
+      <div className="flex-1 relative w-full h-full overflow-hidden bg-black/5 dark:bg-black/30">
+        {isLoading && (
+          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 backdrop-blur-sm pointer-events-none transition-opacity duration-300">
+            <div className="w-8 h-8 border-2 border-aster-accent/20 border-t-aster-accent rounded-full animate-spin" />
+            <span className={`text-xs font-mono tracking-wider ${panelFaint}`}>
+              Carregando {item.name}...
+            </span>
+          </div>
+        )}
+
+        <iframe
+          key={iframeKey}
+          src={appUrl}
+          title={item.name}
+          className="w-full h-full border-0 select-auto"
+          sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-downloads"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          onLoad={() => setIsLoading(false)}
+        />
+      </div>
+
+      {/* iPad Bottom Home Indicator Bar */}
+      <div className={`relative flex justify-center py-2 shrink-0 border-t ${barBorder} ${panelBg}`}>
+        <button
+          type="button"
+          onClick={onClose}
+          className="group py-1 px-8 cursor-pointer"
+          aria-label={ui?.homeButton || "Fechar"}
+        >
+          <div
+            className={`w-32 h-1 rounded-full transition-colors duration-300 group-hover:bg-aster-accent ${
+              isDark ? "bg-white/20" : "bg-aster-dark/20"
+            }`}
+          />
+        </button>
+      </div>
     </div>
   );
 }
@@ -610,27 +900,31 @@ function HomeButton({ onClick, isDark }: { onClick: () => void; isDark: boolean 
 
 function KeyHint({ isDesktop, isDark, ui }: { isDesktop: boolean; isDark: boolean; ui: any }) {
   if (!isDesktop) return null;
+
+  const kbdBg = isDark ? "bg-[#181725]" : "bg-[#FBF8F0]";
+  const kbdBorder = isDark ? "border-[#2A2840]" : "border-[#E3DCC8]";
+  const kbdText = isDark ? "text-[#F2EFFA]" : "text-[#14131A]";
+  const labelColor = isDark ? "text-[#A8A3BC]" : "text-[#6B6657]";
+
   return (
-    <div className="flex items-center justify-center gap-3 py-2 animate-fade-in">
+    <div className={`flex items-center justify-center gap-1.5 py-2.5 transition-colors duration-500 text-[10.5px] ${labelColor} select-none`}>
       <div className="flex gap-1">
         {["W", "A", "S", "D"].map((key) => (
           <kbd
             key={key}
-            className={`w-5 h-5 rounded text-[9px] font-mono font-bold flex items-center justify-center border transition-colors duration-500 ${isDark ? 'bg-stone-700 text-stone-400 border-stone-600' : 'bg-aster-beige-dark/20 text-aster-dark/40 border-aster-dark/10'}`}
+            className={`min-w-[20px] h-5 px-1 rounded-[5px] text-[10px] font-mono font-bold flex items-center justify-center border border-b-2 transition-colors duration-500 ${kbdBg} ${kbdBorder} ${kbdText}`}
           >
             {key}
           </kbd>
         ))}
       </div>
-      <span className={`text-[9px] font-medium transition-colors duration-500 ${isDark ? 'text-stone-500' : 'text-aster-dark/30'}`}>
-        {ui.navigate}
-      </span>
-      <kbd className={`px-2 h-5 rounded text-[9px] font-mono font-bold flex items-center justify-center border transition-colors duration-500 ${isDark ? 'bg-stone-700 text-stone-400 border-stone-600' : 'bg-aster-dark/[0.08] text-aster-dark/40 border-aster-dark/10'}`}>
+      <span className="ml-0.5">{ui.navigate}</span>
+      <kbd
+        className={`px-1.5 h-5 rounded-[5px] text-[10px] font-mono font-bold flex items-center justify-center border border-b-2 transition-colors duration-500 ml-1.5 ${kbdBg} ${kbdBorder} ${kbdText}`}
+      >
         Enter
       </kbd>
-      <span className={`text-[9px] font-medium transition-colors duration-500 ${isDark ? 'text-stone-500' : 'text-aster-dark/30'}`}>
-        {ui.open}
-      </span>
+      <span className="ml-0.5">{ui.open}</span>
     </div>
   );
 }
@@ -642,7 +936,7 @@ function SplashScreen({ isBooting, ui }: { isBooting: boolean; ui: any }) {
         isBooting ? "opacity-100" : "opacity-0 pointer-events-none"
       }`}
     >
-      <Sparkle weight="fill" className="w-12 h-12 text-aster-accent mb-6" />
+      <span className="text-5xl text-aster-dark select-none mb-6">✦</span>
       <div className="w-5 h-5 border-[3px] border-aster-dark/20 border-t-aster-dark rounded-full animate-spin" />
       <p className="text-[10px] font-mono tracking-[0.2em] text-aster-dark/40 uppercase mt-6 animate-pulse">
         {ui.booting}
@@ -713,8 +1007,10 @@ function FolderHeader({
 export default function App() {
   const [isBooting, setIsBooting] = useState(true);
   const [focusedIndex, setFocusedIndex] = useState(0);
-  const [selectedDetail, setSelectedDetail] = useState<DetailableItem | null>(null);
-  const [isClosing, setIsClosing] = useState(false);
+  const [phoneDetail, setPhoneDetail] = useState<DetailableItem | null>(null);
+  const [isPhoneClosing, setIsPhoneClosing] = useState(false);
+  const [tabletDetail, setTabletDetail] = useState<DetailableItem | null>(null);
+  const [isTabletClosing, setIsTabletClosing] = useState(false);
   const [openFolder, setOpenFolder] = useState<FolderItem | null>(null);
   const [appOrigin, setAppOrigin] = useState({ x: "50%", y: "50%" });
   const [isDark, setIsDark] = useState(false);
@@ -793,13 +1089,14 @@ export default function App() {
   // Update Title and HTML Lang
   useEffect(() => {
     const baseTitle = "Aster Dev · Portfolio";
-    if (selectedDetail) {
-      document.title = `${baseTitle} | ${selectedDetail.name}`;
+    const currentDetail = phoneDetail || tabletDetail;
+    if (currentDetail) {
+      document.title = `${baseTitle} | ${currentDetail.name}`;
     } else {
       document.title = baseTitle;
     }
     document.documentElement.lang = language;
-  }, [selectedDetail, language]);
+  }, [phoneDetail, tabletDetail, language]);
 
   // Update URL when language changes
   const changeLanguage = useCallback(async (newLang: Language) => {
@@ -832,11 +1129,13 @@ export default function App() {
   const textFaint = isDark ? 'text-stone-500' : 'text-aster-dark/40';
 
   // ─── Deep Linking ──────────────────────────────────────────
+  const initialDeepLinkHandled = useRef(false);
   useEffect(() => {
+    if (initialDeepLinkHandled.current) return;
     const params = new URLSearchParams(window.location.search);
     const appId = params.get("app");
 
-    if (appId) {
+    if (appId && HOME_ITEMS.length > 0) {
       let foundItem: DetailableItem | null = null;
       let parentFolder: FolderItem | null = null;
       let foundIndex = 0;
@@ -869,11 +1168,12 @@ export default function App() {
           setOpenFolder(parentFolder);
         }
         setFocusedIndex(foundIndex);
-        setSelectedDetail(foundItem);
+        setPhoneDetail(foundItem);
+        setTabletDetail(foundItem);
+        initialDeepLinkHandled.current = true;
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [HOME_ITEMS]);
 
   // ─── Language Change Sync ─────────────────────────────────
   useEffect(() => {
@@ -883,24 +1183,24 @@ export default function App() {
       return newFolder && isFolder(newFolder) ? newFolder : prev;
     });
 
-    setSelectedDetail((prev) => {
+    const updateItemLanguage = (prev: DetailableItem | null) => {
       if (!prev) return null;
-      let newDetail: DetailableItem | null = null;
       for (const item of HOME_ITEMS) {
         if (item.id === prev.id && isDetailable(item)) {
-          newDetail = item;
-          break;
+          return item;
         }
         if (isFolder(item)) {
           const child = item.children.find((c) => c.id === prev.id);
           if (child && isDetailable(child)) {
-            newDetail = child as DetailableItem;
-            break;
+            return child as DetailableItem;
           }
         }
       }
-      return newDetail || prev;
-    });
+      return prev;
+    };
+
+    setPhoneDetail(updateItemLanguage);
+    setTabletDetail(updateItemLanguage);
   }, [HOME_ITEMS]);
 
   /** Items currently visible in the phone grid */
@@ -928,7 +1228,7 @@ export default function App() {
   useEffect(() => {
     const focusedEl = document.querySelector('.app-icon.focused');
     if (focusedEl) {
-      focusedEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      focusedEl.scrollIntoView({ behavior: 'auto', block: 'nearest' });
     }
   }, [safeFocusedIndex]);
 
@@ -949,11 +1249,25 @@ export default function App() {
     setOpenFolder(null);
   }, [openFolder, HOME_ITEMS]);
 
-  const closeDetail = useCallback(() => {
-    setIsClosing(true);
-    // Limpa o parâmetro da URL silenciosamente sem recarregar a página
-    window.history.replaceState({}, '', window.location.pathname);
-  }, []);
+  const closePhoneDetail = useCallback(() => {
+    setIsPhoneClosing(true);
+    if (!isDesktop) {
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+  }, [isDesktop]);
+
+  const closeTabletDetail = useCallback(() => {
+    setIsTabletClosing(true);
+    if (!phoneDetail) {
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+  }, [phoneDetail]);
 
   const activateItem = useCallback(
     (item: GridItem, index: number, e?: React.MouseEvent) => {
@@ -982,27 +1296,31 @@ export default function App() {
         return;
       }
       if (isDetailable(item)) {
-        // Calculate transform origin from the clicked icon's centre
-        if (e && e.currentTarget) {
-          const rect = e.currentTarget.getBoundingClientRect();
+        // Calculate transform origin from the clicked icon's centre relative to screen container
+        const el = (e?.currentTarget as HTMLElement) || document.querySelector('.app-icon.focused');
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          const container = containerRef.current || document.body;
+          const cRect = container.getBoundingClientRect();
+          const originX = ((rect.left + rect.width / 2 - cRect.left) / cRect.width) * 100;
+          const originY = ((rect.top + rect.height / 2 - cRect.top) / cRect.height) * 100;
           setAppOrigin({
-            x: `${rect.left + rect.width / 2}px`,
-            y: `${rect.top + rect.height / 2}px`,
+            x: `${originX.toFixed(1)}%`,
+            y: `${originY.toFixed(1)}%`,
           });
         } else {
           setAppOrigin({ x: "50%", y: "50%" });
         }
 
-        // Toggle with animation: if already open, trigger close animation
-        setSelectedDetail((prev) => {
-          if (prev && prev.id === item.id) {
-            setIsClosing(true);
-            window.history.replaceState({}, '', window.location.pathname);
-            return prev; // keep prev so DetailPanel stays mounted during animation
-          }
-          window.history.replaceState({}, '', `${window.location.pathname}?app=${item.id}`);
-          return item;
-        });
+        window.history.replaceState({}, '', `${window.location.pathname}?app=${item.id}`);
+
+        // Open in phone
+        setPhoneDetail(item);
+        setIsPhoneClosing(false);
+
+        // Open in tablet
+        setTabletDetail(item);
+        setIsTabletClosing(false);
       }
     },
     [changeLanguage]
@@ -1024,10 +1342,10 @@ export default function App() {
       }
 
       // Detail open on mobile — only Escape closes (or Backspace if not in chatbot)
-      if (selectedDetail && !isDesktop) {
-        if (e.key === "Escape" || (e.key === "Backspace" && selectedDetail.id !== "chatbot")) {
+      if (phoneDetail && !isDesktop) {
+        if (e.key === "Escape" || (e.key === "Backspace" && phoneDetail.id !== "chatbot")) {
           e.preventDefault();
-          closeDetail();
+          closePhoneDetail();
           return;
         }
 
@@ -1042,14 +1360,16 @@ export default function App() {
         return;
       }
 
-      // Detail open on desktop — Escape closes detail
-      if (selectedDetail && isDesktop) {
-        if (e.key === "Escape") {
-          e.preventDefault();
-          closeDetail();
-          return;
+      // Escape on desktop — closes phone detail and tablet detail
+      if (isDesktop && e.key === "Escape") {
+        e.preventDefault();
+        if (phoneDetail) {
+          closePhoneDetail();
         }
-        // On desktop, allow grid nav even with detail open
+        if (tabletDetail) {
+          closeTabletDetail();
+        }
+        return;
       }
 
       const total = currentItems.length;
@@ -1106,7 +1426,8 @@ export default function App() {
       }
     },
     [
-      selectedDetail,
+      phoneDetail,
+      tabletDetail,
       isDesktop,
       currentItems,
       activeCols,
@@ -1114,7 +1435,8 @@ export default function App() {
       visualToLogical,
       safeFocusedIndex,
       openFolder,
-      closeDetail,
+      closePhoneDetail,
+      closeTabletDetail,
       activateItem,
       goBackFromFolder,
     ]
@@ -1129,10 +1451,18 @@ export default function App() {
 
   const phoneContent = (
     <>
+      {/* Dynamic Island */}
+      <div className="phone-island" aria-hidden="true"><span /></div>
+
       <StatusBar time={time} isDark={isDark} />
 
-      {/* Header / Folder header */}
-      {openFolder ? (
+      <div
+        className={`home-view flex-1 flex flex-col ${
+          phoneDetail && !isPhoneClosing ? "away" : ""
+        }`}
+      >
+        {/* Header / Folder header */}
+        {openFolder ? (
         <FolderHeader folder={openFolder} onBack={goBackFromFolder} isDark={isDark} ui={ui} />
       ) : (
         <div className="px-5 @tablet:px-8 pt-4 @tablet:pt-6 pb-2 @tablet:pb-3">
@@ -1195,19 +1525,20 @@ export default function App() {
           <div className={`absolute inset-0 pointer-events-none transition-colors duration-500 ${isDark ? 'bg-gradient-to-t from-black/80 to-transparent' : 'bg-gradient-to-t from-black/10 to-transparent'}`} />
         </div>
       )}
+      </div>
       
-      {/* Detail Panel / ChatBot as overlay (MOBILE ONLY) */}
-      {selectedDetail && !isDesktop && (
-        selectedDetail.id === "chatbot" ? (
+      {/* Detail Panel / ChatBot as overlay (MOBILE & DESKTOP PHONE) */}
+      {phoneDetail && (
+        phoneDetail.id === "chatbot" ? (
           <ChatBot
-            onClose={closeDetail}
+            onClose={closePhoneDetail}
             isDesktop={false}
-            isClosing={isClosing}
+            isClosing={isPhoneClosing}
             onAnimationEnd={
-              isClosing
+              isPhoneClosing
                 ? () => {
-                    setSelectedDetail(null);
-                    setIsClosing(false);
+                    setPhoneDetail(null);
+                    setIsPhoneClosing(false);
                   }
                 : undefined
             }
@@ -1218,15 +1549,15 @@ export default function App() {
           />
         ) : (
           <DetailPanel
-            item={selectedDetail!}
-            onClose={closeDetail}
+            item={phoneDetail}
+            onClose={closePhoneDetail}
             isDesktop={false}
-            isClosing={isClosing}
+            isClosing={isPhoneClosing}
             onAnimationEnd={
-              isClosing
+              isPhoneClosing
                 ? () => {
-                    setSelectedDetail(null);
-                    setIsClosing(false);
+                    setPhoneDetail(null);
+                    setIsPhoneClosing(false);
                   }
                 : undefined
             }
@@ -1242,7 +1573,7 @@ export default function App() {
   // ─── Render ────────────────────────────────────────────────
 
   return (
-    <div className={`h-[100dvh] w-full relative overflow-hidden transition-colors duration-500 ${isDark ? 'bg-aster-dark' : 'bg-aster-beige'}`}>
+    <div className={`h-[100dvh] w-full relative overflow-hidden transition-colors duration-500 ${isDark ? 'bg-aster-dark is-dark dark' : 'bg-aster-beige is-light light'}`}>
       <SplashScreen isBooting={isBooting} ui={ui} />
 
       {/* Ambient glows (desktop only) */}
@@ -1267,8 +1598,8 @@ export default function App() {
           <HomeButton
             isDark={isDark}
             onClick={
-              selectedDetail
-                ? closeDetail
+              phoneDetail
+                ? closePhoneDetail
                 : openFolder
                 ? goBackFromFolder
                 : goHome
@@ -1288,7 +1619,7 @@ export default function App() {
           </div>
 
           {/* Phone (left) */}
-          <div className="phone-shell flex-shrink-0 w-[340px] h-[680px] relative z-10">
+          <div className={`phone-shell flex-shrink-0 w-[340px] h-[700px] relative z-10 ${isDark ? 'is-dark' : 'is-light'}`}>
             <div ref={containerRef} className={`@container phone-screen w-full h-full flex flex-col relative transition-colors duration-500 ${isDark ? 'bg-stone-900' : 'bg-aster-beige'}`}>
               {phoneContent}
             </div>
@@ -1296,10 +1627,16 @@ export default function App() {
 
           {/* Detail Panel (right) — iPad shell frame */}
           <div className="flex-1 max-w-[1400px] h-[750px] relative z-10">
-            <div className="ipad-shell w-full h-full">
+            <div className={`ipad-shell w-full h-full ${isDark ? 'is-dark' : 'is-light'}`}>
               <div className={`@container ipad-screen relative overflow-hidden transition-colors duration-500 ${isDark ? 'bg-stone-900' : 'bg-aster-beige'}`}>
                 {/* Empty State — wallpaper, fills 100% */}
-                <div className="h-full w-full flex flex-col items-center justify-center relative overflow-hidden">
+                <div
+                  className={`h-full w-full flex flex-col items-center justify-center relative overflow-hidden transition-all duration-300 ${
+                    tabletDetail
+                      ? "opacity-0 scale-[0.97] pointer-events-none"
+                      : "opacity-100 scale-100"
+                  }`}
+                >
                   {/* Decorative ambient circles */}
                   <div className="absolute top-10 right-16 w-40 h-40 rounded-full bg-aster-accent/[0.04] blur-2xl pointer-events-none" />
                   <div className="absolute bottom-16 left-12 w-56 h-56 rounded-full bg-[#00cec9]/[0.03] blur-3xl pointer-events-none" />
@@ -1307,7 +1644,7 @@ export default function App() {
                   {/* Logo mark */}
                   <div className="relative mb-6">
                     <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-aster-accent/20 to-aster-accent/5 border border-aster-accent/10 flex items-center justify-center shadow-lg">
-                      <Sparkle weight="fill" className="w-10 h-10 text-aster-accent" />
+                      <span className="text-4xl select-none">✦</span>
                     </div>
                     <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-aster-accent/60 animate-pulse" />
                   </div>
@@ -1321,27 +1658,38 @@ export default function App() {
                   </p>
 
                   {/* Interaction hint */}
-                  <div className={`flex items-center gap-4 px-5 py-3 rounded-2xl border transition-colors duration-500 ${isDark ? 'bg-white/[0.03] border-white/[0.06]' : 'bg-aster-dark/[0.03] border-aster-dark/[0.06]'}`}>
+                  <div
+                    className={`flex items-center gap-1.5 px-4 py-2.5 rounded-[14px] border transition-colors duration-500 select-none ${
+                      isDark
+                        ? "bg-[#181725] border-[#2A2840] text-[#A8A3BC]"
+                        : "bg-[#FBF8F0] border-[#E3DCC8] text-[#6B6657]"
+                    } text-xs`}
+                  >
                     <div className="flex gap-1">
                       {["W", "A", "S", "D"].map((key) => (
                         <kbd
                           key={key}
-                          className={`w-6 h-6 rounded-md text-[10px] font-mono font-bold flex items-center justify-center border transition-colors duration-500 ${isDark ? 'bg-white/[0.06] text-white/30 border-white/[0.08]' : 'bg-aster-dark/[0.05] text-aster-dark/40 border-aster-dark/10'}`}
+                          className={`min-w-[20px] h-5 px-1 rounded-[5px] text-[10px] font-mono font-bold flex items-center justify-center border border-b-2 transition-colors duration-500 ${
+                            isDark
+                              ? "bg-[#181725] border-[#2A2840] text-[#F2EFFA]"
+                              : "bg-[#FBF8F0] border-[#E3DCC8] text-[#14131A]"
+                          }`}
                         >
                           {key}
                         </kbd>
                       ))}
                     </div>
-                    <span className={`text-xs font-medium transition-colors duration-500 ${isDark ? 'text-white/20' : 'text-aster-dark/40'}`}>
-                      {ui.navigate}
-                    </span>
-                    <div className={`w-px h-4 transition-colors duration-500 ${isDark ? 'bg-white/10' : 'bg-aster-dark/10'}`} />
-                    <kbd className={`px-3 h-6 rounded-md text-[10px] font-mono font-bold flex items-center justify-center border transition-colors duration-500 ${isDark ? 'bg-white/[0.06] text-white/30 border-white/[0.08]' : 'bg-aster-dark/[0.05] text-aster-dark/40 border-aster-dark/10'}`}>
+                    <span className="ml-0.5">{ui.navigate}</span>
+                    <kbd
+                      className={`px-1.5 h-5 rounded-[5px] text-[10px] font-mono font-bold flex items-center justify-center border border-b-2 transition-colors duration-500 ml-1.5 ${
+                        isDark
+                          ? "bg-[#181725] border-[#2A2840] text-[#F2EFFA]"
+                          : "bg-[#FBF8F0] border-[#E3DCC8] text-[#14131A]"
+                      }`}
+                    >
                       Enter
                     </kbd>
-                    <span className={`text-xs font-medium transition-colors duration-500 ${isDark ? 'text-white/20' : 'text-aster-dark/40'}`}>
-                      {ui.open}
-                    </span>
+                    <span className="ml-0.5">{ui.open}</span>
                   </div>
 
                   {/* Tagline */}
@@ -1350,18 +1698,18 @@ export default function App() {
                   </p>
                 </div>
 
-                {/* DetailPanel / ChatBot — absolute overlay, covers the full screen */}
-                {selectedDetail && (
-                  selectedDetail.id === "chatbot" ? (
+                {/* DetailPanel / ChatBot / LiveAppFrame — absolute overlay, covers the full screen */}
+                {tabletDetail && (
+                  tabletDetail.id === "chatbot" ? (
                     <ChatBot
-                      onClose={closeDetail}
+                      onClose={closeTabletDetail}
                       isDesktop
-                      isClosing={isClosing}
+                      isClosing={isTabletClosing}
                       onAnimationEnd={
-                        isClosing
+                        isTabletClosing
                           ? () => {
-                              setSelectedDetail(null);
-                              setIsClosing(false);
+                              setTabletDetail(null);
+                              setIsTabletClosing(false);
                             }
                           : undefined
                       }
@@ -1370,17 +1718,34 @@ export default function App() {
                       language={language}
                       ui={ui}
                     />
+                  ) : tabletDetail.appUrl ? (
+                    <LiveAppFrame
+                      item={tabletDetail}
+                      onClose={closeTabletDetail}
+                      isClosing={isTabletClosing}
+                      onAnimationEnd={
+                        isTabletClosing
+                          ? () => {
+                              setTabletDetail(null);
+                              setIsTabletClosing(false);
+                            }
+                          : undefined
+                      }
+                      origin={appOrigin}
+                      isDark={isDark}
+                      ui={ui}
+                    />
                   ) : (
                     <DetailPanel
-                      item={selectedDetail!}
-                      onClose={closeDetail}
+                      item={tabletDetail}
+                      onClose={closeTabletDetail}
                       isDesktop
-                      isClosing={isClosing}
+                      isClosing={isTabletClosing}
                       onAnimationEnd={
-                        isClosing
+                        isTabletClosing
                           ? () => {
-                              setSelectedDetail(null);
-                              setIsClosing(false);
+                              setTabletDetail(null);
+                              setIsTabletClosing(false);
                             }
                           : undefined
                       }

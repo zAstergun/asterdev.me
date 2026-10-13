@@ -4,7 +4,6 @@ import { resolveBotLanguage, BOT_UI_TRANSLATIONS } from "../utils/botI18n";
 import {
   Robot,
   ArrowCounterClockwise,
-  X,
   PaperPlaneTilt,
   ArrowLeft,
   ArrowRight,
@@ -161,14 +160,17 @@ export function ChatBot({
         transformOrigin: origin ? `${origin.x} ${origin.y}` : "50% 50%",
       }}
       key="chatbot-panel"
-      onAnimationEnd={onAnimationEnd}
+      onAnimationEnd={(e) => {
+        if (e.target !== e.currentTarget) return;
+        onAnimationEnd?.();
+      }}
     >
       {/* ── Header ── */}
       <div
-        className={`shrink-0 flex items-center justify-between px-4 @tablet:px-8 py-3.5 border-b transition-colors duration-500 ${
+        className={`shrink-0 flex items-center justify-between px-4 @tablet:px-8 ${isDesktop ? 'py-3.5 border-b' : 'pt-[52px] pb-3'} transition-colors duration-500 ${
           isDark
-            ? "bg-stone-900/90 border-stone-800 text-stone-100 backdrop-blur-md"
-            : "bg-aster-beige/90 border-aster-dark/[0.08] text-aster-dark backdrop-blur-md"
+            ? `bg-stone-900/90 ${isDesktop ? 'border-stone-800' : ''} text-stone-100 backdrop-blur-md`
+            : `bg-aster-beige/90 ${isDesktop ? 'border-aster-dark/[0.08]' : ''} text-aster-dark backdrop-blur-md`
         }`}
       >
         <div className="flex items-center gap-3">
@@ -177,17 +179,17 @@ export function ChatBot({
             <button
               type="button"
               onClick={onClose}
-              className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-200 cursor-pointer text-sm ${
+              className={`w-7 h-7 @tablet:w-9 @tablet:h-9 rounded-full flex items-center justify-center transition-colors duration-500 cursor-pointer text-sm @tablet:text-base ${
                 isDark
-                  ? "bg-stone-800 text-stone-300 hover:bg-stone-700"
-                  : "bg-aster-dark/10 text-aster-dark/70 hover:bg-aster-dark/20"
+                  ? "bg-stone-700 text-stone-400 hover:bg-stone-600"
+                  : "bg-aster-dark/[0.06] text-aster-dark/50 hover:bg-aster-dark/10"
               }`}
               aria-label={ui?.back || "Voltar"}
             >
               {botUi.isRtl ? (
-                <ArrowRight weight="bold" className="w-4 h-4" />
+                <ArrowRight weight="bold" className="w-3.5 h-3.5 @tablet:w-4 @tablet:h-4" />
               ) : (
-                <ArrowLeft weight="bold" className="w-4 h-4" />
+                <ArrowLeft weight="bold" className="w-3.5 h-3.5 @tablet:w-4 @tablet:h-4" />
               )}
             </button>
           )}
@@ -219,8 +221,8 @@ export function ChatBot({
           </div>
         </div>
 
-        {/* Clear chat / Close on desktop */}
-        <div className="flex items-center gap-2">
+        {/* Clear chat */}
+        <div className="flex items-center">
           <button
             type="button"
             onClick={handleClearHistory}
@@ -234,21 +236,6 @@ export function ChatBot({
             <ArrowCounterClockwise weight="bold" className="w-3.5 h-3.5" />
             <span className="hidden @tablet:inline">{botUi.clearButton}</span>
           </button>
-
-          {isDesktop && (
-            <button
-              type="button"
-              onClick={onClose}
-              className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-200 cursor-pointer text-sm font-bold ${
-                isDark
-                  ? "bg-stone-800 text-stone-400 hover:text-stone-100 hover:bg-stone-700"
-                  : "bg-aster-dark/[0.06] text-aster-dark/60 hover:text-aster-dark hover:bg-aster-dark/15"
-              }`}
-              aria-label="Fechar"
-            >
-              <X weight="bold" className="w-4 h-4" />
-            </button>
-          )}
         </div>
       </div>
 
@@ -352,11 +339,7 @@ export function ChatBot({
 
       {/* ── Input Bar ── */}
       <div
-        className={`shrink-0 px-4 @tablet:px-8 py-3 border-t transition-colors duration-500 ${
-          isDark
-            ? "bg-stone-900 border-stone-800"
-            : "bg-aster-beige border-aster-dark/[0.08]"
-        }`}
+        className={`shrink-0 px-4 @tablet:px-8 py-3 transition-colors duration-500 ${panelBg}`}
       >
         <form
           onSubmit={(e) => {
@@ -413,11 +396,16 @@ export function ChatBot({
         </form>
       </div>
 
+      {/* Divisória minimalista */}
+      <div className={`w-full ${isDesktop ? 'px-12 pt-1' : 'px-6 pt-1 pb-2'} shrink-0 transition-colors duration-500 ${panelBg}`}>
+        <div className={`w-full h-[1px] transition-colors duration-500 ${isDark ? 'bg-stone-700' : 'bg-aster-dark/[0.08]'}`} />
+      </div>
+
       {/* Safe bottom area on mobile for floating home bar */}
       {!isDesktop && (
-        <div className={`h-16 w-full shrink-0 transition-colors duration-500 ${panelBg}`}>
+        <div className={`relative h-20 @tablet:h-24 w-full shrink-0 transition-colors duration-500 ${panelBg}`}>
           <div
-            className={`h-full w-full pointer-events-none transition-colors duration-500 ${
+            className={`absolute inset-0 pointer-events-none transition-colors duration-500 ${
               isDark
                 ? "bg-gradient-to-t from-black/80 to-transparent"
                 : "bg-gradient-to-t from-black/10 to-transparent"

@@ -15,6 +15,7 @@ export interface AppItem {
   tags: string[];
   previewMedia?: string;
   lang?: Language;
+  appUrl?: string;
 }
 
 /** An external link that opens in a new tab */
@@ -52,6 +53,7 @@ export interface ProjectItem {
   tags: string[];
   previewMedia?: string;
   lang?: Language;
+  appUrl?: string;
 }
 
 export interface AsterLink {
@@ -321,12 +323,13 @@ export function getHomeItems(lang: Language, itemsText: TranslationDict["items"]
           gradient: ["#6c5ce7", "#a29bfe"],
           summary: itemsText.soulSummary,
           links: [
-            { title: itemsText.soulLinkPlay, url: "https://zastergun.github.io/Soul-Fighter-Memory-Game/", icon: "play" },
+            { title: itemsText.soulLinkPlay, url: "https://soulfighter.asterdev.me/", icon: "play" },
             { title: itemsText.btnSourceCode, url: "https://github.com/zAstergun/Soul-Fighter-Memory-Game", icon: "file-code" },
           ],
           tags: ["JavaScript", "Game Dev"],
           previewMedia: "/previews/memory.webp",
           lang,
+          appUrl: "https://soulfighter.asterdev.me/",
         },
         {
           type: "project",

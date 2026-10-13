@@ -38,44 +38,197 @@ body {
 
 /* ─── Phone Shell (Desktop only) ─── */
 .phone-shell {
-  background: #1c1c1c;
-  border-radius: 40px;
-  padding: 12px;
-  box-shadow:
-    0 25px 60px rgba(0, 0, 0, 0.5),
-    0 0 0 2px rgba(255, 255, 255, 0.05),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
   position: relative;
+  z-index: 10;
+  border-radius: 48px;
+  padding: 8px;
+  background: linear-gradient(142deg, #514e59 0%, #25242b 19%, #121217 55%, #302e38 100%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow:
+    0 42px 84px rgba(41, 36, 56, 0.22),
+    0 11px 30px rgba(46, 40, 60, 0.16),
+    inset 0 1px 1px rgba(255, 255, 255, 0.34),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.6);
+  transition: box-shadow 500ms ease, border-color 500ms ease, background 500ms ease;
+}
+
+/* Modo Dark - Phone Shell */
+.is-dark .phone-shell,
+.phone-shell.is-dark {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: linear-gradient(142deg, #43404a 0%, #201f25 19%, #101014 55%, #292730 100%);
+  box-shadow:
+    0 45px 90px rgba(0, 0, 0, 0.65),
+    0 15px 35px rgba(0, 0, 0, 0.45),
+    inset 0 1px 1px rgba(255, 255, 255, 0.28),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.7);
+}
+
+/* Phone physical buttons (volume / action) */
+.phone-shell::before,
+.phone-shell::after {
+  position: absolute;
+  z-index: -1;
+  left: -3px;
+  width: 3px;
+  content: "";
+  border-radius: 3px 0 0 3px;
+  background: #41404a;
+  transition: background-color 500ms ease;
+}
+
+.is-dark .phone-shell::before,
+.is-dark .phone-shell::after,
+.phone-shell.is-dark::before,
+.phone-shell.is-dark::after {
+  background: #32313b;
 }
 
 .phone-shell::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 120px;
-  height: 28px;
-  background: #1c1c1c;
-  border-radius: 0 0 18px 18px;
-  z-index: 20;
+  top: 126px;
+  height: 58px;
+}
+
+.phone-shell::after {
+  top: 205px;
+  height: 38px;
 }
 
 .phone-screen {
-  border-radius: 30px;
+  border-radius: 40px;
   overflow: hidden;
   position: relative;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  flex-direction: column;
+  transition: background-color 500ms ease;
+}
+
+/* ─── iPad / Tablet Shell (Desktop only) ─── */
+.ipad-shell,
+.tablet-shell {
+  position: relative;
+  z-index: 10;
+  border-radius: 38px;
+  padding: 10px;
+  background: linear-gradient(145deg, #4a4852 0%, #29282f 20%, #17171d 62%, #383640 100%);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow:
+    0 40px 88px rgba(42, 37, 56, 0.20),
+    0 12px 32px rgba(40, 36, 52, 0.12),
+    inset 0 1px 1px rgba(255, 255, 255, 0.28),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.66);
+  transition: box-shadow 500ms ease, border-color 500ms ease, background 500ms ease;
+}
+
+/* Subtle iPad camera dot on top bezel */
+.ipad-shell::before,
+.tablet-shell::before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #25242b;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06);
+  z-index: 15;
+  pointer-events: none;
+}
+
+/* Modo Dark - iPad Shell */
+.is-dark .ipad-shell,
+.is-dark .tablet-shell,
+.ipad-shell.is-dark,
+.tablet-shell.is-dark {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: linear-gradient(145deg, #3f3e47 0%, #222127 20%, #131317 62%, #2c2a33 100%);
+  box-shadow:
+    0 45px 95px rgba(0, 0, 0, 0.65),
+    0 16px 36px rgba(0, 0, 0, 0.45),
+    inset 0 1px 1px rgba(255, 255, 255, 0.25),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.75);
+}
+
+.ipad-screen,
+.tablet-screen {
+  border-radius: 29px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  flex-direction: column;
+  transition: background-color 500ms ease;
+}
+
+/* ─── Dynamic Island (iPhone) ─── */
+.phone-island {
+  position: absolute;
+  z-index: 50;
+  top: 9px;
+  left: 50%;
+  display: flex;
+  width: 91px;
+  height: 22px;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 9px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  background: #141418;
+  transform: translateX(-50%);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+}
+
+.phone-island span {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #252735;
+  box-shadow: 0 0 0 1.5px #191b22;
+}
+
+@media (max-width: 768px) {
+  .phone-island {
+    display: none;
+  }
 }
 
 /* ─── Status Bar ─── */
 .status-bar {
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  height: 40px;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 22px;
+  position: relative;
+  z-index: 40;
+  pointer-events: none;
+  user-select: none;
+  background: transparent;
+}
+
+.status-symbols {
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
 /* ─── App Grid ─── */
 .app-icon {
   transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  outline: none !important;
+}
+
+.app-icon:focus,
+.app-icon:focus-visible {
+  outline: none !important;
 }
 
 .app-icon:hover {
@@ -156,7 +309,9 @@ body {
 input:focus,
 input:focus-visible,
 textarea:focus,
-textarea:focus-visible {
+textarea:focus-visible,
+.app-icon:focus,
+.app-icon:focus-visible {
   outline: none !important;
   box-shadow: none !important;
 }
@@ -232,60 +387,91 @@ textarea:focus-visible {
   box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.5);
 }
 
-.ipad-screen {
-  border-radius: 22px;
-  overflow: hidden;
-  position: relative;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
+/* ─── App Open/Close Animations (Hardware-accelerated) ─── */
+.home-view {
+  transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease-out;
+  will-change: transform, opacity;
+  transform: translateZ(0);
 }
 
-/* ─── iPadOS App Open/Close Animation ─── */
-.detail-panel-desktop,
+.home-view.away {
+  transform: scale(0.96);
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+/* Mobile App Sheet Animation */
 .detail-panel {
-  animation: ipadAppOpen 0.48s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  will-change: transform, opacity;
   transform-origin: center center;
+  transform: translateZ(0);
+  contain: paint layout;
 }
 
-@keyframes ipadAppOpen {
+.detail-panel.animate-ipadAppOpen {
+  animation: mobileAppOpen 0.24s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.detail-panel.animate-ipadAppClose {
+  animation: mobileAppClose 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  pointer-events: none;
+}
+
+@keyframes mobileAppOpen {
   0% {
     opacity: 0;
-    transform: scale(0.08);
-    border-radius: 50px;
-  }
-  40% {
-    opacity: 1;
+    transform: scale(0.94) translateY(10px);
   }
   100% {
     opacity: 1;
-    transform: scale(1);
-    border-radius: 0px;
+    transform: scale(1) translateY(0);
   }
 }
 
-@keyframes ipadAppClose {
+@keyframes mobileAppClose {
   0% {
     opacity: 1;
-    transform: scale(1);
-    border-radius: 0px;
-  }
-  60% {
-    opacity: 1;
+    transform: scale(1) translateY(0);
   }
   100% {
     opacity: 0;
-    transform: scale(0.08);
-    border-radius: 50px;
+    transform: scale(0.94) translateY(10px);
   }
 }
 
-.animate-ipadAppOpen {
-  animation: ipadAppOpen 0.48s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+/* Desktop Tablet Screen Transitions */
+.detail-panel-desktop {
+  will-change: transform, opacity;
 }
 
-.animate-ipadAppClose {
-  animation: ipadAppClose 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+.detail-panel-desktop.animate-ipadAppOpen {
+  animation: tabletAppOpen 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.detail-panel-desktop.animate-ipadAppClose {
+  animation: tabletAppClose 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes tabletAppOpen {
+  0% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes tabletAppClose {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
 }
 
 /* Content fades in after container opens */
