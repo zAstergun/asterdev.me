@@ -269,14 +269,16 @@ export function ChatBot({
               <div
                 className={`max-w-[85%] @tablet:max-w-[75%] rounded-2xl px-4 py-3 transition-all ${
                   isUser
-                    ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-tr-sm shadow-md shadow-indigo-600/15"
+                    ? isDark
+                      ? "bg-white text-stone-900 font-medium rounded-tr-sm shadow-sm"
+                      : "bg-aster-dark text-white rounded-tr-sm shadow-sm"
                     : isDark
                     ? "bg-stone-800/95 border border-stone-700/60 text-stone-100 rounded-tl-sm shadow-sm"
                     : "bg-white/90 border border-aster-dark/[0.08] text-aster-dark rounded-tl-sm shadow-sm"
                 }`}
               >
                 {/* Message text with whitespace linebreaks */}
-                <p className="text-xs @tablet:text-sm leading-relaxed whitespace-pre-wrap font-normal selection:bg-indigo-500 selection:text-white">
+                <p className="text-xs @tablet:text-sm leading-relaxed whitespace-pre-wrap font-normal selection:bg-stone-500 selection:text-white">
                   {msg.text}
                 </p>
 
@@ -292,8 +294,8 @@ export function ChatBot({
                         download={act.type === "download" ? true : undefined}
                         className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] @tablet:text-xs font-semibold transition-all duration-200 shadow-sm ${
                           isDark
-                            ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-500/30"
-                            : "bg-indigo-50 text-indigo-700 border border-indigo-200/80 hover:bg-indigo-100"
+                            ? "bg-stone-700/80 text-stone-200 border border-stone-600 hover:bg-stone-700"
+                            : "bg-aster-dark/[0.06] text-aster-dark border border-aster-dark/10 hover:bg-aster-dark/[0.12]"
                         }`}
                       >
                         {act.label}
@@ -323,8 +325,8 @@ export function ChatBot({
                       onClick={() => handleSendMessage(suggestion)}
                       className={`text-[11px] @tablet:text-xs px-2.5 py-1 rounded-full border transition-all duration-200 cursor-pointer text-left ${
                         isDark
-                          ? "bg-stone-800/60 border-stone-700 text-stone-300 hover:bg-indigo-950/60 hover:border-indigo-500/50 hover:text-indigo-300"
-                          : "bg-white/70 border-aster-dark/10 text-aster-dark/80 hover:bg-indigo-50 hover:border-indigo-300 hover:text-indigo-700"
+                          ? "bg-stone-800/80 border-stone-700 text-stone-300 hover:bg-stone-700 hover:border-stone-500 hover:text-stone-100"
+                          : "bg-white/80 border-aster-dark/15 text-aster-dark/80 hover:bg-white hover:border-aster-dark/30 hover:text-aster-dark"
                       }`}
                     >
                       {suggestion}
@@ -339,9 +341,9 @@ export function ChatBot({
         {/* Typing indicator */}
         {isTyping && (
           <div className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl rounded-tl-sm w-fit bg-stone-800/80 border border-stone-700/50 text-stone-300 animate-fade-in">
-            <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-bounce" style={{ animationDelay: "0ms" }} />
-            <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-bounce" style={{ animationDelay: "150ms" }} />
-            <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-bounce" style={{ animationDelay: "300ms" }} />
+            <span className="w-1.5 h-1.5 rounded-full bg-stone-400 animate-bounce" style={{ animationDelay: "0ms" }} />
+            <span className="w-1.5 h-1.5 rounded-full bg-stone-400 animate-bounce" style={{ animationDelay: "150ms" }} />
+            <span className="w-1.5 h-1.5 rounded-full bg-stone-400 animate-bounce" style={{ animationDelay: "300ms" }} />
           </div>
         )}
 
@@ -361,12 +363,12 @@ export function ChatBot({
             e.preventDefault();
             handleSendMessage(inputValue);
           }}
-          className={`flex items-center gap-2 p-1.5 rounded-2xl border transition-all duration-300 focus-within:ring-2 focus-within:ring-indigo-500/30 ${
+          className={`flex items-center gap-2 p-1.5 rounded-2xl border transition-all duration-200 ${
             isDesktop ? "max-w-4xl mx-auto w-full" : "w-full"
           } ${
             isDark
-              ? "bg-stone-800/90 border-stone-700/80 focus-within:border-indigo-500/60"
-              : "bg-white border-aster-dark/15 focus-within:border-indigo-500/60"
+              ? "bg-stone-800/90 border-stone-700/80 focus-within:border-stone-500 focus-within:bg-stone-800"
+              : "bg-white/90 border-aster-dark/15 focus-within:border-aster-dark/40 focus-within:bg-white"
           }`}
         >
           <input
@@ -376,7 +378,7 @@ export function ChatBot({
             onChange={(e) => setInputValue(e.target.value)}
             disabled={isTyping}
             placeholder={botUi.inputPlaceholder}
-            className={`flex-1 px-3 py-1.5 text-xs @tablet:text-sm bg-transparent outline-none transition-colors duration-500 ${
+            className={`flex-1 px-3 py-1.5 text-xs @tablet:text-sm bg-transparent outline-none focus:outline-none focus:ring-0 transition-colors duration-500 ${
               isDark
                 ? "text-stone-100 placeholder:text-stone-500"
                 : "text-aster-dark placeholder:text-aster-dark/40"
@@ -388,14 +390,25 @@ export function ChatBot({
             disabled={!inputValue.trim() || isTyping}
             className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm transition-all duration-200 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed ${
               inputValue.trim() && !isTyping
-                ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-md shadow-indigo-500/30 hover:scale-105 active:scale-95"
+                ? isDark
+                  ? "bg-white text-stone-900 shadow-sm hover:bg-stone-200 hover:scale-105 active:scale-95"
+                  : "bg-aster-dark text-white shadow-sm hover:bg-aster-dark/90 hover:scale-105 active:scale-95"
                 : isDark
-                ? "bg-stone-700 text-stone-400"
-                : "bg-aster-dark/10 text-aster-dark/40"
+                ? "bg-stone-800/80 text-stone-600"
+                : "bg-aster-dark/[0.06] text-aster-dark/30"
             }`}
             aria-label="Enviar"
           >
-            <PaperPlaneTilt weight="fill" className="w-4 h-4 text-white" />
+            <PaperPlaneTilt
+              weight="fill"
+              className={`w-4 h-4 ${
+                inputValue.trim() && !isTyping
+                  ? isDark
+                    ? "text-stone-900"
+                    : "text-white"
+                  : "text-current"
+              }`}
+            />
           </button>
         </form>
       </div>
