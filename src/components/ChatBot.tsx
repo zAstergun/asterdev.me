@@ -1,6 +1,14 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { classifyIntent, type ClassifierResult } from "../utils/heuristicClassifier";
 import { resolveBotLanguage, BOT_UI_TRANSLATIONS } from "../utils/botI18n";
+import {
+  Robot,
+  ArrowCounterClockwise,
+  X,
+  PaperPlaneTilt,
+  ArrowLeft,
+  ArrowRight,
+} from "@phosphor-icons/react";
 
 export interface ChatMessage {
   id: string;
@@ -176,14 +184,18 @@ export function ChatBot({
               }`}
               aria-label={ui?.back || "Voltar"}
             >
-              {botUi.isRtl ? "→" : "←"}
+              {botUi.isRtl ? (
+                <ArrowRight weight="bold" className="w-4 h-4" />
+              ) : (
+                <ArrowLeft weight="bold" className="w-4 h-4" />
+              )}
             </button>
           )}
 
           {/* Bot Avatar with Glow */}
           <div className="relative">
-            <div className="w-10 h-10 @tablet:w-11 @tablet:h-11 rounded-2xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-purple-600 flex items-center justify-center text-xl shadow-md shadow-indigo-500/20 select-none">
-              🤖
+            <div className="w-10 h-10 @tablet:w-11 @tablet:h-11 rounded-2xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-purple-600 flex items-center justify-center shadow-md shadow-indigo-500/20 select-none">
+              <Robot weight="fill" className="w-6 h-6 text-white" />
             </div>
             <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-stone-900" />
           </div>
@@ -219,7 +231,7 @@ export function ChatBot({
                 : "bg-aster-dark/[0.05] hover:bg-aster-dark/[0.1] text-aster-dark/60 hover:text-aster-dark"
             }`}
           >
-            <span className="text-xs">🔄</span>
+            <ArrowCounterClockwise weight="bold" className="w-3.5 h-3.5" />
             <span className="hidden @tablet:inline">{botUi.clearButton}</span>
           </button>
 
@@ -234,7 +246,7 @@ export function ChatBot({
               }`}
               aria-label="Fechar"
             >
-              ✕
+              <X weight="bold" className="w-4 h-4" />
             </button>
           )}
         </div>
@@ -383,7 +395,7 @@ export function ChatBot({
             }`}
             aria-label="Enviar"
           >
-            <span className="-rotate-45 translate-x-0.5">🚀</span>
+            <PaperPlaneTilt weight="fill" className="w-4 h-4 text-white" />
           </button>
         </form>
       </div>

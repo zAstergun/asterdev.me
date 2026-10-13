@@ -163,7 +163,7 @@ export function getHomeItems(lang: Language, itemsText: TranslationDict["items"]
       type: "app",
       id: "sobre-mim",
       name: itemsText.sobreMimName,
-      icon: "👤",
+      icon: "/icons/apps/sobre-mim.svg",
       gradient: ["#6c63ff", "#a29bfe"],
       summary: itemsText.sobreMimSummary,
       links: [
@@ -178,7 +178,7 @@ export function getHomeItems(lang: Language, itemsText: TranslationDict["items"]
       type: "app",
       id: "chatbot",
       name: itemsText.chatbotName || "AsterBot",
-      icon: "🤖",
+      icon: "/icons/apps/asterbot.svg",
       gradient: ["#6366f1", "#a855f7"],
       summary:
         itemsText.chatbotSummary ||
@@ -193,7 +193,7 @@ export function getHomeItems(lang: Language, itemsText: TranslationDict["items"]
       type: "folder",
       id: "blog",
       name: itemsText.blogName,
-      icon: "✍️",
+      icon: "/icons/apps/blog.svg",
       gradient: ["#11998e", "#38ef7d"],
       lang,
       children: [
@@ -201,7 +201,7 @@ export function getHomeItems(lang: Language, itemsText: TranslationDict["items"]
           type: "project",
           id: "blog-placeholder",
           name: itemsText.blogProjName,
-          icon: "🚀",
+          icon: "rocket",
           gradient: ["#4facfe", "#00f2fe"],
           summary: itemsText.blogProjSummary,
           links: [],
@@ -214,7 +214,7 @@ export function getHomeItems(lang: Language, itemsText: TranslationDict["items"]
       type: "folder",
       id: "certificacoes",
       name: itemsText.certName,
-      icon: "📜",
+      icon: "/icons/apps/certificacoes.svg",
       gradient: ["#f5af19", "#f12711"],
       lang,
       children: [
@@ -222,7 +222,7 @@ export function getHomeItems(lang: Language, itemsText: TranslationDict["items"]
           type: "project",
           id: "cert-placeholder",
           name: itemsText.certProjName,
-          icon: "🎓",
+          icon: "graduation",
           gradient: ["#e6d082", "#987c22"],
           summary: itemsText.certProjSummary,
           links: [],
@@ -237,7 +237,7 @@ export function getHomeItems(lang: Language, itemsText: TranslationDict["items"]
       type: "app",
       id: "curriculo",
       name: itemsText.cvName,
-      icon: "📄",
+      icon: "/icons/apps/curriculo.svg",
       gradient: ["#fd79a8", "#e84393"],
       summary: itemsText.cvSummary,
       links: [
@@ -253,7 +253,7 @@ export function getHomeItems(lang: Language, itemsText: TranslationDict["items"]
       type: "app",
       id: "github",
       name: itemsText.githubName,
-      icon: "/icons/octocat.svg",
+      icon: "/icons/apps/github.svg",
       gradient: ["#2d3436", "#636e72"],
       summary: itemsText.githubSummary,
       links: [
@@ -267,7 +267,7 @@ export function getHomeItems(lang: Language, itemsText: TranslationDict["items"]
       type: "folder",
       id: "idiomas",
       name: itemsText.langName,
-      icon: "🌐",
+      icon: "/icons/apps/traducao.svg",
       gradient: ["#667eea", "#764ba2"],
       lang,
       children: [
@@ -294,7 +294,7 @@ export function getHomeItems(lang: Language, itemsText: TranslationDict["items"]
       type: "folder",
       id: "frontend",
       name: itemsText.frontName,
-      icon: "🖥️",
+      icon: "/icons/apps/frontend.svg",
       gradient: ["#0984e3", "#74b9ff"],
       lang,
       children: [
@@ -349,7 +349,7 @@ export function getHomeItems(lang: Language, itemsText: TranslationDict["items"]
       type: "app",
       id: "dark-mode",
       name: itemsText.darkName,
-      icon: "🌙",
+      icon: "/icons/apps/dark-mode.svg",
       gradient: ["#232526", "#414345"],
       summary: "",
       links: [],
@@ -360,7 +360,7 @@ export function getHomeItems(lang: Language, itemsText: TranslationDict["items"]
       type: "folder",
       id: "mobile",
       name: itemsText.mobileName,
-      icon: "📱",
+      icon: "/icons/apps/mobile.svg",
       gradient: ["#00b894", "#55efc4"],
       lang,
       children: [
@@ -368,7 +368,7 @@ export function getHomeItems(lang: Language, itemsText: TranslationDict["items"]
           type: "project",
           id: "app-mobile-demo",
           name: itemsText.demoName,
-          icon: "🚀",
+          icon: "rocket",
           gradient: ["#e17055", "#fab1a0"],
           summary: itemsText.demoSummary,
           links: [

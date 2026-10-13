@@ -1,6 +1,25 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ChatBot } from "./components/ChatBot";
 import {
+  GithubLogo,
+  LinkedinLogo,
+  EnvelopeSimple,
+  FilePdf,
+  FileDoc,
+  FileText,
+  FileCode,
+  Users,
+  ArrowSquareOut,
+  Play,
+  LinkSimple,
+  FolderSimple,
+  ArrowLeft,
+  ArrowRight,
+  Sparkle,
+  RocketLaunch,
+  GraduationCap,
+} from "@phosphor-icons/react";
+import {
   GRID_COLS,
   isDetailable,
   isFolder,
@@ -33,7 +52,7 @@ function getDarkModeItem(item: GridItem, isDark: boolean): GridItem {
     return {
       ...item,
       name: isDark ? 'Light Mode' : 'Dark Mode',
-      icon: isDark ? '☀️' : '🌙',
+      icon: isDark ? '/icons/apps/light-mode.svg' : '/icons/apps/dark-mode.svg',
       gradient: isDark ? ['#f6d365', '#fda085'] : item.gradient,
     };
   }
@@ -228,22 +247,26 @@ function GridIcon({
           <img
             src={item.bgImage}
             alt={item.name}
-            className="w-full h-full object-cover rounded-2xl drop-shadow-sm"
+            className="w-full h-full object-cover rounded-2xl @tablet:rounded-3xl drop-shadow-sm"
           />
         ) : isImageIcon(item.icon) ? (
           <img
             src={item.icon}
             alt={item.name}
-            className="w-full h-full object-cover rounded-2xl drop-shadow-sm"
+            className="w-full h-full object-cover rounded-2xl @tablet:rounded-3xl drop-shadow-sm"
           />
+        ) : item.icon === "rocket" || item.icon === "🚀" ? (
+          <RocketLaunch weight="fill" className="w-8 h-8 @tablet:w-14 @tablet:h-14 text-white drop-shadow-sm" />
+        ) : item.icon === "graduation" || item.icon === "🎓" ? (
+          <GraduationCap weight="fill" className="w-8 h-8 @tablet:w-14 @tablet:h-14 text-white drop-shadow-sm" />
         ) : (
           <span className="drop-shadow-sm select-none">{item.icon}</span>
         )}
 
         {/* Folder badge */}
         {isFolder_ && (
-          <span className="absolute -bottom-0.5 -right-0.5 w-5 h-5 @tablet:w-8 @tablet:h-8 rounded-full bg-aster-beige border-2 border-white shadow-sm flex items-center justify-center text-[9px] @tablet:text-sm">
-            📂
+          <span className="absolute -bottom-0.5 -right-0.5 w-5 h-5 @tablet:w-8 @tablet:h-8 rounded-full bg-aster-beige border-2 border-white shadow-sm flex items-center justify-center text-aster-accent">
+            <FolderSimple weight="fill" className="w-3 h-3 @tablet:w-4 @tablet:h-4 text-aster-accent" />
           </span>
         )}
       </div>
@@ -364,7 +387,7 @@ function DetailPanel({
             className={`mb-6 w-8 h-8 @tablet:w-10 @tablet:h-10 rounded-full flex items-center justify-center transition-colors duration-500 cursor-pointer text-sm @tablet:text-base ${isDark ? 'bg-stone-600 text-stone-300 hover:bg-stone-600' : 'bg-aster-dark/10 text-aster-dark/60 hover:bg-aster-dark/20'}`}
             aria-label={ui.back}
           >
-            ←
+            <ArrowLeft weight="bold" className="w-4 h-4 @tablet:w-5 @tablet:h-5" />
           </button>
         )}
 
@@ -381,6 +404,10 @@ function DetailPanel({
               alt={item.name}
               className="w-full h-full object-cover rounded-[2rem] drop-shadow-sm"
             />
+          ) : item.icon === "rocket" || item.icon === "🚀" ? (
+            <RocketLaunch weight="fill" className="w-12 h-12 @tablet:w-16 @tablet:h-16 text-white drop-shadow-sm" />
+          ) : item.icon === "graduation" || item.icon === "🎓" ? (
+            <GraduationCap weight="fill" className="w-12 h-12 @tablet:w-16 @tablet:h-16 text-white drop-shadow-sm" />
           ) : (
             <span className="text-5xl @tablet:text-6xl drop-shadow-sm select-none">
               {item.icon}
@@ -425,20 +452,31 @@ function DetailPanel({
               }`}
             >
               {item.links.map((link) => {
-                const getEmoji = (icon?: string) => {
-                  const map: Record<string, string> = {
-                    github: "🐙",
-                    linkedin: "🔗",
-                    mail: "✉️",
-                    "file-pdf": "📕",
-                    "file-word": "📘",
-                    "file-text": "📄",
-                    "file-code": "💻",
-                    users: "👥",
-                    "external-link": "🌐",
-                    play: "▶️",
-                  };
-                  return map[icon || ""] || "🔗";
+                const renderPhosphorLinkIcon = (icon?: string) => {
+                  switch (icon) {
+                    case "github":
+                      return <GithubLogo weight="bold" className="w-5 h-5 shrink-0" />;
+                    case "linkedin":
+                      return <LinkedinLogo weight="bold" className="w-5 h-5 shrink-0" />;
+                    case "mail":
+                      return <EnvelopeSimple weight="bold" className="w-5 h-5 shrink-0" />;
+                    case "file-pdf":
+                      return <FilePdf weight="bold" className="w-5 h-5 shrink-0 text-rose-500" />;
+                    case "file-word":
+                      return <FileDoc weight="bold" className="w-5 h-5 shrink-0 text-sky-500" />;
+                    case "file-text":
+                      return <FileText weight="bold" className="w-5 h-5 shrink-0 text-amber-500" />;
+                    case "file-code":
+                      return <FileCode weight="bold" className="w-5 h-5 shrink-0 text-indigo-500" />;
+                    case "users":
+                      return <Users weight="bold" className="w-5 h-5 shrink-0" />;
+                    case "external-link":
+                      return <ArrowSquareOut weight="bold" className="w-5 h-5 shrink-0" />;
+                    case "play":
+                      return <Play weight="fill" className="w-5 h-5 shrink-0" />;
+                    default:
+                      return <LinkSimple weight="bold" className="w-5 h-5 shrink-0" />;
+                  }
                 };
 
                 return (
@@ -453,11 +491,11 @@ function DetailPanel({
                         : "bg-aster-beige-dark/60 border-aster-dark/[0.08] hover:bg-aster-beige-dark"
                     }`}
                   >
-                    <span className="text-base">
+                    <span className="text-base flex items-center justify-center">
                       {isImageIcon(link.icon || "") ? (
                         <img src={link.icon} alt={link.title} className="w-5 h-5 object-contain" />
                       ) : (
-                        getEmoji(link.icon)
+                        renderPhosphorLinkIcon(link.icon)
                       )}
                     </span>
                     <span
@@ -472,7 +510,7 @@ function DetailPanel({
                         isDark ? "text-stone-600" : "text-aster-dark/30"
                       }`}
                     >
-                      →
+                      <ArrowRight weight="bold" className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
                     </span>
                   </a>
                 );
@@ -604,7 +642,7 @@ function SplashScreen({ isBooting, ui }: { isBooting: boolean; ui: any }) {
         isBooting ? "opacity-100" : "opacity-0 pointer-events-none"
       }`}
     >
-      <span className="text-5xl text-aster-dark select-none mb-6">✦</span>
+      <Sparkle weight="fill" className="w-12 h-12 text-aster-accent mb-6" />
       <div className="w-5 h-5 border-[3px] border-aster-dark/20 border-t-aster-dark rounded-full animate-spin" />
       <p className="text-[10px] font-mono tracking-[0.2em] text-aster-dark/40 uppercase mt-6 animate-pulse">
         {ui.booting}
@@ -649,13 +687,13 @@ function FolderHeader({
         className={`w-7 h-7 @tablet:w-9 @tablet:h-9 rounded-full flex items-center justify-center transition-colors duration-500 cursor-pointer text-sm @tablet:text-base ${isDark ? 'bg-stone-700 text-stone-400 hover:bg-stone-600' : 'bg-aster-dark/[0.06] text-aster-dark/50 hover:bg-aster-dark/10'}`}
         aria-label={ui.back}
       >
-        ←
+        <ArrowLeft weight="bold" className="w-3.5 h-3.5 @tablet:w-4 @tablet:h-4" />
       </button>
       {isImageIcon(folder.icon) ? (
         <img
           src={folder.icon}
           alt={folder.name}
-          className="w-5 h-5 @tablet:w-7 @tablet:h-7 object-contain"
+          className="w-5 h-5 @tablet:w-7 @tablet:h-7 object-contain rounded-md"
         />
       ) : (
         <span className="text-sm">{folder.icon}</span>
@@ -1269,7 +1307,7 @@ export default function App() {
                   {/* Logo mark */}
                   <div className="relative mb-6">
                     <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-aster-accent/20 to-aster-accent/5 border border-aster-accent/10 flex items-center justify-center shadow-lg">
-                      <span className="text-4xl select-none">✦</span>
+                      <Sparkle weight="fill" className="w-10 h-10 text-aster-accent" />
                     </div>
                     <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-aster-accent/60 animate-pulse" />
                   </div>

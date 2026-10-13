@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#82c0ff"/>
+      <stop offset="100%" stop-color="#0a63e6"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="16" stdDeviation="12" flood-color="#06429c" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+  <!-- Apple-style Gradient Canvas -->
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+
+  <!-- Phosphor Icon Glyph (White with Apple Depth Shadow) -->
+  <g transform="translate(179.2, 179.2) scale(2.6)" fill="#ffffff" stroke="#ffffff" filter="url(#shadow)">
+    <path d="M71.68,97.22,34.74,128l36.94,30.78a12,12,0,1,1-15.36,18.44l-48-40a12,12,0,0,1,0-18.44l48-40A12,12,0,0,1,71.68,97.22Zm176,21.56-48-40a12,12,0,1,0-15.36,18.44L221.26,128l-36.94,30.78a12,12,0,1,0,15.36,18.44l48-40a12,12,0,0,0,0-18.44ZM164.1,28.72a12,12,0,0,0-15.38,7.18l-64,176a12,12,0,0,0,7.18,15.37A11.79,11.79,0,0,0,96,228a12,12,0,0,0,11.28-7.9l64-176A12,12,0,0,0,164.1,28.72Z"></path>
+  </g>
+</svg>
