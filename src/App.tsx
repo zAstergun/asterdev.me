@@ -1,5 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState, memo } from "react";
 import { ChatBot } from "./components/ChatBot";
+import { SoulFighterShowcase } from "./components/SoulFighterShowcase";
+import { SoulFighterPhoneCompanion } from "./components/SoulFighterPhoneCompanion";
+import { IdealCalcShowcase } from "./components/IdealCalcShowcase";
+import { IdealCalcPhoneCompanion } from "./components/IdealCalcPhoneCompanion";
 import {
   GithubLogo,
   LinkedinLogo,
@@ -19,6 +23,13 @@ import {
   GraduationCap,
   X,
   ArrowCounterClockwise,
+  ArrowsOut,
+  ArrowsIn,
+  GameController,
+  Info,
+  Fire,
+  Calculator,
+  Heart,
 } from "@phosphor-icons/react";
 import {
   GRID_COLS,
@@ -401,6 +412,7 @@ function DetailPanel({
   onAnimationEnd,
   origin,
   isDark,
+  language = "br",
   ui,
 }: {
   item: DetailableItem;
@@ -410,6 +422,7 @@ function DetailPanel({
   onAnimationEnd?: () => void;
   origin?: { x: string; y: string };
   isDark?: boolean;
+  language?: Language;
   ui: any;
 }) {
   const animClass = isClosing ? "animate-ipadAppClose" : "animate-ipadAppOpen";
@@ -487,145 +500,165 @@ function DetailPanel({
             : "px-6 py-6"
         }`}
       >
-        {/* Icon */}
-        <div
-          className={`relative rounded-[22.5%] flex items-center justify-center shadow-md shrink-0 mb-3 ${
-            isDesktop ? "w-28 h-28 @tablet:w-32 @tablet:h-32 mb-5" : "w-20 h-20"
-          }`}
-          style={{
-            background: `linear-gradient(135deg, ${item.gradient[0]}, ${item.gradient[1]})`,
-          }}
-        >
-          {isImageIcon(item.icon) ? (
-            <img
-              src={item.icon}
-              alt={item.name}
-              className="w-full h-full object-cover rounded-[22.5%] drop-shadow-sm"
-            />
-          ) : item.icon === "rocket" || item.icon === "🚀" ? (
-            <RocketLaunch weight="fill" className={`text-white drop-shadow-sm ${isDesktop ? "w-14 h-14" : "w-10 h-10"}`} />
-          ) : item.icon === "graduation" || item.icon === "🎓" ? (
-            <GraduationCap weight="fill" className={`text-white drop-shadow-sm ${isDesktop ? "w-14 h-14" : "w-10 h-10"}`} />
-          ) : (
-            <span className={`drop-shadow-sm select-none ${isDesktop ? "text-5xl" : "text-4xl"}`}>
-              {item.icon}
-            </span>
-          )}
-        </div>
-
-        {/* Category tag */}
-        <span className="text-[11px] @tablet:text-xs font-mono tracking-[0.2em] uppercase font-bold text-aster-accent mb-1 block">
-          {categoryTag}
-        </span>
-
-        {/* Name */}
-        <h2
-          className={`font-extrabold leading-tight tracking-tight transition-colors duration-500 mb-3 ${panelText} ${
-            isDesktop ? "text-4xl @tablet:text-5xl mb-4" : "text-2xl @tablet:text-3xl"
-          }`}
-        >
-          {item.name}
-        </h2>
-
-        {/* Tags */}
-        <div className="flex flex-wrap gap-1.5 mb-6">
-          {item.appUrl && (
-            <span
-              className={`tag-chip flex items-center gap-1.5 font-bold transition-colors duration-500 ${
-                isDark
-                  ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
-                  : "bg-emerald-50 text-emerald-700 border border-emerald-200"
-              }`}
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              Live App
-            </span>
-          )}
-          {item.tags.map((tag) => (
-            <span
-              key={tag}
-              className={`tag-chip transition-colors duration-500 ${isDark ? 'bg-stone-700 text-stone-400' : 'bg-aster-dark/[0.07] text-aster-dark/60'}`}
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-
-        {/* Resumo Section */}
-        <h3 className={`text-xs @tablet:text-sm font-bold uppercase tracking-widest mb-2 transition-colors duration-500 ${panelFaint}`}>
-          {ui?.summary || "Resumo"}
-        </h3>
-        <p
-          className={`leading-relaxed transition-colors duration-500 mb-6 ${isDark ? 'text-stone-300' : 'text-aster-dark/80'} ${
-            isDesktop ? "text-base max-w-2xl" : "text-xs @tablet:text-sm"
-          } whitespace-pre-wrap`}
-        >
-          {item.summary}
-        </p>
-
-        {/* Links Section */}
-        {item.links.length > 0 && (
-          <div className="mb-6">
-            <h3 className={`text-xs font-bold uppercase tracking-widest mb-3 transition-colors duration-500 ${panelFaint}`}>
-              Links
-            </h3>
+        {!isDesktop && item.id === "soul-fighter-memory" ? (
+          <SoulFighterPhoneCompanion
+            isDark={isDark}
+            language={language}
+            item={item}
+            categoryTag={categoryTag}
+            ui={ui}
+          />
+        ) : !isDesktop && item.id === "ideal-calculator" ? (
+          <IdealCalcPhoneCompanion
+            isDark={isDark}
+            language={language}
+            item={item}
+            categoryTag={categoryTag}
+            ui={ui}
+          />
+        ) : (
+          <>
+            {/* Icon */}
             <div
-              className={`grid gap-2.5 ${
-                isDesktop ? "grid-cols-2 max-w-2xl" : "grid-cols-1"
+              className={`relative rounded-[22.5%] flex items-center justify-center shadow-md shrink-0 mb-3 ${
+                isDesktop ? "w-28 h-28 @tablet:w-32 @tablet:h-32 mb-5" : "w-20 h-20"
+              }`}
+              style={{
+                background: `linear-gradient(135deg, ${item.gradient[0]}, ${item.gradient[1]})`,
+              }}
+            >
+              {isImageIcon(item.icon) ? (
+                <img
+                  src={item.icon}
+                  alt={item.name}
+                  className="w-full h-full object-cover rounded-[22.5%] drop-shadow-sm"
+                />
+              ) : item.icon === "rocket" || item.icon === "🚀" ? (
+                <RocketLaunch weight="fill" className={`text-white drop-shadow-sm ${isDesktop ? "w-14 h-14" : "w-10 h-10"}`} />
+              ) : item.icon === "graduation" || item.icon === "🎓" ? (
+                <GraduationCap weight="fill" className={`text-white drop-shadow-sm ${isDesktop ? "w-14 h-14" : "w-10 h-10"}`} />
+              ) : (
+                <span className={`drop-shadow-sm select-none ${isDesktop ? "text-5xl" : "text-4xl"}`}>
+                  {item.icon}
+                </span>
+              )}
+            </div>
+
+            {/* Category tag */}
+            <span className="text-[11px] @tablet:text-xs font-mono tracking-[0.2em] uppercase font-bold text-aster-accent mb-1 block">
+              {categoryTag}
+            </span>
+
+            {/* Name */}
+            <h2
+              className={`font-extrabold leading-tight tracking-tight transition-colors duration-500 mb-3 ${panelText} ${
+                isDesktop ? "text-4xl @tablet:text-5xl mb-4" : "text-2xl @tablet:text-3xl"
               }`}
             >
-              {item.links.map((link) => (
-                <a
-                  key={link.title}
-                  href={link.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition-colors duration-500 group ${
+              {item.name}
+            </h2>
+
+            {/* Tags */}
+            <div className="flex flex-wrap gap-1.5 mb-6">
+              {item.appUrl && (
+                <span
+                  className={`tag-chip flex items-center gap-1.5 font-bold transition-colors duration-500 ${
                     isDark
-                      ? "bg-stone-700/60 border-stone-600 hover:bg-stone-700"
-                      : "bg-aster-beige-dark/60 border-aster-dark/[0.08] hover:bg-aster-beige-dark"
+                      ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
+                      : "bg-emerald-50 text-emerald-700 border border-emerald-200"
                   }`}
                 >
-                  <span className="text-base flex items-center justify-center">
-                    {isImageIcon(link.icon || "") ? (
-                      <img src={link.icon} alt={link.title} className="w-5 h-5 object-contain" />
-                    ) : (
-                      renderPhosphorLinkIcon(link.icon)
-                    )}
-                  </span>
-                  <span
-                    className={`text-xs @tablet:text-sm font-medium group-hover:text-aster-accent transition-colors duration-500 ${
-                      isDark ? "text-stone-300" : "text-aster-dark/80"
-                    }`}
-                  >
-                    {link.title}
-                  </span>
-                  <span
-                    className={`ml-auto group-hover:text-aster-accent transition-colors duration-500 text-xs ${
-                      isDark ? "text-stone-600" : "text-aster-dark/30"
-                    }`}
-                  >
-                    <ArrowRight weight="bold" className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
-                  </span>
-                </a>
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  Live App
+                </span>
+              )}
+              {item.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className={`tag-chip transition-colors duration-500 ${isDark ? 'bg-stone-700 text-stone-400' : 'bg-aster-dark/[0.07] text-aster-dark/60'}`}
+                >
+                  {tag}
+                </span>
               ))}
             </div>
-          </div>
-        )}
 
-        {/* Preview Visual */}
-        {item.previewMedia && (
-          <div className="mb-6">
-            <h3 className={`text-xs font-bold uppercase tracking-widest mb-3 transition-colors duration-500 ${panelFaint}`}>
-              Preview
+            {/* Resumo Section */}
+            <h3 className={`text-xs @tablet:text-sm font-bold uppercase tracking-widest mb-2 transition-colors duration-500 ${panelFaint}`}>
+              {ui?.summary || "Resumo"}
             </h3>
-            <PreviewVisual
-              src={item.previewMedia}
-              alt={`Preview de ${item.name}`}
-              isDesktop={isDesktop}
-              isClosing={isClosing}
-            />
-          </div>
+            <p
+              className={`leading-relaxed transition-colors duration-500 mb-6 ${isDark ? 'text-stone-300' : 'text-aster-dark/80'} ${
+                isDesktop ? "text-base max-w-2xl" : "text-xs @tablet:text-sm"
+              } whitespace-pre-wrap`}
+            >
+              {item.summary}
+            </p>
+
+            {/* Links Section */}
+            {item.links.length > 0 && (
+              <div className="mb-6">
+                <h3 className={`text-xs font-bold uppercase tracking-widest mb-3 transition-colors duration-500 ${panelFaint}`}>
+                  Links
+                </h3>
+                <div
+                  className={`grid gap-2.5 ${
+                    isDesktop ? "grid-cols-2 max-w-2xl" : "grid-cols-1"
+                  }`}
+                >
+                  {item.links.map((link) => (
+                    <a
+                      key={link.title}
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition-colors duration-500 group ${
+                        isDark
+                          ? "bg-stone-700/60 border-stone-600 hover:bg-stone-700"
+                          : "bg-aster-beige-dark/60 border-aster-dark/[0.08] hover:bg-aster-beige-dark"
+                      }`}
+                    >
+                      <span className="text-base flex items-center justify-center">
+                        {isImageIcon(link.icon || "") ? (
+                          <img src={link.icon} alt={link.title} className="w-5 h-5 object-contain" />
+                        ) : (
+                          renderPhosphorLinkIcon(link.icon)
+                        )}
+                      </span>
+                      <span
+                        className={`text-xs @tablet:text-sm font-medium group-hover:text-aster-accent transition-colors duration-500 ${
+                          isDark ? "text-stone-300" : "text-aster-dark/80"
+                        }`}
+                      >
+                        {link.title}
+                      </span>
+                      <span
+                        className={`ml-auto group-hover:text-aster-accent transition-colors duration-500 text-xs ${
+                          isDark ? "text-stone-600" : "text-aster-dark/30"
+                        }`}
+                      >
+                        <ArrowRight weight="bold" className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                      </span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Preview Visual */}
+            {item.previewMedia && (
+              <div className="mb-6">
+                <h3 className={`text-xs font-bold uppercase tracking-widest mb-3 transition-colors duration-500 ${panelFaint}`}>
+                  Preview
+                </h3>
+                <PreviewVisual
+                  src={item.previewMedia}
+                  alt={`Preview de ${item.name}`}
+                  isDesktop={isDesktop}
+                  isClosing={isClosing}
+                />
+              </div>
+            )}
+          </>
         )}
       </div>
 
@@ -682,6 +715,7 @@ interface LiveAppFrameProps {
   origin?: { x: string; y: string };
   isDark: boolean;
   ui?: any;
+  language?: Language;
 }
 
 function LiveAppFrame({
@@ -692,13 +726,21 @@ function LiveAppFrame({
   origin,
   isDark,
   ui,
+  language = "br",
 }: LiveAppFrameProps) {
+  const isSoulFighter = item.id === "soul-fighter-memory";
+  const isIdealCalc = item.id === "ideal-calculator";
+  const [activeTab, setActiveTab] = useState<"play" | "details">("play");
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const [iframeKey, setIframeKey] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const isPt = language === "br" || language === "pt";
+
   const animClass = isClosing ? "animate-ipadAppClose" : "animate-ipadAppOpen";
   const panelBg = isDark ? "bg-stone-900" : "bg-aster-beige";
   const panelText = isDark ? "text-stone-100" : "text-aster-dark";
-  const panelFaint = isDark ? "text-stone-400" : "text-aster-dark/50";
   const barBorder = isDark ? "border-stone-800" : "border-aster-dark/[0.08]";
   const pillBg = isDark
     ? "bg-stone-800/90 border-stone-700/80 text-stone-200"
@@ -713,9 +755,57 @@ function LiveAppFrame({
     }
   }, [appUrl]);
 
+  // Sync fullscreen state with document
+  useEffect(() => {
+    const handleFsChange = () => {
+      setIsFullscreen(Boolean(document.fullscreenElement));
+    };
+    document.addEventListener("fullscreenchange", handleFsChange);
+    return () => document.removeEventListener("fullscreenchange", handleFsChange);
+  }, []);
+
+  // Keyboard shortcut: Escape exits fullscreen if active
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isFullscreen) {
+        e.preventDefault();
+        if (document.fullscreenElement) {
+          document.exitFullscreen().catch(() => {});
+        }
+        setIsFullscreen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [isFullscreen]);
+
+  const toggleFullscreen = useCallback(() => {
+    if (!document.fullscreenElement && !isFullscreen) {
+      if (containerRef.current?.requestFullscreen) {
+        containerRef.current.requestFullscreen().catch(() => {
+          setIsFullscreen(true);
+        });
+      } else {
+        setIsFullscreen(true);
+      }
+    } else {
+      if (document.fullscreenElement && document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+      }
+      setIsFullscreen(false);
+    }
+  }, [isFullscreen]);
+
+  const fullscreenClass = isFullscreen
+    ? "!fixed !inset-0 !z-50 !w-screen !h-screen !rounded-none !m-0 !p-0"
+    : "absolute inset-0 z-20";
+
   return (
     <div
-      className={`detail-panel-desktop absolute inset-0 z-20 flex flex-col ${panelBg} overflow-hidden ${animClass} transition-colors duration-500`}
+      ref={containerRef}
+      className={`detail-panel-desktop ${fullscreenClass} flex flex-col ${
+        isSoulFighter ? "bg-[#0b0813]" : isIdealCalc ? "bg-[#080d0a]" : panelBg
+      } overflow-hidden ${animClass} transition-colors duration-500`}
       style={{
         willChange: "transform, opacity",
         transformOrigin: origin ? `${origin.x} ${origin.y}` : "50% 50%",
@@ -726,147 +816,517 @@ function LiveAppFrame({
         onAnimationEnd?.();
       }}
     >
-      {/* iPad Top Window Bar / Browser Header */}
-      <div
-        className={`flex items-center justify-between gap-3 px-5 py-3 shrink-0 border-b ${barBorder} select-none transition-colors duration-500`}
-      >
-        {/* Left: Close button + App Icon & Name */}
-        <div className="flex items-center gap-3 min-w-0">
-          <button
-            type="button"
-            onClick={onClose}
-            className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer ${
-              isDark
-                ? "bg-stone-800 text-stone-400 hover:bg-stone-700 hover:text-white"
-                : "bg-aster-dark/[0.06] text-aster-dark/60 hover:bg-aster-dark/12 hover:text-aster-dark"
-            }`}
-            aria-label={ui?.back || "Voltar"}
-            title={ui?.back || "Voltar"}
-          >
-            <ArrowLeft weight="bold" className="w-4 h-4" />
-          </button>
+      {/* ─── Top Window Bar / Header ─── */}
+      {isSoulFighter ? (
+        <div className="relative shrink-0 select-none z-10">
+          {/* Top neon strip */}
+          <div className="h-[2px] w-full bg-gradient-to-r from-[#ff4655] via-[#a855f7] to-[#00cec9] shadow-[0_0_8px_rgba(255,70,85,0.6)]" />
 
-          <div className="flex items-center gap-2.5 min-w-0">
-            {isImageIcon(item.icon) ? (
-              <img
-                src={item.icon}
-                alt={item.name}
-                className="w-6 h-6 object-contain rounded-md shrink-0 shadow-sm"
-              />
-            ) : (
-              <div
-                className="w-6 h-6 rounded-md flex items-center justify-center text-xs text-white shrink-0 shadow-sm"
-                style={{
-                  background: `linear-gradient(135deg, ${item.gradient[0]}, ${item.gradient[1]})`,
-                }}
+          {/* Header Row */}
+          <div className="flex items-center justify-between gap-2.5 px-3.5 sm:px-4 py-2 sm:py-2.5 bg-[#0f0b1a] border-b border-[#ff4655]/25 shadow-[0_4px_20px_rgba(15,11,26,0.6)]">
+            {/* Left: Back + Soul Fighter Identity */}
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+              <button
+                type="button"
+                onClick={onClose}
+                className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer bg-white/5 border border-white/10 text-stone-300 hover:bg-[#ff4655]/20 hover:text-white hover:border-[#ff4655]/40 shrink-0"
+                aria-label={ui?.back || "Voltar"}
+                title={ui?.back || "Voltar"}
               >
-                {item.icon === "rocket" || item.icon === "🚀" ? (
-                  <RocketLaunch weight="fill" className="w-3.5 h-3.5 text-white" />
-                ) : item.icon === "graduation" || item.icon === "🎓" ? (
-                  <GraduationCap weight="fill" className="w-3.5 h-3.5 text-white" />
-                ) : (
-                  <span>{item.icon}</span>
-                )}
+                <ArrowLeft weight="bold" className="w-4 h-4" />
+              </button>
+
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="relative shrink-0">
+                  <img
+                    src={item.icon || "/icons/memory.png"}
+                    alt={item.name}
+                    className="w-7 h-7 object-cover rounded-lg border border-[#ff4655]/50 shadow-[0_0_10px_rgba(255,70,85,0.4)]"
+                  />
+                  <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-[#ff4655] animate-pulse" />
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <div className="flex items-center gap-1.5 leading-none">
+                    <span className="text-xs font-black tracking-wider text-white uppercase truncate font-mono">
+                      SOUL FIGHTER
+                    </span>
+                    <span className="text-[9px] px-1 py-0.2 rounded bg-gradient-to-r from-[#ff4655] to-[#705df2] text-white font-extrabold tracking-tight">
+                      ARENA
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-stone-400 font-mono truncate leading-tight">
+                    Memory Game Remastered
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Center: Segmented Tabs [🎮 Jogar / 📋 Detalhes & Stack] */}
+            <div className="flex items-center p-1 rounded-xl bg-black/40 border border-white/10 shadow-inner">
+              <button
+                type="button"
+                onClick={() => setActiveTab("play")}
+                className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer ${
+                  activeTab === "play"
+                    ? "bg-gradient-to-r from-[#ff4655] to-[#705df2] text-white shadow-[0_2px_12px_rgba(255,70,85,0.4)]"
+                    : "text-stone-400 hover:text-stone-200 hover:bg-white/5"
+                }`}
+              >
+                <GameController weight="fill" className="w-3.5 h-3.5" />
+                <span>{isPt ? "Jogar Arena" : "Play Arena"}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab("details")}
+                className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer ${
+                  activeTab === "details"
+                    ? "bg-white/15 text-white border border-white/20 shadow-sm"
+                    : "text-stone-400 hover:text-stone-200 hover:bg-white/5"
+                }`}
+              >
+                <Info weight="bold" className="w-3.5 h-3.5" />
+                <span>{isPt ? "Detalhes & Stack" : "Specs & Stack"}</span>
+              </button>
+            </div>
+
+            {/* Right: Actions */}
+            <div className="flex items-center gap-1.5 shrink-0">
+              {activeTab === "play" && (
+                <button
+                  type="button"
+                  onClick={toggleFullscreen}
+                  className="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 cursor-pointer bg-white/5 border border-white/10 text-stone-300 hover:bg-white/10 hover:text-white"
+                  title={isFullscreen ? (isPt ? "Sair da Tela Cheia" : "Exit Fullscreen") : (isPt ? "Modo Tela Cheia Arcade" : "Arcade Fullscreen")}
+                >
+                  {isFullscreen ? (
+                    <ArrowsIn weight="bold" className="w-4 h-4 text-[#ff4655]" />
+                  ) : (
+                    <ArrowsOut weight="bold" className="w-4 h-4" />
+                  )}
+                </button>
+              )}
+
+              {/* Reload */}
+              <button
+                type="button"
+                onClick={() => {
+                  setIsLoading(true);
+                  setIframeKey((k) => k + 1);
+                }}
+                className="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 cursor-pointer bg-white/5 border border-white/10 text-stone-300 hover:bg-white/10 hover:text-white"
+                title={isPt ? "Recarregar" : "Reload"}
+              >
+                <ArrowCounterClockwise weight="bold" className={`w-4 h-4 ${isLoading ? "animate-spin text-[#ff4655]" : ""}`} />
+              </button>
+
+              {/* Open in new tab */}
+              <a
+                href={appUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 cursor-pointer bg-white/5 border border-white/10 text-stone-300 hover:bg-white/10 hover:text-white"
+                title={isPt ? "Abrir em nova aba" : "Open in new tab"}
+              >
+                <ArrowSquareOut weight="bold" className="w-4 h-4" />
+              </a>
+
+              {/* Close */}
+              <button
+                type="button"
+                onClick={onClose}
+                className="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 cursor-pointer bg-white/5 border border-white/10 text-stone-400 hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/30"
+                title={isPt ? "Fechar" : "Close"}
+              >
+                <X weight="bold" className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : isIdealCalc ? (
+        <div className="relative shrink-0 select-none z-10">
+          {/* Top neon strip */}
+          <div className="h-[2px] w-full bg-gradient-to-r from-[#e61e2a] via-[#ff4d4d] to-[#b3141f] shadow-[0_0_8px_rgba(230,30,42,0.6)]" />
+
+          {/* Header Row */}
+          <div className="flex items-center justify-between gap-2.5 px-3.5 sm:px-4 py-2 sm:py-2.5 bg-[#0f0c0e] border-b border-[#e61e2a]/25 shadow-[0_4px_20px_rgba(15,12,14,0.6)]">
+            {/* Left: Back + Ideal Calc Identity */}
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+              <button
+                type="button"
+                onClick={onClose}
+                className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer bg-white/5 border border-white/10 text-stone-300 hover:bg-[#e61e2a]/20 hover:text-white hover:border-[#e61e2a]/40 shrink-0"
+                aria-label={ui?.back || "Voltar"}
+                title={ui?.back || "Voltar"}
+              >
+                <ArrowLeft weight="bold" className="w-4 h-4" />
+              </button>
+
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="relative shrink-0 w-7 h-7 rounded-lg border border-[#e61e2a]/50 shadow-[0_0_10px_rgba(230,30,42,0.4)] bg-[#160d10] p-1 flex items-center justify-center">
+                  <img
+                    src={item.icon || "/icons/calculator.svg"}
+                    alt={item.name}
+                    className="w-full h-full object-contain"
+                  />
+                  <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-[#e61e2a] animate-pulse" />
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <div className="flex items-center gap-1.5 leading-none">
+                    <span className="text-xs font-black tracking-wider text-white uppercase truncate font-mono">
+                      IDEAL CALC
+                    </span>
+                    <span className="text-[9px] px-1 py-0.2 rounded bg-gradient-to-r from-[#e61e2a] to-[#a71d24] text-white font-extrabold tracking-tight">
+                      IBGE
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-stone-400 font-mono truncate leading-tight">
+                    {isPt ? "Raridade Demográfica" : "Demographic Rarity"}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Center: Segmented Tabs [📊 Usar Calculadora / 📋 Detalhes & Metodologia] */}
+            <div className="flex items-center p-1 rounded-xl bg-black/40 border border-white/10 shadow-inner">
+              <button
+                type="button"
+                onClick={() => setActiveTab("play")}
+                className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer ${
+                  activeTab === "play"
+                    ? "bg-gradient-to-r from-[#e61e2a] to-[#a71d24] text-white shadow-[0_2px_12px_rgba(230,30,42,0.4)]"
+                    : "text-stone-400 hover:text-stone-200 hover:bg-white/5"
+                }`}
+              >
+                <Calculator weight="fill" className="w-3.5 h-3.5" />
+                <span>{isPt ? "Usar Calculadora" : "Use Calculator"}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab("details")}
+                className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer ${
+                  activeTab === "details"
+                    ? "bg-white/15 text-white border border-white/20 shadow-sm"
+                    : "text-stone-400 hover:text-stone-200 hover:bg-white/5"
+                }`}
+              >
+                <Info weight="bold" className="w-3.5 h-3.5" />
+                <span>{isPt ? "Detalhes & Metodologia" : "Specs & Methodology"}</span>
+              </button>
+            </div>
+
+            {/* Right: Actions */}
+            <div className="flex items-center gap-1.5 shrink-0">
+              {activeTab === "play" && (
+                <button
+                  type="button"
+                  onClick={toggleFullscreen}
+                  className="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 cursor-pointer bg-white/5 border border-white/10 text-stone-300 hover:bg-white/10 hover:text-white"
+                  title={isFullscreen ? (isPt ? "Sair da Tela Cheia" : "Exit Fullscreen") : (isPt ? "Modo Tela Cheia" : "Fullscreen Mode")}
+                >
+                  {isFullscreen ? (
+                    <ArrowsIn weight="bold" className="w-4 h-4 text-[#ff4d4d]" />
+                  ) : (
+                    <ArrowsOut weight="bold" className="w-4 h-4" />
+                  )}
+                </button>
+              )}
+
+              {/* Reload */}
+              <button
+                type="button"
+                onClick={() => {
+                  setIsLoading(true);
+                  setIframeKey((k) => k + 1);
+                }}
+                className="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 cursor-pointer bg-white/5 border border-white/10 text-stone-300 hover:bg-white/10 hover:text-white"
+                title={isPt ? "Recarregar" : "Reload"}
+              >
+                <ArrowCounterClockwise weight="bold" className={`w-4 h-4 ${isLoading ? "animate-spin text-[#ff4d4d]" : ""}`} />
+              </button>
+
+              {/* Open in new tab */}
+              <a
+                href={appUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 cursor-pointer bg-white/5 border border-white/10 text-stone-300 hover:bg-white/10 hover:text-white"
+                title={isPt ? "Abrir em nova aba" : "Open in new tab"}
+              >
+                <ArrowSquareOut weight="bold" className="w-4 h-4" />
+              </a>
+
+              {/* Close */}
+              <button
+                type="button"
+                onClick={onClose}
+                className="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 cursor-pointer bg-white/5 border border-white/10 text-stone-400 hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/30"
+                title={isPt ? "Fechar" : "Close"}
+              >
+                <X weight="bold" className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : (
+        /* Generic LiveAppFrame Header */
+        <div
+          className={`flex items-center justify-between gap-3 px-5 py-3 shrink-0 border-b ${barBorder} select-none transition-colors duration-500`}
+        >
+          {/* Left: Close button + App Icon & Name */}
+          <div className="flex items-center gap-3 min-w-0">
+            <button
+              type="button"
+              onClick={onClose}
+              className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer ${
+                isDark
+                  ? "bg-stone-800 text-stone-400 hover:bg-stone-700 hover:text-white"
+                  : "bg-aster-dark/[0.06] text-aster-dark/60 hover:bg-aster-dark/12 hover:text-aster-dark"
+              }`}
+              aria-label={ui?.back || "Voltar"}
+              title={ui?.back || "Voltar"}
+            >
+              <ArrowLeft weight="bold" className="w-4 h-4" />
+            </button>
+
+            <div className="flex items-center gap-2.5 min-w-0">
+              {isImageIcon(item.icon) ? (
+                <img
+                  src={item.icon}
+                  alt={item.name}
+                  className="w-6 h-6 object-contain rounded-md shrink-0 shadow-sm"
+                />
+              ) : (
+                <div
+                  className="w-6 h-6 rounded-md flex items-center justify-center text-xs text-white shrink-0 shadow-sm"
+                  style={{
+                    background: `linear-gradient(135deg, ${item.gradient[0]}, ${item.gradient[1]})`,
+                  }}
+                >
+                  {item.icon === "rocket" || item.icon === "🚀" ? (
+                    <RocketLaunch weight="fill" className="w-3.5 h-3.5 text-white" />
+                  ) : item.icon === "graduation" || item.icon === "🎓" ? (
+                    <GraduationCap weight="fill" className="w-3.5 h-3.5 text-white" />
+                  ) : (
+                    <span>{item.icon}</span>
+                  )}
+                </div>
+              )}
+              <span className={`text-sm font-bold tracking-tight truncate ${panelText}`}>
+                {item.name}
+              </span>
+            </div>
+          </div>
+
+          {/* Center: Address Bar Pill */}
+          <div
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full border text-xs font-mono shadow-sm max-w-sm w-full justify-center mx-2 ${pillBg}`}
+          >
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+            <span className="truncate tracking-wide">{hostname}</span>
+            <span
+              className={`text-[10px] px-1.5 py-0.5 rounded uppercase font-bold tracking-wider shrink-0 ${
+                isDark ? "bg-emerald-500/15 text-emerald-400" : "bg-emerald-600/10 text-emerald-700"
+              }`}
+            >
+              Live
+            </span>
+          </div>
+
+          {/* Right: Actions */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              type="button"
+              onClick={toggleFullscreen}
+              className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer ${
+                isDark
+                  ? "bg-stone-800 text-stone-400 hover:bg-stone-700 hover:text-white"
+                  : "bg-aster-dark/[0.06] text-aster-dark/60 hover:bg-aster-dark/12 hover:text-aster-dark"
+              }`}
+              title={isFullscreen ? (isPt ? "Sair da Tela Cheia" : "Exit Fullscreen") : (isPt ? "Modo Tela Cheia" : "Fullscreen Mode")}
+            >
+              {isFullscreen ? (
+                <ArrowsIn weight="bold" className="w-4 h-4 text-emerald-400" />
+              ) : (
+                <ArrowsOut weight="bold" className="w-4 h-4" />
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setIsLoading(true);
+                setIframeKey((k) => k + 1);
+              }}
+              className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer ${
+                isDark
+                  ? "bg-stone-800 text-stone-400 hover:bg-stone-700 hover:text-white"
+                  : "bg-aster-dark/[0.06] text-aster-dark/60 hover:bg-aster-dark/12 hover:text-aster-dark"
+              }`}
+              title="Recarregar aplicativo"
+              aria-label="Recarregar"
+            >
+              <ArrowCounterClockwise
+                weight="bold"
+                className={`w-4 h-4 ${isLoading ? "animate-spin text-aster-accent" : ""}`}
+              />
+            </button>
+
+            <a
+              href={appUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer ${
+                isDark
+                  ? "bg-stone-800 text-stone-400 hover:bg-stone-700 hover:text-white"
+                  : "bg-aster-dark/[0.06] text-aster-dark/60 hover:bg-aster-dark/12 hover:text-aster-dark"
+              }`}
+              title="Abrir em nova aba"
+              aria-label="Abrir em nova aba"
+            >
+              <ArrowSquareOut weight="bold" className="w-4 h-4" />
+            </a>
+
+            <button
+              type="button"
+              onClick={onClose}
+              className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer ${
+                isDark
+                  ? "bg-stone-800 text-stone-400 hover:bg-red-500/20 hover:text-red-400"
+                  : "bg-aster-dark/[0.06] text-aster-dark/60 hover:bg-red-500/10 hover:text-red-600"
+              }`}
+              title="Fechar aplicativo"
+              aria-label="Fechar"
+            >
+              <X weight="bold" className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ─── Main Body: Play Arena (Iframe) OR Details & Stack Showcase ─── */}
+      <div className={`flex-1 relative w-full h-full overflow-hidden ${
+        isSoulFighter ? "bg-[#0b0418]" : isIdealCalc ? "bg-[#0b0a0a]" : "bg-black"
+      }`}>
+        {activeTab === "play" ? (
+          <>
+            {isLoading && (
+              <div className={`absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 backdrop-blur-md transition-opacity duration-300 ${
+                isSoulFighter
+                  ? "bg-[#0b0418]/85"
+                  : isIdealCalc
+                  ? "bg-[#0b0a0a]/85"
+                  : "bg-black/85"
+              }`}>
+                <div className="relative">
+                  <div
+                    className={`w-12 h-12 border-3 border-transparent rounded-full animate-spin ${
+                      isSoulFighter
+                        ? "border-t-[#ff4655] border-r-[#705df2] shadow-[0_0_20px_rgba(255,70,85,0.5)]"
+                        : isIdealCalc
+                        ? "border-t-[#e61e2a] border-r-[#ff4d4d] shadow-[0_0_20px_rgba(230,30,42,0.5)]"
+                        : "border-t-aster-accent border-r-teal-400"
+                    }`}
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    {isSoulFighter ? (
+                      <Fire weight="fill" className="w-5 h-5 text-[#ff4655] animate-pulse" />
+                    ) : isIdealCalc ? (
+                      <Heart weight="fill" className="w-5 h-5 text-[#ff4d4d] animate-pulse" />
+                    ) : (
+                      <Sparkle weight="fill" className="w-5 h-5 text-aster-accent animate-pulse" />
+                    )}
+                  </div>
+                </div>
+                <span className="text-xs font-mono font-bold tracking-wider text-stone-300 uppercase">
+                  {isSoulFighter
+                    ? isPt
+                      ? "Entrando na Arena Soul Fighter..."
+                      : "Entering Soul Fighter Arena..."
+                    : isIdealCalc
+                    ? isPt
+                      ? "Carregando bases e microdados do IBGE..."
+                      : "Loading IBGE Datasets & Microdata..."
+                    : isPt
+                    ? "Carregando aplicativo..."
+                    : "Loading application..."}
+                </span>
               </div>
             )}
-            <span className={`text-sm font-bold tracking-tight truncate ${panelText}`}>
-              {item.name}
-            </span>
-          </div>
-        </div>
 
-        {/* Center: Address Bar Pill */}
-        <div
-          className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full border text-xs font-mono shadow-sm max-w-sm w-full justify-center mx-2 ${pillBg}`}
-        >
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-          <span className="truncate tracking-wide">{hostname}</span>
-          <span
-            className={`text-[10px] px-1.5 py-0.5 rounded uppercase font-bold tracking-wider shrink-0 ${
-              isDark ? "bg-emerald-500/15 text-emerald-400" : "bg-emerald-600/10 text-emerald-700"
-            }`}
-          >
-            Live
-          </span>
-        </div>
+            <div className={`w-full h-full flex items-start justify-center overflow-hidden ${
+              isSoulFighter ? "bg-[#0b0418]" : isIdealCalc ? "bg-[#0b0a0a]" : "bg-black"
+            }`}>
+              <iframe
+                key={iframeKey}
+                src={appUrl}
+                title={item.name}
+                className="w-full h-full border-0 select-auto"
+                sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-downloads"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                onLoad={() => setIsLoading(false)}
+              />
+            </div>
 
-        {/* Right: Actions (Reload, Open in New Tab, Close) */}
-        <div className="flex items-center gap-1.5 shrink-0">
-          <button
-            type="button"
-            onClick={() => {
-              setIsLoading(true);
-              setIframeKey((k) => k + 1);
-            }}
-            className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer ${
-              isDark
-                ? "bg-stone-800 text-stone-400 hover:bg-stone-700 hover:text-white"
-                : "bg-aster-dark/[0.06] text-aster-dark/60 hover:bg-aster-dark/12 hover:text-aster-dark"
-            }`}
-            title="Recarregar aplicativo"
-            aria-label="Recarregar"
-          >
-            <ArrowCounterClockwise
-              weight="bold"
-              className={`w-4 h-4 ${isLoading ? "animate-spin text-aster-accent" : ""}`}
-            />
-          </button>
-
-          <a
-            href={appUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer ${
-              isDark
-                ? "bg-stone-800 text-stone-400 hover:bg-stone-700 hover:text-white"
-                : "bg-aster-dark/[0.06] text-aster-dark/60 hover:bg-aster-dark/12 hover:text-aster-dark"
-            }`}
-            title="Abrir em nova aba"
-            aria-label="Abrir em nova aba"
-          >
-            <ArrowSquareOut weight="bold" className="w-4 h-4" />
-          </a>
-
-          <button
-            type="button"
-            onClick={onClose}
-            className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer ${
-              isDark
-                ? "bg-stone-800 text-stone-400 hover:bg-red-500/20 hover:text-red-400"
-                : "bg-aster-dark/[0.06] text-aster-dark/60 hover:bg-red-500/10 hover:text-red-600"
-            }`}
-            title="Fechar aplicativo"
-            aria-label="Fechar"
-          >
-            <X weight="bold" className="w-4 h-4" />
-          </button>
-        </div>
+            {/* Fullscreen Floating Exit Hint */}
+            {isFullscreen && (
+              <div className="absolute top-4 right-4 z-30">
+                <button
+                  type="button"
+                  onClick={toggleFullscreen}
+                  className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/85 backdrop-blur-md border text-xs font-mono text-white shadow-xl hover:bg-black transition-all cursor-pointer ${
+                    isSoulFighter
+                      ? "border-[#ff4655]/40"
+                      : isIdealCalc
+                      ? "border-[#e61e2a]/40"
+                      : "border-white/30"
+                  }`}
+                >
+                  <ArrowsIn
+                    weight="bold"
+                    className={`w-3.5 h-3.5 ${
+                      isSoulFighter
+                        ? "text-[#ff4655]"
+                        : isIdealCalc
+                        ? "text-[#ff4d4d]"
+                        : "text-white"
+                    }`}
+                  />
+                  <span>{isPt ? "Sair da Tela Cheia (ESC)" : "Exit Fullscreen (ESC)"}</span>
+                </button>
+              </div>
+            )}
+          </>
+        ) : isSoulFighter ? (
+          <SoulFighterShowcase
+            onPlayClick={() => setActiveTab("play")}
+            isDark={isDark}
+            item={item}
+            ui={ui}
+            language={language}
+          />
+        ) : isIdealCalc ? (
+          <IdealCalcShowcase
+            onPlayClick={() => setActiveTab("play")}
+            isDark={isDark}
+            item={item}
+            ui={ui}
+            language={language}
+          />
+        ) : null}
       </div>
 
-      {/* Main App Canvas / Iframe */}
-      <div className="flex-1 relative w-full h-full overflow-hidden bg-black/5 dark:bg-black/30">
-        {isLoading && (
-          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 backdrop-blur-sm pointer-events-none transition-opacity duration-300">
-            <div className="w-8 h-8 border-2 border-aster-accent/20 border-t-aster-accent rounded-full animate-spin" />
-            <span className={`text-xs font-mono tracking-wider ${panelFaint}`}>
-              Carregando {item.name}...
-            </span>
-          </div>
-        )}
-
-        <iframe
-          key={iframeKey}
-          src={appUrl}
-          title={item.name}
-          className="w-full h-full border-0 select-auto"
-          sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-downloads"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          onLoad={() => setIsLoading(false)}
-        />
-      </div>
-
-      {/* iPad Bottom Home Indicator Bar */}
-      <div className={`relative flex justify-center py-2 shrink-0 border-t ${barBorder} ${panelBg}`}>
+      {/* ─── Bottom Home Indicator Bar ─── */}
+      <div
+        className={`relative flex justify-center py-2 shrink-0 border-t ${
+          isSoulFighter
+            ? "border-[#ff4655]/20 bg-[#0f0b1a]"
+            : isIdealCalc
+            ? "border-[#e61e2a]/20 bg-[#0f0c0e]"
+            : `${barBorder} ${panelBg}`
+        }`}
+      >
         <button
           type="button"
           onClick={onClose}
@@ -874,8 +1334,12 @@ function LiveAppFrame({
           aria-label={ui?.homeButton || "Fechar"}
         >
           <div
-            className={`w-32 h-1 rounded-full transition-colors duration-300 group-hover:bg-aster-accent ${
-              isDark ? "bg-white/20" : "bg-aster-dark/20"
+            className={`w-32 h-1 rounded-full transition-all duration-300 ${
+              isSoulFighter
+                ? "bg-gradient-to-r from-[#ff4655]/40 via-[#705df2]/60 to-[#ff4655]/40 group-hover:from-[#ff4655] group-hover:to-[#705df2] group-hover:shadow-[0_0_10px_rgba(255,70,85,0.6)]"
+                : isIdealCalc
+                ? "bg-gradient-to-r from-[#e61e2a]/40 via-[#ff4d4d]/60 to-[#e61e2a]/40 group-hover:from-[#e61e2a] group-hover:to-[#ff4d4d] group-hover:shadow-[0_0_10px_rgba(230,30,42,0.6)]"
+                : `group-hover:bg-aster-accent ${isDark ? "bg-white/20" : "bg-aster-dark/20"}`
             }`}
           />
         </button>
@@ -1563,6 +2027,7 @@ export default function App() {
             }
             origin={appOrigin}
             isDark={isDark}
+            language={language}
             ui={ui}
           />
         )
@@ -1733,6 +2198,7 @@ export default function App() {
                       }
                       origin={appOrigin}
                       isDark={isDark}
+                      language={language}
                       ui={ui}
                     />
                   ) : (
@@ -1751,6 +2217,7 @@ export default function App() {
                       }
                       origin={appOrigin}
                       isDark={isDark}
+                      language={language}
                       ui={ui}
                     />
                   )

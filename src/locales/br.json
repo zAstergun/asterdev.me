@@ -36,7 +36,7 @@
     "calcSummary": "Calculadora estatística interativa que cruza 12 filtros demográficos com microdados oficiais do IBGE (Censo 2022, PNAD 2023) para revelar a probabilidade real de encontrar o parceiro ideal no Brasil. Cálculo em tempo real, card viral compartilhável e auditoria completa de dados.",
     "calcLinkOpen": "Abrir App",
     "soulName": "Soul Fighter: Memory Game",
-    "soulSummary": "Jogo da memória temático inspirado no universo Soul Fighter de League of Legends. Mecânica clássica de card-flip com assets oficiais do evento, lógica de matching em JavaScript vanilla e design responsivo fiel à identidade visual do game.",
+    "soulSummary": "Jogo da memória temático remasterizado no universo Soul Fighter de League of Legends. Reconstruído em React 19, TypeScript e Tailwind CSS, trazendo 4 modos de combate (incluindo Lenda com 10 vidas e K.O.), sistema de dicas e espiadinha, Web Audio API e integração com Aster Account para ranking global.",
     "soulLinkPlay": "Jogar",
     "pexName": "PEX Wiki",
     "pexSummary": "Hub de conhecimento acadêmico para alunos de Ciência da Computação do Centro Universitário União das Américas - UniAmérica. Sistema de Views com roteamento SPA em Vanilla JS, design system 'Blurple Gamer' em dark mode, checklists interativos, modais dinâmicos para os 17 ODS da ONU e responsividade Mobile First.",

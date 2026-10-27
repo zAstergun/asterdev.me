@@ -480,7 +480,7 @@ export const BOT_RESPONSES: Record<IntentId, Record<BotLanguage, LocalizedIntent
     br: {
       text: "Aqui estão os principais projetos em destaque no portfólio:\n\n1. 📊 Ideal Calc: Calculadora estatística interativa cruzando 12 filtros demográficos com microdados oficiais do IBGE.\n2. 🎮 Soul Fighter: Memory Game: Jogo da memória temático de LoL em JavaScript vanilla.\n3. 📚 PEX Wiki: Hub de projetos acadêmicos e ODS da ONU para alunos da UniAmérica.\n4. 📱 Mobile Demo: Aplicação mobile em React Native.",
       actions: [
-        { label: "Abrir Ideal Calc ↗", url: "https://idealcalc.app/" },
+        { label: "Abrir Ideal Calc ↗", url: "https://idealcalc.asterdev.me/" },
         { label: "Jogar Soul Fighter ↗", url: "https://zastergun.github.io/Soul-Fighter-Memory-Game/" },
         { label: "Visitar PEX Wiki ↗", url: "https://pex-wiki.vercel.app/" },
       ],
@@ -489,7 +489,7 @@ export const BOT_RESPONSES: Record<IntentId, Record<BotLanguage, LocalizedIntent
     pt: {
       text: "Aqui estão os principais projetos em destaque no portfólio:\n\n1. 📊 Ideal Calc: Calculadora estatística interativa que cruza 12 filtros demográficos com microdados oficiais do IBGE.\n2. 🎮 Soul Fighter: Memory Game: Jogo da memória temático de LoL em JavaScript vanilla.\n3. 📚 PEX Wiki: Hub de projetos académicos e ODS da ONU para estudantes da UniAmérica.\n4. 📱 Mobile Demo: Aplicação mobile em React Native.",
       actions: [
-        { label: "Abrir Ideal Calc ↗", url: "https://idealcalc.app/" },
+        { label: "Abrir Ideal Calc ↗", url: "https://idealcalc.asterdev.me/" },
         { label: "Jogar Soul Fighter ↗", url: "https://zastergun.github.io/Soul-Fighter-Memory-Game/" },
         { label: "Visitar PEX Wiki ↗", url: "https://pex-wiki.vercel.app/" },
       ],
@@ -498,7 +498,7 @@ export const BOT_RESPONSES: Record<IntentId, Record<BotLanguage, LocalizedIntent
     en: {
       text: "Here are the featured projects highlighted in Aster's portfolio:\n\n1. 📊 Ideal Calc: Interactive demographic calculator crossing 12 filters with official Brazilian IBGE microdata.\n2. 🎮 Soul Fighter: Memory Game: LoL-themed card game built in vanilla JS with custom animations.\n3. 📚 PEX Wiki: Academic knowledge base for Computer Science students with UN SDG mapping.\n4. 📱 Mobile Demo: React Native mobile showcase application.",
       actions: [
-        { label: "Open Ideal Calc ↗", url: "https://idealcalc.app/" },
+        { label: "Open Ideal Calc ↗", url: "https://idealcalc.asterdev.me/" },
         { label: "Play Soul Fighter ↗", url: "https://zastergun.github.io/Soul-Fighter-Memory-Game/" },
         { label: "Visit PEX Wiki ↗", url: "https://pex-wiki.vercel.app/" },
       ],
@@ -507,7 +507,7 @@ export const BOT_RESPONSES: Record<IntentId, Record<BotLanguage, LocalizedIntent
     es: {
       text: "Aquí están los proyectos destacados en el portafolio:\n\n1. 📊 Ideal Calc: Calculadora demográfica interactiva con microdatos del IBGE.\n2. 🎮 Soul Fighter: Memory Game: Juego de memoria temático de LoL en JavaScript vanilla.\n3. 📚 PEX Wiki: Hub de proyectos académicos alineados con los ODS de la ONU.\n4. 📱 Mobile Demo: Aplicación móvil en React Native.",
       actions: [
-        { label: "Abrir Ideal Calc ↗", url: "https://idealcalc.app/" },
+        { label: "Abrir Ideal Calc ↗", url: "https://idealcalc.asterdev.me/" },
         { label: "Jugar Soul Fighter ↗", url: "https://zastergun.github.io/Soul-Fighter-Memory-Game/" },
         { label: "Visitar PEX Wiki ↗", url: "https://pex-wiki.vercel.app/" },
       ],
@@ -516,7 +516,7 @@ export const BOT_RESPONSES: Record<IntentId, Record<BotLanguage, LocalizedIntent
     fr: {
       text: "Voici les projets phares du portfolio d'Aster :\n\n1. 📊 Ideal Calc : Calculateur démographique croisant les microdonnées officielles de l'IBGE.\n2. 🎮 Soul Fighter: Memory Game : Jeu de mémoire basé sur LoL en JavaScript pur.\n3. 📚 PEX Wiki : Base de connaissances académique et objectifs ODD de l'ONU.\n4. 📱 Mobile Demo : Application mobile avec React Native.",
       actions: [
-        { label: "Ouvrir Ideal Calc ↗", url: "https://idealcalc.app/" },
+        { label: "Ouvrir Ideal Calc ↗", url: "https://idealcalc.asterdev.me/" },
         { label: "Jouer à Soul Fighter ↗", url: "https://zastergun.github.io/Soul-Fighter-Memory-Game/" },
         { label: "Visiter PEX Wiki ↗", url: "https://pex-wiki.vercel.app/" },
       ],
@@ -525,7 +525,7 @@ export const BOT_RESPONSES: Record<IntentId, Record<BotLanguage, LocalizedIntent
     de: {
       text: "Hier sind die wichtigsten Projekte in Asters Portfolio:\n\n1. 📊 Ideal Calc: Statistischer Rechner auf Basis offizieller IBGE-Mikrodaten.\n2. 🎮 Soul Fighter: Memory Game: LoL-Memory-Spiel mit purem Vanilla JavaScript.\n3. 📚 PEX Wiki: Akademische Plattform mit Zuordnung zu den 17 UN-Nachhaltigkeitszielen.\n4. 📱 Mobile Demo: Demo-App für Mobilgeräte mit React Native.",
       actions: [
-        { label: "Ideal Calc öffnen ↗", url: "https://idealcalc.app/" },
+        { label: "Ideal Calc öffnen ↗", url: "https://idealcalc.asterdev.me/" },
         { label: "Soul Fighter spielen ↗", url: "https://zastergun.github.io/Soul-Fighter-Memory-Game/" },
         { label: "PEX Wiki besuchen ↗", url: "https://pex-wiki.vercel.app/" },
       ],
@@ -534,7 +534,7 @@ export const BOT_RESPONSES: Record<IntentId, Record<BotLanguage, LocalizedIntent
     it: {
       text: "Ecco i progetti in evidenza nel portfolio di Aster:\n\n1. 📊 Ideal Calc: Calcolatrice demografica con microdati ufficiali IBGE.\n2. 🎮 Soul Fighter: Memory Game: Gioco di carte a tema LoL in Vanilla JS.\n3. 📚 PEX Wiki: Portale accademico collegato agli obiettivi SDG dell'ONU.\n4. 📱 Mobile Demo: Applicazione per dispositivi mobili in React Native.",
       actions: [
-        { label: "Apri Ideal Calc ↗", url: "https://idealcalc.app/" },
+        { label: "Apri Ideal Calc ↗", url: "https://idealcalc.asterdev.me/" },
         { label: "Gioca a Soul Fighter ↗", url: "https://zastergun.github.io/Soul-Fighter-Memory-Game/" },
         { label: "Visita PEX Wiki ↗", url: "https://pex-wiki.vercel.app/" },
       ],
@@ -543,7 +543,7 @@ export const BOT_RESPONSES: Record<IntentId, Record<BotLanguage, LocalizedIntent
     nl: {
       text: "Dit zijn de uitgelichte projecten in Asters portfolio:\n\n1. 📊 Ideal Calc: Demografische calculator met officiële Braziliaanse IBGE-data.\n2. 🎮 Soul Fighter: Memory Game: LoL-geïnspireerd spel in pure Vanilla JS.\n3. 📚 PEX Wiki: Kennisbank voor universiteitsstudenten gekoppeld aan VN SDG's.\n4. 📱 Mobile Demo: Mobiele demo-applicatie gemaakt met React Native.",
       actions: [
-        { label: "Open Ideal Calc ↗", url: "https://idealcalc.app/" },
+        { label: "Open Ideal Calc ↗", url: "https://idealcalc.asterdev.me/" },
         { label: "Speel Soul Fighter ↗", url: "https://zastergun.github.io/Soul-Fighter-Memory-Game/" },
         { label: "Bezoek PEX Wiki ↗", url: "https://pex-wiki.vercel.app/" },
       ],
@@ -552,7 +552,7 @@ export const BOT_RESPONSES: Record<IntentId, Record<BotLanguage, LocalizedIntent
     ru: {
       text: "Главные проекты в портфолио Aster:\n\n1. 📊 Ideal Calc: Демографический калькулятор с микроданными переписи IBGE.\n2. 🎮 Soul Fighter: Memory Game: Карточная игра по мотивам LoL на чистом JavaScript.\n3. 📚 PEX Wiki: Академическая база знаний студентов с целями ЦУР ООН.\n4. 📱 Mobile Demo: Мобильное приложение на React Native.",
       actions: [
-        { label: "Открыть Ideal Calc ↗", url: "https://idealcalc.app/" },
+        { label: "Открыть Ideal Calc ↗", url: "https://idealcalc.asterdev.me/" },
         { label: "Играть в Soul Fighter ↗", url: "https://zastergun.github.io/Soul-Fighter-Memory-Game/" },
         { label: "Посетить PEX Wiki ↗", url: "https://pex-wiki.vercel.app/" },
       ],
@@ -561,7 +561,7 @@ export const BOT_RESPONSES: Record<IntentId, Record<BotLanguage, LocalizedIntent
     ar: {
       text: "إليك أبرز المشاريع في محفظة Aster:\n\n1. 📊 Ideal Calc: حاسبة إحصائية تفاعلية تحلل بيانات IBGE الرسمية في البرازيل.\n2. 🎮 Soul Fighter: Memory Game: لعبة ذاكرة مستوحاة من LoL بجافاسكريبت نقية.\n3. 📚 PEX Wiki: منصة معرفية جامعية مرتبطة بأهداف التنمية المستدامة للأمم المتحدة.\n4. 📱 Mobile Demo: تطبيق استعراضي للهاتف بـ React Native.",
       actions: [
-        { label: "فتح Ideal Calc ↗", url: "https://idealcalc.app/" },
+        { label: "فتح Ideal Calc ↗", url: "https://idealcalc.asterdev.me/" },
         { label: "تشغيل Soul Fighter ↗", url: "https://zastergun.github.io/Soul-Fighter-Memory-Game/" },
         { label: "زيارة PEX Wiki ↗", url: "https://pex-wiki.vercel.app/" },
       ],
@@ -570,7 +570,7 @@ export const BOT_RESPONSES: Record<IntentId, Record<BotLanguage, LocalizedIntent
     jp: {
       text: "Asterのポートフォリオに掲載されている注目のプロジェクトです:\n\n1. 📊 Ideal Calc: ブラジルIBGE公式統計データをリアルタイム処理する統計シミュレーター。\n2. 🎮 Soul Fighter: Memory Game: LoLの世界観を取り入れたVanilla JS製神経衰弱ゲーム。\n3. 📚 PEX Wiki: 国連SDGsに対応したUniAmérica大学の学生向け拡張プロジェクトナレッジハブ。\n4. 📱 Mobile Demo: React Nativeで開発したモバイルショーケースアプリ。",
       actions: [
-        { label: "Ideal Calc を開く ↗", url: "https://idealcalc.app/" },
+        { label: "Ideal Calc を開く ↗", url: "https://idealcalc.asterdev.me/" },
         { label: "Soul Fighter をプレイ ↗", url: "https://zastergun.github.io/Soul-Fighter-Memory-Game/" },
         { label: "PEX Wiki を訪問 ↗", url: "https://pex-wiki.vercel.app/" },
       ],
@@ -579,7 +579,7 @@ export const BOT_RESPONSES: Record<IntentId, Record<BotLanguage, LocalizedIntent
     cn: {
       text: "Aster 作品集中展示的核心项目包括：\n\n1. 📊 Ideal Calc：基于巴西官方 IBGE 人口普查微数据构建的交互式统计计算器。\n2. 🎮 Soul Fighter: Memory Game：基于英雄联盟斗魂觉醒 IP 开发的原生 JS 记忆翻牌游戏。\n3. 📚 PEX Wiki：对齐联合国可持续发展目标的 UniAmérica 计算机系项目知识库。\n4. 📱 Mobile Demo：使用 React Native 开发的移动端功能演示应用。",
       actions: [
-        { label: "打开 Ideal Calc ↗", url: "https://idealcalc.app/" },
+        { label: "打开 Ideal Calc ↗", url: "https://idealcalc.asterdev.me/" },
         { label: "游玩 Soul Fighter ↗", url: "https://zastergun.github.io/Soul-Fighter-Memory-Game/" },
         { label: "访问 PEX Wiki ↗", url: "https://pex-wiki.vercel.app/" },
       ],
@@ -588,7 +588,7 @@ export const BOT_RESPONSES: Record<IntentId, Record<BotLanguage, LocalizedIntent
     kr: {
       text: "Aster의 포트폴리오 대표 프로젝트 목록입니다:\n\n1. 📊 Ideal Calc: 브라질 공식 IBGE 마이크로데이터를 교차 분석하는 통계 계산기.\n2. 🎮 Soul Fighter: Memory Game: LoL 세계관 기반의 순수 Vanilla JS 카드 뒤집기 게임.\n3. 📚 PEX Wiki: UN 지속가능발전목표(SDG)와 연계된 대학 프로젝트 아카이브.\n4. 📱 Mobile Demo: React Native로 구현된 모바일 쇼케이스 애플리케이션.",
       actions: [
-        { label: "Ideal Calc 열기 ↗", url: "https://idealcalc.app/" },
+        { label: "Ideal Calc 열기 ↗", url: "https://idealcalc.asterdev.me/" },
         { label: "Soul Fighter 플레이 ↗", url: "https://zastergun.github.io/Soul-Fighter-Memory-Game/" },
         { label: "PEX Wiki 방문 ↗", url: "https://pex-wiki.vercel.app/" },
       ],
@@ -597,7 +597,7 @@ export const BOT_RESPONSES: Record<IntentId, Record<BotLanguage, LocalizedIntent
     vn: {
       text: "Dưới đây là các dự án tiêu biểu của Aster:\n\n1. 📊 Ideal Calc: Công cụ tính toán thống kê nhân khẩu học dựa trên vi dữ liệu IBGE Brazil.\n2. 🎮 Soul Fighter: Memory Game: Game lật thẻ bài LoL viết bằng Vanilla JavaScript thuần.\n3. 📚 PEX Wiki: Hub học thuật liên kết với 17 Mục tiêu Phát triển Bền vững của LHQ.\n4. 📱 Mobile Demo: Ứng dụng di động xây dựng bằng React Native.",
       actions: [
-        { label: "Mở Ideal Calc ↗", url: "https://idealcalc.app/" },
+        { label: "Mở Ideal Calc ↗", url: "https://idealcalc.asterdev.me/" },
         { label: "Chơi Soul Fighter ↗", url: "https://zastergun.github.io/Soul-Fighter-Memory-Game/" },
         { label: "Truy cập PEX Wiki ↗", url: "https://pex-wiki.vercel.app/" },
       ],
@@ -606,7 +606,7 @@ export const BOT_RESPONSES: Record<IntentId, Record<BotLanguage, LocalizedIntent
     id: {
       text: "Berikut proyek unggulan di portofolio Aster:\n\n1. 📊 Ideal Calc: Kalkulator demografis interaktif memproses data resmi sensus IBGE.\n2. 🎮 Soul Fighter: Memory Game: Game kartu bertema League of Legends berbasis Vanilla JS.\n3. 📚 PEX Wiki: Hub pengetahuan mahasiswa UniAmérica selaras dengan SDG PBB.\n4. 📱 Mobile Demo: Aplikasi demonstrasi mobile dengan React Native.",
       actions: [
-        { label: "Buka Ideal Calc ↗", url: "https://idealcalc.app/" },
+        { label: "Buka Ideal Calc ↗", url: "https://idealcalc.asterdev.me/" },
         { label: "Mainkan Soul Fighter ↗", url: "https://zastergun.github.io/Soul-Fighter-Memory-Game/" },
         { label: "Kunjungi PEX Wiki ↗", url: "https://pex-wiki.vercel.app/" },
       ],
@@ -618,7 +618,7 @@ export const BOT_RESPONSES: Record<IntentId, Record<BotLanguage, LocalizedIntent
     br: {
       text: "O Ideal Calc é uma aplicação estatística que processa microdados públicos do IBGE (Censo 2022 e PNAD Contínua 2023). Permite cruzar 12 variáveis simultâneas para calcular a probabilidade real de encontrar um parceiro no Brasil.\n\nPossui cálculo em tempo real no cliente, geração de card viral para compartilhamento e metodologia auditável.",
       actions: [
-        { label: "Acessar Ideal Calc ↗", url: "https://idealcalc.app/" },
+        { label: "Acessar Ideal Calc ↗", url: "https://idealcalc.asterdev.me/" },
         { label: "Código no GitHub ↗", url: "https://github.com/zAstergun/ideal-calculator" },
       ],
       suggestions: ["Ver outros projetos", "Qual a stack do Aster?", "Como entrar em contato?"],
@@ -626,7 +626,7 @@ export const BOT_RESPONSES: Record<IntentId, Record<BotLanguage, LocalizedIntent
     pt: {
       text: "O Ideal Calc é uma aplicação estatística que processa microdados públicos do IBGE (Censo 2022 e PNAD Contínua 2023). Permite cruzar 12 variáveis simultâneas para calcular a probabilidade real de encontrar um parceiro no Brasil.\n\nPossui cálculo em tempo real no cliente e geração de card viral para partilha.",
       actions: [
-        { label: "Aceder ao Ideal Calc ↗", url: "https://idealcalc.app/" },
+        { label: "Aceder ao Ideal Calc ↗", url: "https://idealcalc.asterdev.me/" },
         { label: "Código no GitHub ↗", url: "https://github.com/zAstergun/ideal-calculator" },
       ],
       suggestions: ["Ver outros projetos", "Qual a stack do Aster?", "Como entrar em contacto?"],
@@ -634,7 +634,7 @@ export const BOT_RESPONSES: Record<IntentId, Record<BotLanguage, LocalizedIntent
     en: {
       text: "Ideal Calc is a statistical web application that processes official IBGE microdata (2022 Census & 2023 PNAD). It crosses 12 demographic variables simultaneously to calculate the probability of finding a partner in Brazil.\n\nFeatures client-side instant calculation, viral card generation, and audit-ready data sources.",
       actions: [
-        { label: "Launch Ideal Calc ↗", url: "https://idealcalc.app/" },
+        { label: "Launch Ideal Calc ↗", url: "https://idealcalc.asterdev.me/" },
         { label: "GitHub Repository ↗", url: "https://github.com/zAstergun/ideal-calculator" },
       ],
       suggestions: ["Show other projects", "What is Aster's stack?", "Contact info"],
@@ -642,7 +642,7 @@ export const BOT_RESPONSES: Record<IntentId, Record<BotLanguage, LocalizedIntent
     es: {
       text: "Ideal Calc es una aplicación estadística que procesa microdatos oficiales del IBGE en Brasil. Cruza 12 variables demográficas en tiempo real con cálculo instantáneo en el navegador y generación de tarjeta compartible.",
       actions: [
-        { label: "Abrir Ideal Calc ↗", url: "https://idealcalc.app/" },
+        { label: "Abrir Ideal Calc ↗", url: "https://idealcalc.asterdev.me/" },
         { label: "Código en GitHub ↗", url: "https://github.com/zAstergun/ideal-calculator" },
       ],
       suggestions: ["Ver otros proyectos", "¿Cuál es su stack?", "¿Cómo contactarlo?"],
@@ -650,7 +650,7 @@ export const BOT_RESPONSES: Record<IntentId, Record<BotLanguage, LocalizedIntent
     fr: {
       text: "Ideal Calc est une application statistique traitant les microdonnées officielles de l'IBGE brésilien. Elle croise 12 variables démographiques simultanément avec calcul en temps réel et partage viral.",
       actions: [
-        { label: "Ouvrir Ideal Calc ↗", url: "https://idealcalc.app/" },
+        { label: "Ouvrir Ideal Calc ↗", url: "https://idealcalc.asterdev.me/" },
         { label: "Code sur GitHub ↗", url: "https://github.com/zAstergun/ideal-calculator" },
       ],
       suggestions: ["Voir d'autres projets", "Quel est son stack ?", "Comment le contacter ?"],
@@ -658,7 +658,7 @@ export const BOT_RESPONSES: Record<IntentId, Record<BotLanguage, LocalizedIntent
     de: {
       text: "Ideal Calc ist eine statistische Webanwendung, die offizielle IBGE-Mikrodaten (Zensus 2022) verarbeitet. Sie kombiniert 12 demografische Filter mit clientseitiger Echtzeitberechnung.",
       actions: [
-        { label: "Ideal Calc öffnen ↗", url: "https://idealcalc.app/" },
+        { label: "Ideal Calc öffnen ↗", url: "https://idealcalc.asterdev.me/" },
         { label: "GitHub-Repository ↗", url: "https://github.com/zAstergun/ideal-calculator" },
       ],
       suggestions: ["Andere Projekte ansehen", "Welcher Tech-Stack?", "Kontakt aufnehmen"],
@@ -666,7 +666,7 @@ export const BOT_RESPONSES: Record<IntentId, Record<BotLanguage, LocalizedIntent
     it: {
       text: "Ideal Calc è un'applicazione web che elabora i microdati ufficiali dell'IBGE in Brasile. Incrocia 12 filtri demografici in tempo reale per determinare probabilità statistiche.",
       actions: [
-        { label: "Apri Ideal Calc ↗", url: "https://idealcalc.app/" },
+        { label: "Apri Ideal Calc ↗", url: "https://idealcalc.asterdev.me/" },
         { label: "Codice su GitHub ↗", url: "https://github.com/zAstergun/ideal-calculator" },
       ],
       suggestions: ["Vedi altri progetti", "Qual è il suo stack?", "Come contattarlo?"],
@@ -674,7 +674,7 @@ export const BOT_RESPONSES: Record<IntentId, Record<BotLanguage, LocalizedIntent
     nl: {
       text: "Ideal Calc is een statistische app die officiële microdata van het Braziliaanse IBGE verwerkt. Het combineert 12 filters met directe client-side berekeningen.",
       actions: [
-        { label: "Open Ideal Calc ↗", url: "https://idealcalc.app/" },
+        { label: "Open Ideal Calc ↗", url: "https://idealcalc.asterdev.me/" },
         { label: "GitHub Repo ↗", url: "https://github.com/zAstergun/ideal-calculator" },
       ],
       suggestions: ["Andere projecten bekijken", "Wat is zijn stack?", "Contact opnemen"],
@@ -682,7 +682,7 @@ export const BOT_RESPONSES: Record<IntentId, Record<BotLanguage, LocalizedIntent
     ru: {
       text: "Ideal Calc — статистическое приложение, анализирующее официальные микроданные переписи IBGE (Бразилия). Позволяет сопоставлять 12 фильтров в реальном времени прямо в браузере.",
       actions: [
-        { label: "Открыть Ideal Calc ↗", url: "https://idealcalc.app/" },
+        { label: "Открыть Ideal Calc ↗", url: "https://idealcalc.asterdev.me/" },
         { label: "Репозиторий GitHub ↗", url: "https://github.com/zAstergun/ideal-calculator" },
       ],
       suggestions: ["Показать другие проекты", "Какой стек технологий?", "Как связаться?"],
@@ -690,7 +690,7 @@ export const BOT_RESPONSES: Record<IntentId, Record<BotLanguage, LocalizedIntent
     ar: {
       text: "Ideal Calc هو تطبيق إحصائي يعالج البيانات الرسمية الصادرة عن معهد IBGE في البرازيل. يدمج 12 متغيراً ديموغرافياً في الوقت الفعلي مع حساب فوري داخل المتصفح.",
       actions: [
-        { label: "فتح Ideal Calc ↗", url: "https://idealcalc.app/" },
+        { label: "فتح Ideal Calc ↗", url: "https://idealcalc.asterdev.me/" },
         { label: "الكود على GitHub ↗", url: "https://github.com/zAstergun/ideal-calculator" },
       ],
       suggestions: ["عرض مشاريع أخرى", "ما هي تقنياته؟", "معلومات التواصل"],
@@ -698,7 +698,7 @@ export const BOT_RESPONSES: Record<IntentId, Record<BotLanguage, LocalizedIntent
     jp: {
       text: "Ideal Calcは、ブラジル公式統計局（IBGE）の人口普查データをブラウザ上でリアルタイム処理する統計分析アプリです。12種類の変数を掛け合わせ、即座に確率を算出します。",
       actions: [
-        { label: "Ideal Calc を開く ↗", url: "https://idealcalc.app/" },
+        { label: "Ideal Calc を開く ↗", url: "https://idealcalc.asterdev.me/" },
         { label: "GitHub リポジトリ ↗", url: "https://github.com/zAstergun/ideal-calculator" },
       ],
       suggestions: ["他のプロジェクトを見る", "技術スタックは？", "連絡先を見る"],
@@ -706,7 +706,7 @@ export const BOT_RESPONSES: Record<IntentId, Record<BotLanguage, LocalizedIntent
     cn: {
       text: "Ideal Calc 是一款前端即时处理巴西国家地理统计局 (IBGE) 真实普查微数据的统计应用。它交叉分析 12 个维度的人口变量，支持客户端毫秒级计算与可视化卡片生成。",
       actions: [
-        { label: "打开 Ideal Calc ↗", url: "https://idealcalc.app/" },
+        { label: "打开 Ideal Calc ↗", url: "https://idealcalc.asterdev.me/" },
         { label: "GitHub 源码 ↗", url: "https://github.com/zAstergun/ideal-calculator" },
       ],
       suggestions: ["查看其他项目", "Aster 的技术栈", "联系方式"],
@@ -714,7 +714,7 @@ export const BOT_RESPONSES: Record<IntentId, Record<BotLanguage, LocalizedIntent
     kr: {
       text: "Ideal Calc는 브라질 지리통계원(IBGE)의 공식 인구통계 마이크로데이터를 분석하는 통계 웹 앱입니다. 12개의 필터를 클라이언트에서 실시간 연산하여 결과를 도출합니다.",
       actions: [
-        { label: "Ideal Calc 열기 ↗", url: "https://idealcalc.app/" },
+        { label: "Ideal Calc 열기 ↗", url: "https://idealcalc.asterdev.me/" },
         { label: "GitHub 저장소 ↗", url: "https://github.com/zAstergun/ideal-calculator" },
       ],
       suggestions: ["다른 프로젝트 보기", "기술 스택 확인", "연락처 보기"],
@@ -722,7 +722,7 @@ export const BOT_RESPONSES: Record<IntentId, Record<BotLanguage, LocalizedIntent
     vn: {
       text: "Ideal Calc là ứng dụng thống kê xử lý vi dữ liệu chính thức của IBGE Brazil. Nó đối chiếu 12 biến số nhân khẩu học trực tiếp trên trình duyệt với tốc độ tức thì.",
       actions: [
-        { label: "Mở Ideal Calc ↗", url: "https://idealcalc.app/" },
+        { label: "Mở Ideal Calc ↗", url: "https://idealcalc.asterdev.me/" },
         { label: "Mã nguồn GitHub ↗", url: "https://github.com/zAstergun/ideal-calculator" },
       ],
       suggestions: ["Xem các dự án khác", "Stack công nghệ là gì?", "Thông tin liên hệ"],
@@ -730,7 +730,7 @@ export const BOT_RESPONSES: Record<IntentId, Record<BotLanguage, LocalizedIntent
     id: {
       text: "Ideal Calc adalah aplikasi kalkulator statistik yang mengolah microdata resmi sensus IBGE Brasil, menggabungkan 12 filter demografis dengan komputasi real-time di sisi klien.",
       actions: [
-        { label: "Buka Ideal Calc ↗", url: "https://idealcalc.app/" },
+        { label: "Buka Ideal Calc ↗", url: "https://idealcalc.asterdev.me/" },
         { label: "Kode GitHub ↗", url: "https://github.com/zAstergun/ideal-calculator" },
       ],
       suggestions: ["Lihat proyek lain", "Apa tech stack-nya?", "Info kontak"],

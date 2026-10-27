@@ -36,7 +36,7 @@
     "calcSummary": "Interactive statistical calculator that crosses 12 demographic filters with official IBGE microdata (2022 Census, 2023 PNAD) to reveal the real probability of finding the ideal partner in Brazil. Real-time calculation, shareable viral card, and complete data audit.",
     "calcLinkOpen": "Open App",
     "soulName": "Soul Fighter: Memory Game",
-    "soulSummary": "Themed memory game inspired by the League of Legends Soul Fighter universe. Classic card-flip mechanics with official event assets, vanilla JavaScript matching logic, and responsive design faithful to the game's visual identity.",
+    "soulSummary": "Themed memory game remastered in the League of Legends Soul Fighter universe. Rebuilt with React 19, TypeScript, and Tailwind CSS, featuring 4 combat modes (including Legend with 10 lives and K.O.), hint & peek system, Web Audio API, and Aster Account integration for global ranking.",
     "soulLinkPlay": "Play",
     "pexName": "PEX Wiki",
     "pexSummary": "Academic knowledge hub for Computer Science students at Centro Universitário União das Américas - UniAmérica. View system with SPA routing in Vanilla JS, 'Blurple Gamer' design system in dark mode, interactive checklists, dynamic modals for the 17 UN SDGs, and Mobile First responsiveness.",

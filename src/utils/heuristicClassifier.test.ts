@@ -43,7 +43,7 @@ describe("Heuristic Intent Classifier", () => {
     const res = classifyIntent("O que é o Ideal Calc?", "br");
     expect(res.intent).toBe("PROJECT_IDEAL_CALC");
     expect(res.actions).toBeDefined();
-    expect(res.actions?.[0].url).toContain("idealcalc.app");
+    expect(res.actions?.[0].url).toContain("idealcalc.asterdev.me");
   });
 
   it("classifies Soul Fighter project", () => {
