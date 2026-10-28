@@ -30,6 +30,7 @@ import {
   Fire,
   Calculator,
   Heart,
+  Sparkle,
 } from "@phosphor-icons/react";
 import {
   GRID_COLS,
@@ -716,6 +717,7 @@ interface LiveAppFrameProps {
   isDark: boolean;
   ui?: any;
   language?: Language;
+  isDesktop?: boolean;
 }
 
 function LiveAppFrame({
@@ -727,6 +729,7 @@ function LiveAppFrame({
   isDark,
   ui,
   language = "br",
+  isDesktop = true,
 }: LiveAppFrameProps) {
   const isSoulFighter = item.id === "soul-fighter-memory";
   const isIdealCalc = item.id === "ideal-calculator";
@@ -738,7 +741,13 @@ function LiveAppFrame({
   const containerRef = useRef<HTMLDivElement>(null);
   const isPt = language === "br" || language === "pt";
 
-  const animClass = isClosing ? "animate-ipadAppClose" : "animate-ipadAppOpen";
+  const animClass = isDesktop
+    ? isClosing
+      ? "animate-ipadAppClose"
+      : "animate-ipadAppOpen"
+    : isClosing
+    ? "animate-fadeClose"
+    : "animate-fadeOpen";
   const panelBg = isDark ? "bg-stone-900" : "bg-aster-beige";
   const panelText = isDark ? "text-stone-100" : "text-aster-dark";
   const barBorder = isDark ? "border-stone-800" : "border-aster-dark/[0.08]";
@@ -754,6 +763,14 @@ function LiveAppFrame({
       return appUrl;
     }
   }, [appUrl]);
+
+  // Safety fallback: dismiss loading overlay after 2.5s on mobile if iframe onLoad delays
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 2500);
+    return () => clearTimeout(timer);
+  }, [iframeKey]);
 
   // Sync fullscreen state with document
   useEffect(() => {
@@ -798,22 +815,36 @@ function LiveAppFrame({
 
   const fullscreenClass = isFullscreen
     ? "!fixed !inset-0 !z-50 !w-screen !h-screen !rounded-none !m-0 !p-0"
-    : "absolute inset-0 z-20";
+    : isDesktop
+    ? "absolute inset-0 z-20"
+    : "absolute inset-0 z-30";
 
   return (
     <div
       ref={containerRef}
-      className={`detail-panel-desktop ${fullscreenClass} flex flex-col ${
+      className={`${
+        isFullscreen
+          ? fullscreenClass
+          : isDesktop
+          ? "detail-panel-desktop absolute inset-0 z-20"
+          : "mobile-live-app absolute inset-0 z-30"
+      } flex flex-col ${
         isSoulFighter ? "bg-[#0b0813]" : isIdealCalc ? "bg-[#080d0a]" : panelBg
       } overflow-hidden ${animClass} transition-colors duration-500`}
-      style={{
-        willChange: "transform, opacity",
-        transformOrigin: origin ? `${origin.x} ${origin.y}` : "50% 50%",
-      }}
+      style={
+        isDesktop
+          ? {
+              willChange: "transform, opacity",
+              transformOrigin: origin ? `${origin.x} ${origin.y}` : "50% 50%",
+            }
+          : undefined
+      }
       key={item.id}
       onAnimationEnd={(e) => {
         if (e.target !== e.currentTarget) return;
-        onAnimationEnd?.();
+        if (isClosing) {
+          onAnimationEnd?.();
+        }
       }}
     >
       {/* ─── Top Window Bar / Header ─── */}
@@ -823,7 +854,9 @@ function LiveAppFrame({
           <div className="h-[2px] w-full bg-gradient-to-r from-[#ff4655] via-[#a855f7] to-[#00cec9] shadow-[0_0_8px_rgba(255,70,85,0.6)]" />
 
           {/* Header Row */}
-          <div className="flex items-center justify-between gap-2.5 px-3.5 sm:px-4 py-2 sm:py-2.5 bg-[#0f0b1a] border-b border-[#ff4655]/25 shadow-[0_4px_20px_rgba(15,11,26,0.6)]">
+          <div className={`flex items-center justify-between gap-2 px-3 sm:px-4 ${
+            isDesktop ? "py-2 sm:py-2.5" : "pt-8 sm:pt-9 pb-2.5"
+          } bg-[#0f0b1a] border-b border-[#ff4655]/25 shadow-[0_4px_20px_rgba(15,11,26,0.6)]`}>
             {/* Left: Back + Soul Fighter Identity */}
             <div className="flex items-center gap-2 sm:gap-3 min-w-0">
               <button
@@ -854,45 +887,69 @@ function LiveAppFrame({
                       ARENA
                     </span>
                   </div>
-                  <span className="text-[10px] text-stone-400 font-mono truncate leading-tight">
-                    Memory Game Remastered
-                  </span>
+                  {isDesktop && (
+                    <span className="text-[10px] text-stone-400 font-mono truncate leading-tight">
+                      Memory Game Remastered
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
 
-            {/* Center: Segmented Tabs [🎮 Jogar / 📋 Detalhes & Stack] */}
-            <div className="flex items-center p-1 rounded-xl bg-black/40 border border-white/10 shadow-inner">
-              <button
-                type="button"
-                onClick={() => setActiveTab("play")}
-                className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer ${
-                  activeTab === "play"
-                    ? "bg-gradient-to-r from-[#ff4655] to-[#705df2] text-white shadow-[0_2px_12px_rgba(255,70,85,0.4)]"
-                    : "text-stone-400 hover:text-stone-200 hover:bg-white/5"
-                }`}
-              >
-                <GameController weight="fill" className="w-3.5 h-3.5" />
-                <span>{isPt ? "Jogar Arena" : "Play Arena"}</span>
-              </button>
+            {/* Center: Segmented Tabs [🎮 Jogar / 📋 Detalhes & Stack] (Desktop) */}
+            {isDesktop && (
+              <div className="flex items-center p-1 rounded-xl bg-black/40 border border-white/10 shadow-inner">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("play")}
+                  className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer ${
+                    activeTab === "play"
+                      ? "bg-gradient-to-r from-[#ff4655] to-[#705df2] text-white shadow-[0_2px_12px_rgba(255,70,85,0.4)]"
+                      : "text-stone-400 hover:text-stone-200 hover:bg-white/5"
+                  }`}
+                >
+                  <GameController weight="fill" className="w-3.5 h-3.5" />
+                  <span>{isPt ? "Jogar Arena" : "Play Arena"}</span>
+                </button>
 
-              <button
-                type="button"
-                onClick={() => setActiveTab("details")}
-                className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer ${
-                  activeTab === "details"
-                    ? "bg-white/15 text-white border border-white/20 shadow-sm"
-                    : "text-stone-400 hover:text-stone-200 hover:bg-white/5"
-                }`}
-              >
-                <Info weight="bold" className="w-3.5 h-3.5" />
-                <span>{isPt ? "Detalhes & Stack" : "Specs & Stack"}</span>
-              </button>
-            </div>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("details")}
+                  className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer ${
+                    activeTab === "details"
+                      ? "bg-white/15 text-white border border-white/20 shadow-sm"
+                      : "text-stone-400 hover:text-stone-200 hover:bg-white/5"
+                  }`}
+                >
+                  <Info weight="bold" className="w-3.5 h-3.5" />
+                  <span>{isPt ? "Detalhes & Stack" : "Specs & Stack"}</span>
+                </button>
+              </div>
+            )}
 
             {/* Right: Actions */}
             <div className="flex items-center gap-1.5 shrink-0">
-              {activeTab === "play" && (
+              {!isDesktop && (
+                <button
+                  type="button"
+                  onClick={() => setActiveTab((t) => (t === "play" ? "details" : "play"))}
+                  className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 cursor-pointer border ${
+                    activeTab === "details"
+                      ? "bg-[#ff4655]/20 text-[#ff4655] border-[#ff4655]/50"
+                      : "bg-white/5 border-white/10 text-stone-300 hover:bg-white/10 hover:text-white"
+                  }`}
+                  title={activeTab === "play" ? (isPt ? "Ver Detalhes" : "View Specs") : (isPt ? "Jogar Arena" : "Play Arena")}
+                  aria-label={activeTab === "play" ? (isPt ? "Ver Detalhes" : "View Specs") : (isPt ? "Jogar Arena" : "Play Arena")}
+                >
+                  {activeTab === "play" ? (
+                    <Info weight="bold" className="w-4 h-4" />
+                  ) : (
+                    <GameController weight="fill" className="w-4 h-4 text-[#ff4655]" />
+                  )}
+                </button>
+              )}
+
+              {isDesktop && activeTab === "play" && (
                 <button
                   type="button"
                   onClick={toggleFullscreen}
@@ -916,6 +973,7 @@ function LiveAppFrame({
                 }}
                 className="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 cursor-pointer bg-white/5 border border-white/10 text-stone-300 hover:bg-white/10 hover:text-white"
                 title={isPt ? "Recarregar" : "Reload"}
+                aria-label={isPt ? "Recarregar" : "Reload"}
               >
                 <ArrowCounterClockwise weight="bold" className={`w-4 h-4 ${isLoading ? "animate-spin text-[#ff4655]" : ""}`} />
               </button>
@@ -927,19 +985,23 @@ function LiveAppFrame({
                 rel="noopener noreferrer"
                 className="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 cursor-pointer bg-white/5 border border-white/10 text-stone-300 hover:bg-white/10 hover:text-white"
                 title={isPt ? "Abrir em nova aba" : "Open in new tab"}
+                aria-label={isPt ? "Abrir em nova aba" : "Open in new tab"}
               >
                 <ArrowSquareOut weight="bold" className="w-4 h-4" />
               </a>
 
-              {/* Close */}
-              <button
-                type="button"
-                onClick={onClose}
-                className="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 cursor-pointer bg-white/5 border border-white/10 text-stone-400 hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/30"
-                title={isPt ? "Fechar" : "Close"}
-              >
-                <X weight="bold" className="w-4 h-4" />
-              </button>
+              {/* Close (Desktop) */}
+              {isDesktop && (
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 cursor-pointer bg-white/5 border border-white/10 text-stone-400 hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/30"
+                  title={isPt ? "Fechar" : "Close"}
+                  aria-label={isPt ? "Fechar" : "Close"}
+                >
+                  <X weight="bold" className="w-4 h-4" />
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -949,7 +1011,9 @@ function LiveAppFrame({
           <div className="h-[2px] w-full bg-gradient-to-r from-[#e61e2a] via-[#ff4d4d] to-[#b3141f] shadow-[0_0_8px_rgba(230,30,42,0.6)]" />
 
           {/* Header Row */}
-          <div className="flex items-center justify-between gap-2.5 px-3.5 sm:px-4 py-2 sm:py-2.5 bg-[#0f0c0e] border-b border-[#e61e2a]/25 shadow-[0_4px_20px_rgba(15,12,14,0.6)]">
+          <div className={`flex items-center justify-between gap-2 px-3 sm:px-4 ${
+            isDesktop ? "py-2 sm:py-2.5" : "pt-8 sm:pt-9 pb-2.5"
+          } bg-[#0f0c0e] border-b border-[#e61e2a]/25 shadow-[0_4px_20px_rgba(15,12,14,0.6)]`}>
             {/* Left: Back + Ideal Calc Identity */}
             <div className="flex items-center gap-2 sm:gap-3 min-w-0">
               <button
@@ -980,45 +1044,69 @@ function LiveAppFrame({
                       IBGE
                     </span>
                   </div>
-                  <span className="text-[10px] text-stone-400 font-mono truncate leading-tight">
-                    {isPt ? "Raridade Demográfica" : "Demographic Rarity"}
-                  </span>
+                  {isDesktop && (
+                    <span className="text-[10px] text-stone-400 font-mono truncate leading-tight">
+                      {isPt ? "Raridade Demográfica" : "Demographic Rarity"}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
 
-            {/* Center: Segmented Tabs [📊 Usar Calculadora / 📋 Detalhes & Metodologia] */}
-            <div className="flex items-center p-1 rounded-xl bg-black/40 border border-white/10 shadow-inner">
-              <button
-                type="button"
-                onClick={() => setActiveTab("play")}
-                className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer ${
-                  activeTab === "play"
-                    ? "bg-gradient-to-r from-[#e61e2a] to-[#a71d24] text-white shadow-[0_2px_12px_rgba(230,30,42,0.4)]"
-                    : "text-stone-400 hover:text-stone-200 hover:bg-white/5"
-                }`}
-              >
-                <Calculator weight="fill" className="w-3.5 h-3.5" />
-                <span>{isPt ? "Usar Calculadora" : "Use Calculator"}</span>
-              </button>
+            {/* Center: Segmented Tabs [📊 Usar Calculadora / 📋 Detalhes & Metodologia] (Desktop) */}
+            {isDesktop && (
+              <div className="flex items-center p-1 rounded-xl bg-black/40 border border-white/10 shadow-inner">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("play")}
+                  className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer ${
+                    activeTab === "play"
+                      ? "bg-gradient-to-r from-[#e61e2a] to-[#a71d24] text-white shadow-[0_2px_12px_rgba(230,30,42,0.4)]"
+                      : "text-stone-400 hover:text-stone-200 hover:bg-white/5"
+                  }`}
+                >
+                  <Calculator weight="fill" className="w-3.5 h-3.5" />
+                  <span>{isPt ? "Usar Calculadora" : "Use Calculator"}</span>
+                </button>
 
-              <button
-                type="button"
-                onClick={() => setActiveTab("details")}
-                className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer ${
-                  activeTab === "details"
-                    ? "bg-white/15 text-white border border-white/20 shadow-sm"
-                    : "text-stone-400 hover:text-stone-200 hover:bg-white/5"
-                }`}
-              >
-                <Info weight="bold" className="w-3.5 h-3.5" />
-                <span>{isPt ? "Detalhes & Metodologia" : "Specs & Methodology"}</span>
-              </button>
-            </div>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("details")}
+                  className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer ${
+                    activeTab === "details"
+                      ? "bg-white/15 text-white border border-white/20 shadow-sm"
+                      : "text-stone-400 hover:text-stone-200 hover:bg-white/5"
+                  }`}
+                >
+                  <Info weight="bold" className="w-3.5 h-3.5" />
+                  <span>{isPt ? "Detalhes & Metodologia" : "Specs & Methodology"}</span>
+                </button>
+              </div>
+            )}
 
             {/* Right: Actions */}
             <div className="flex items-center gap-1.5 shrink-0">
-              {activeTab === "play" && (
+              {!isDesktop && (
+                <button
+                  type="button"
+                  onClick={() => setActiveTab((t) => (t === "play" ? "details" : "play"))}
+                  className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 cursor-pointer border ${
+                    activeTab === "details"
+                      ? "bg-[#e61e2a]/20 text-[#ff4d4d] border-[#e61e2a]/50"
+                      : "bg-white/5 border-white/10 text-stone-300 hover:bg-white/10 hover:text-white"
+                  }`}
+                  title={activeTab === "play" ? (isPt ? "Ver Detalhes" : "View Specs") : (isPt ? "Usar Calculadora" : "Use Calculator")}
+                  aria-label={activeTab === "play" ? (isPt ? "Ver Detalhes" : "View Specs") : (isPt ? "Usar Calculadora" : "Use Calculator")}
+                >
+                  {activeTab === "play" ? (
+                    <Info weight="bold" className="w-4 h-4" />
+                  ) : (
+                    <Calculator weight="fill" className="w-4 h-4 text-[#ff4d4d]" />
+                  )}
+                </button>
+              )}
+
+              {isDesktop && activeTab === "play" && (
                 <button
                   type="button"
                   onClick={toggleFullscreen}
@@ -1042,6 +1130,7 @@ function LiveAppFrame({
                 }}
                 className="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 cursor-pointer bg-white/5 border border-white/10 text-stone-300 hover:bg-white/10 hover:text-white"
                 title={isPt ? "Recarregar" : "Reload"}
+                aria-label={isPt ? "Recarregar" : "Reload"}
               >
                 <ArrowCounterClockwise weight="bold" className={`w-4 h-4 ${isLoading ? "animate-spin text-[#ff4d4d]" : ""}`} />
               </button>
@@ -1053,26 +1142,32 @@ function LiveAppFrame({
                 rel="noopener noreferrer"
                 className="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 cursor-pointer bg-white/5 border border-white/10 text-stone-300 hover:bg-white/10 hover:text-white"
                 title={isPt ? "Abrir em nova aba" : "Open in new tab"}
+                aria-label={isPt ? "Abrir em nova aba" : "Open in new tab"}
               >
                 <ArrowSquareOut weight="bold" className="w-4 h-4" />
               </a>
 
-              {/* Close */}
-              <button
-                type="button"
-                onClick={onClose}
-                className="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 cursor-pointer bg-white/5 border border-white/10 text-stone-400 hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/30"
-                title={isPt ? "Fechar" : "Close"}
-              >
-                <X weight="bold" className="w-4 h-4" />
-              </button>
+              {/* Close (Desktop) */}
+              {isDesktop && (
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 cursor-pointer bg-white/5 border border-white/10 text-stone-400 hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/30"
+                  title={isPt ? "Fechar" : "Close"}
+                  aria-label={isPt ? "Fechar" : "Close"}
+                >
+                  <X weight="bold" className="w-4 h-4" />
+                </button>
+              )}
             </div>
           </div>
         </div>
       ) : (
         /* Generic LiveAppFrame Header */
         <div
-          className={`flex items-center justify-between gap-3 px-5 py-3 shrink-0 border-b ${barBorder} select-none transition-colors duration-500`}
+          className={`flex items-center justify-between gap-3 px-4 ${
+            isDesktop ? "py-3" : "pt-8 pb-3"
+          } shrink-0 border-b ${barBorder} select-none transition-colors duration-500`}
         >
           {/* Left: Close button + App Icon & Name */}
           <div className="flex items-center gap-3 min-w-0">
@@ -1136,22 +1231,24 @@ function LiveAppFrame({
 
           {/* Right: Actions */}
           <div className="flex items-center gap-1.5 shrink-0">
-            <button
-              type="button"
-              onClick={toggleFullscreen}
-              className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer ${
-                isDark
-                  ? "bg-stone-800 text-stone-400 hover:bg-stone-700 hover:text-white"
-                  : "bg-aster-dark/[0.06] text-aster-dark/60 hover:bg-aster-dark/12 hover:text-aster-dark"
-              }`}
-              title={isFullscreen ? (isPt ? "Sair da Tela Cheia" : "Exit Fullscreen") : (isPt ? "Modo Tela Cheia" : "Fullscreen Mode")}
-            >
-              {isFullscreen ? (
-                <ArrowsIn weight="bold" className="w-4 h-4 text-emerald-400" />
-              ) : (
-                <ArrowsOut weight="bold" className="w-4 h-4" />
-              )}
-            </button>
+            {isDesktop && (
+              <button
+                type="button"
+                onClick={toggleFullscreen}
+                className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer ${
+                  isDark
+                    ? "bg-stone-800 text-stone-400 hover:bg-stone-700 hover:text-white"
+                    : "bg-aster-dark/[0.06] text-aster-dark/60 hover:bg-aster-dark/12 hover:text-aster-dark"
+                }`}
+                title={isFullscreen ? (isPt ? "Sair da Tela Cheia" : "Exit Fullscreen") : (isPt ? "Modo Tela Cheia" : "Fullscreen Mode")}
+              >
+                {isFullscreen ? (
+                  <ArrowsIn weight="bold" className="w-4 h-4 text-emerald-400" />
+                ) : (
+                  <ArrowsOut weight="bold" className="w-4 h-4" />
+                )}
+              </button>
+            )}
 
             <button
               type="button"
@@ -1188,138 +1285,160 @@ function LiveAppFrame({
               <ArrowSquareOut weight="bold" className="w-4 h-4" />
             </a>
 
-            <button
-              type="button"
-              onClick={onClose}
-              className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer ${
-                isDark
-                  ? "bg-stone-800 text-stone-400 hover:bg-red-500/20 hover:text-red-400"
-                  : "bg-aster-dark/[0.06] text-aster-dark/60 hover:bg-red-500/10 hover:text-red-600"
-              }`}
-              title="Fechar aplicativo"
-              aria-label="Fechar"
-            >
-              <X weight="bold" className="w-4 h-4" />
-            </button>
+            {isDesktop && (
+              <button
+                type="button"
+                onClick={onClose}
+                className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer ${
+                  isDark
+                    ? "bg-stone-800 text-stone-400 hover:bg-red-500/20 hover:text-red-400"
+                    : "bg-aster-dark/[0.06] text-aster-dark/60 hover:bg-red-500/10 hover:text-red-600"
+                }`}
+                title="Fechar aplicativo"
+                aria-label="Fechar"
+              >
+                <X weight="bold" className="w-4 h-4" />
+              </button>
+            )}
           </div>
         </div>
       )}
 
       {/* ─── Main Body: Play Arena (Iframe) OR Details & Stack Showcase ─── */}
-      <div className={`flex-1 relative w-full h-full overflow-hidden ${
+      <div className={`flex-1 min-h-0 relative w-full overflow-hidden ${
         isSoulFighter ? "bg-[#0b0418]" : isIdealCalc ? "bg-[#0b0a0a]" : "bg-black"
       }`}>
-        {activeTab === "play" ? (
-          <>
-            {isLoading && (
-              <div className={`absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 backdrop-blur-md transition-opacity duration-300 ${
-                isSoulFighter
-                  ? "bg-[#0b0418]/85"
-                  : isIdealCalc
-                  ? "bg-[#0b0a0a]/85"
-                  : "bg-black/85"
-              }`}>
-                <div className="relative">
-                  <div
-                    className={`w-12 h-12 border-3 border-transparent rounded-full animate-spin ${
-                      isSoulFighter
-                        ? "border-t-[#ff4655] border-r-[#705df2] shadow-[0_0_20px_rgba(255,70,85,0.5)]"
-                        : isIdealCalc
-                        ? "border-t-[#e61e2a] border-r-[#ff4d4d] shadow-[0_0_20px_rgba(230,30,42,0.5)]"
-                        : "border-t-aster-accent border-r-teal-400"
-                    }`}
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    {isSoulFighter ? (
-                      <Fire weight="fill" className="w-5 h-5 text-[#ff4655] animate-pulse" />
-                    ) : isIdealCalc ? (
-                      <Heart weight="fill" className="w-5 h-5 text-[#ff4d4d] animate-pulse" />
-                    ) : (
-                      <Sparkle weight="fill" className="w-5 h-5 text-aster-accent animate-pulse" />
-                    )}
-                  </div>
-                </div>
-                <span className="text-xs font-mono font-bold tracking-wider text-stone-300 uppercase">
-                  {isSoulFighter
-                    ? isPt
-                      ? "Entrando na Arena Soul Fighter..."
-                      : "Entering Soul Fighter Arena..."
-                    : isIdealCalc
-                    ? isPt
-                      ? "Carregando bases e microdados do IBGE..."
-                      : "Loading IBGE Datasets & Microdata..."
-                    : isPt
-                    ? "Carregando aplicativo..."
-                    : "Loading application..."}
-                </span>
-              </div>
-            )}
-
-            <div className={`w-full h-full flex items-start justify-center overflow-hidden ${
-              isSoulFighter ? "bg-[#0b0418]" : isIdealCalc ? "bg-[#0b0a0a]" : "bg-black"
+        <div className={`w-full flex-1 min-h-0 flex flex-col h-full ${activeTab === "play" ? "" : "hidden"}`}>
+          {isLoading && (
+            <div className={`absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 backdrop-blur-md transition-opacity duration-300 pointer-events-none ${
+              isSoulFighter
+                ? "bg-[#0b0418]/85"
+                : isIdealCalc
+                ? "bg-[#0b0a0a]/85"
+                : "bg-black/85"
             }`}>
-              <iframe
-                key={iframeKey}
-                src={appUrl}
-                title={item.name}
-                className="w-full h-full border-0 select-auto"
-                sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-downloads"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                onLoad={() => setIsLoading(false)}
-              />
-            </div>
-
-            {/* Fullscreen Floating Exit Hint */}
-            {isFullscreen && (
-              <div className="absolute top-4 right-4 z-30">
-                <button
-                  type="button"
-                  onClick={toggleFullscreen}
-                  className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/85 backdrop-blur-md border text-xs font-mono text-white shadow-xl hover:bg-black transition-all cursor-pointer ${
+              <div className="relative">
+                <div
+                  className={`w-12 h-12 border-3 border-transparent rounded-full animate-spin ${
                     isSoulFighter
-                      ? "border-[#ff4655]/40"
+                      ? "border-t-[#ff4655] border-r-[#705df2] shadow-[0_0_20px_rgba(255,70,85,0.5)]"
                       : isIdealCalc
-                      ? "border-[#e61e2a]/40"
-                      : "border-white/30"
+                      ? "border-t-[#e61e2a] border-r-[#ff4d4d] shadow-[0_0_20px_rgba(230,30,42,0.5)]"
+                      : "border-t-aster-accent border-r-teal-400"
                   }`}
-                >
-                  <ArrowsIn
-                    weight="bold"
-                    className={`w-3.5 h-3.5 ${
-                      isSoulFighter
-                        ? "text-[#ff4655]"
-                        : isIdealCalc
-                        ? "text-[#ff4d4d]"
-                        : "text-white"
-                    }`}
-                  />
-                  <span>{isPt ? "Sair da Tela Cheia (ESC)" : "Exit Fullscreen (ESC)"}</span>
-                </button>
+                />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  {isSoulFighter ? (
+                    <Fire weight="fill" className="w-5 h-5 text-[#ff4655] animate-pulse" />
+                  ) : isIdealCalc ? (
+                    <Heart weight="fill" className="w-5 h-5 text-[#ff4d4d] animate-pulse" />
+                  ) : (
+                    <Sparkle weight="fill" className="w-5 h-5 text-aster-accent animate-pulse" />
+                  )}
+                </div>
               </div>
-            )}
-          </>
-        ) : isSoulFighter ? (
-          <SoulFighterShowcase
-            onPlayClick={() => setActiveTab("play")}
-            isDark={isDark}
-            item={item}
-            ui={ui}
-            language={language}
-          />
-        ) : isIdealCalc ? (
-          <IdealCalcShowcase
-            onPlayClick={() => setActiveTab("play")}
-            isDark={isDark}
-            item={item}
-            ui={ui}
-            language={language}
-          />
-        ) : null}
+              <span className="text-xs font-mono font-bold tracking-wider text-stone-300 uppercase">
+                {isSoulFighter
+                  ? isPt
+                    ? "Entrando na Arena Soul Fighter..."
+                    : "Entering Soul Fighter Arena..."
+                  : isIdealCalc
+                  ? isPt
+                    ? "Carregando bases e microdados do IBGE..."
+                    : "Loading IBGE Datasets & Microdata..."
+                  : isPt
+                  ? "Carregando aplicativo..."
+                  : "Loading application..."}
+              </span>
+            </div>
+          )}
+
+          <div
+            className={`w-full flex-1 min-h-0 relative overflow-y-auto overflow-x-hidden ${
+              isSoulFighter ? "bg-[#0b0418]" : isIdealCalc ? "bg-[#0b0a0a]" : "bg-black"
+            }`}
+            style={{
+              WebkitOverflowScrolling: "touch",
+              touchAction: "pan-y",
+            }}
+          >
+            <iframe
+              key={iframeKey}
+              src={appUrl}
+              title={item.name}
+              className="w-full h-full min-h-full border-0 select-auto pointer-events-auto block"
+              style={{
+                width: "100%",
+                height: "100%",
+                minHeight: "100%",
+                border: "none",
+                pointerEvents: "auto",
+                touchAction: "pan-y",
+              }}
+              scrolling="yes"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              onLoad={() => setIsLoading(false)}
+            />
+          </div>
+
+          {/* Fullscreen Floating Exit Hint */}
+          {isFullscreen && (
+            <div className="absolute top-4 right-4 z-30">
+              <button
+                type="button"
+                onClick={toggleFullscreen}
+                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/85 backdrop-blur-md border text-xs font-mono text-white shadow-xl hover:bg-black transition-all cursor-pointer ${
+                  isSoulFighter
+                    ? "border-[#ff4655]/40"
+                    : isIdealCalc
+                    ? "border-[#e61e2a]/40"
+                    : "border-white/30"
+                }`}
+              >
+                <ArrowsIn
+                  weight="bold"
+                  className={`w-3.5 h-3.5 ${
+                    isSoulFighter
+                      ? "text-[#ff4655]"
+                      : isIdealCalc
+                      ? "text-[#ff4d4d]"
+                      : "text-white"
+                  }`}
+                />
+                <span>{isPt ? "Sair da Tela Cheia (ESC)" : "Exit Fullscreen (ESC)"}</span>
+              </button>
+            </div>
+          )}
+        </div>
+
+        {activeTab === "details" && (
+          isSoulFighter ? (
+            <SoulFighterShowcase
+              onPlayClick={() => setActiveTab("play")}
+              isDark={isDark}
+              item={item}
+              ui={ui}
+              language={language}
+            />
+          ) : isIdealCalc ? (
+            <IdealCalcShowcase
+              onPlayClick={() => setActiveTab("play")}
+              isDark={isDark}
+              item={item}
+              ui={ui}
+              language={language}
+            />
+          ) : null
+        )}
       </div>
 
       {/* ─── Bottom Home Indicator Bar ─── */}
       <div
-        className={`relative flex justify-center py-2 shrink-0 border-t ${
+        className={`relative flex justify-center ${
+          isDesktop
+            ? "py-2"
+            : "py-2 pb-[max(0.6rem,env(safe-area-inset-bottom,12px))]"
+        } shrink-0 border-t ${
           isSoulFighter
             ? "border-[#ff4655]/20 bg-[#0f0b1a]"
             : isIdealCalc
@@ -1330,7 +1449,7 @@ function LiveAppFrame({
         <button
           type="button"
           onClick={onClose}
-          className="group py-1 px-8 cursor-pointer"
+          className="group py-1 px-8 cursor-pointer flex items-center justify-center active:scale-95 transition-transform"
           aria-label={ui?.homeButton || "Fechar"}
         >
           <div
@@ -1394,6 +1513,17 @@ function KeyHint({ isDesktop, isDark, ui }: { isDesktop: boolean; isDark: boolea
 }
 
 function SplashScreen({ isBooting, ui }: { isBooting: boolean; ui: any }) {
+  const [isRendered, setIsRendered] = useState(true);
+
+  useEffect(() => {
+    if (!isBooting) {
+      const timer = setTimeout(() => setIsRendered(false), 1100);
+      return () => clearTimeout(timer);
+    }
+  }, [isBooting]);
+
+  if (!isRendered) return null;
+
   return (
     <div
       className={`fixed inset-0 z-50 bg-aster-beige flex flex-col items-center justify-center transition-opacity duration-1000 ${
@@ -1539,6 +1669,13 @@ export default function App() {
       return () => clearTimeout(timer);
     }
   }, [translations]);
+
+  // WebKit/iOS touch bug workaround: activate touch gesture routing for child iframes
+  useEffect(() => {
+    const noop = () => {};
+    window.addEventListener("touchstart", noop, { passive: true });
+    return () => window.removeEventListener("touchstart", noop);
+  }, []);
 
   const HOME_ITEMS = useMemo(() => {
     if (!translations) return [];
@@ -1915,10 +2052,15 @@ export default function App() {
 
   const phoneContent = (
     <>
-      {/* Dynamic Island */}
-      <div className="phone-island" aria-hidden="true"><span /></div>
+      {/* Dynamic Island (hide on mobile when app overlay is active) */}
+      {(!phoneDetail || isDesktop) && (
+        <div className="phone-island" aria-hidden="true"><span /></div>
+      )}
 
-      <StatusBar time={time} isDark={isDark} />
+      {/* Status Bar (hide on mobile when app overlay is active) */}
+      {(!phoneDetail || isDesktop) && (
+        <StatusBar time={time} isDark={isDark} />
+      )}
 
       <div
         className={`home-view flex-1 flex flex-col ${
@@ -1991,10 +2133,29 @@ export default function App() {
       )}
       </div>
       
-      {/* Detail Panel / ChatBot as overlay (MOBILE & DESKTOP PHONE) */}
+      {/* Detail Panel / ChatBot / LiveAppFrame as overlay (MOBILE & DESKTOP PHONE) */}
       {phoneDetail && (
         phoneDetail.id === "chatbot" ? (
           <ChatBot
+            onClose={closePhoneDetail}
+            isDesktop={false}
+            isClosing={isPhoneClosing}
+            onAnimationEnd={
+              isPhoneClosing
+                ? () => {
+                    setPhoneDetail(null);
+                    setIsPhoneClosing(false);
+                  }
+                : undefined
+            }
+            origin={appOrigin}
+            isDark={isDark}
+            language={language}
+            ui={ui}
+          />
+        ) : !isDesktop && phoneDetail.appUrl ? (
+          <LiveAppFrame
+            item={phoneDetail}
             onClose={closePhoneDetail}
             isDesktop={false}
             isClosing={isPhoneClosing}
@@ -2059,17 +2220,19 @@ export default function App() {
       {!isDesktop && (
         <div ref={containerRef} className={`@container w-full h-[100dvh] flex flex-col relative transition-colors duration-500 ${isDark ? 'bg-stone-900' : 'bg-aster-beige'}`}>
           {phoneContent}
-          {/* Floating home button — always visible, even over detail panel */}
-          <HomeButton
-            isDark={isDark}
-            onClick={
-              phoneDetail
-                ? closePhoneDetail
-                : openFolder
-                ? goBackFromFolder
-                : goHome
-            }
-          />
+          {/* Floating home button — visible on home, folders, and standard info details; hidden during live iframe apps */}
+          {(!phoneDetail || !phoneDetail.appUrl) && (
+            <HomeButton
+              isDark={isDark}
+              onClick={
+                phoneDetail
+                  ? closePhoneDetail
+                  : openFolder
+                  ? goBackFromFolder
+                  : goHome
+              }
+            />
+          )}
         </div>
       )}
 
@@ -2200,6 +2363,7 @@ export default function App() {
                       isDark={isDark}
                       language={language}
                       ui={ui}
+                      isDesktop={true}
                     />
                   ) : (
                     <DetailPanel

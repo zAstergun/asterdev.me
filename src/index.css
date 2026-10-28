@@ -402,19 +402,50 @@ textarea:focus-visible,
 
 /* Mobile App Sheet Animation */
 .detail-panel {
-  will-change: transform, opacity;
   transform-origin: center center;
-  transform: translateZ(0);
-  contain: paint layout;
 }
 
 .detail-panel.animate-ipadAppOpen {
   animation: mobileAppOpen 0.24s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity;
 }
 
 .detail-panel.animate-ipadAppClose {
   animation: mobileAppClose 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
   pointer-events: none;
+}
+
+/* Mobile Live App Overlay (Zero-transform to preserve WebKit iframe touch, hit-testing & scrolling) */
+.mobile-live-app {
+  transform: none !important;
+}
+
+.mobile-live-app.animate-fadeOpen {
+  animation: liveAppFadeOpen 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.mobile-live-app.animate-fadeClose {
+  animation: liveAppFadeClose 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  pointer-events: none;
+}
+
+@keyframes liveAppFadeOpen {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes liveAppFadeClose {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 
 @keyframes mobileAppOpen {
