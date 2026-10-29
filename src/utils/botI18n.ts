@@ -478,31 +478,31 @@ export const BOT_RESPONSES: Record<IntentId, Record<BotLanguage, LocalizedIntent
 
   PROJECTS_OVERVIEW: {
     br: {
-      text: "Aqui estão os principais projetos em destaque no portfólio:\n\n1. 📊 Ideal Calc: Calculadora estatística interativa cruzando 12 filtros demográficos com microdados oficiais do IBGE.\n2. 🎮 Soul Fighter: Memory Game: Jogo da memória temático de LoL em JavaScript vanilla.\n3. 📚 PEX Wiki: Hub de projetos acadêmicos e ODS da ONU para alunos da UniAmérica.\n4. 📱 Mobile Demo: Aplicação mobile em React Native.",
+      text: "Aqui estão os principais projetos em destaque no portfólio:\n\n1. 🚀 StudioOS: Sistema Operacional para criadores de conteúdo com 12 ferramentas inteligentes em Astro 7 e React 19.\n2. 📊 Ideal Calc: Calculadora estatística interativa cruzando 12 filtros demográficos com microdados oficiais do IBGE.\n3. 🎮 Soul Fighter: Memory Game: Jogo de combate e memória temático de LoL em React 19.\n4. 📚 PEX Wiki: Hub de projetos acadêmicos e ODS da ONU para alunos da UniAmérica.",
       actions: [
+        { label: "Acessar StudioOS ↗", url: "https://studio.asterdev.me/" },
         { label: "Abrir Ideal Calc ↗", url: "https://idealcalc.asterdev.me/" },
-        { label: "Jogar Soul Fighter ↗", url: "https://zastergun.github.io/Soul-Fighter-Memory-Game/" },
-        { label: "Visitar PEX Wiki ↗", url: "https://pex-wiki.vercel.app/" },
+        { label: "Jogar Soul Fighter ↗", url: "https://soulfighter.asterdev.me/" },
       ],
-      suggestions: ["Me fale sobre o Ideal Calc", "Me fale sobre a PEX Wiki", "Qual é a sua stack?"],
+      suggestions: ["Me fale sobre o StudioOS", "Me fale sobre o Ideal Calc", "Qual é a sua stack?"],
     },
     pt: {
-      text: "Aqui estão os principais projetos em destaque no portfólio:\n\n1. 📊 Ideal Calc: Calculadora estatística interativa que cruza 12 filtros demográficos com microdados oficiais do IBGE.\n2. 🎮 Soul Fighter: Memory Game: Jogo da memória temático de LoL em JavaScript vanilla.\n3. 📚 PEX Wiki: Hub de projetos académicos e ODS da ONU para estudantes da UniAmérica.\n4. 📱 Mobile Demo: Aplicação mobile em React Native.",
+      text: "Aqui estão os principais projetos em destaque no portfólio:\n\n1. 🚀 StudioOS: Sistema Operativo para criadores de conteúdo com 12 ferramentas inteligentes em Astro 7 e React 19.\n2. 📊 Ideal Calc: Calculadora estatística interativa que cruza 12 filtros demográficos com microdados oficiais do IBGE.\n3. 🎮 Soul Fighter: Memory Game: Jogo de combate e memória temático de LoL em React 19.\n4. 📚 PEX Wiki: Hub de projetos académicos e ODS da ONU para estudantes da UniAmérica.",
       actions: [
+        { label: "Aceder ao StudioOS ↗", url: "https://studio.asterdev.me/" },
         { label: "Abrir Ideal Calc ↗", url: "https://idealcalc.asterdev.me/" },
-        { label: "Jogar Soul Fighter ↗", url: "https://zastergun.github.io/Soul-Fighter-Memory-Game/" },
-        { label: "Visitar PEX Wiki ↗", url: "https://pex-wiki.vercel.app/" },
+        { label: "Jogar Soul Fighter ↗", url: "https://soulfighter.asterdev.me/" },
       ],
-      suggestions: ["Fala-me sobre o Ideal Calc", "Fala-me sobre a PEX Wiki", "Qual é a sua stack?"],
+      suggestions: ["Fala-me sobre o StudioOS", "Fala-me sobre o Ideal Calc", "Qual é a sua stack?"],
     },
     en: {
-      text: "Here are the featured projects highlighted in Aster's portfolio:\n\n1. 📊 Ideal Calc: Interactive demographic calculator crossing 12 filters with official Brazilian IBGE microdata.\n2. 🎮 Soul Fighter: Memory Game: LoL-themed card game built in vanilla JS with custom animations.\n3. 📚 PEX Wiki: Academic knowledge base for Computer Science students with UN SDG mapping.\n4. 📱 Mobile Demo: React Native mobile showcase application.",
+      text: "Here are the featured projects highlighted in Aster's portfolio:\n\n1. 🚀 StudioOS: Comprehensive creator operating system unifying 12 intelligent production tools (Astro 7 + React 19).\n2. 📊 Ideal Calc: Interactive demographic calculator crossing 12 filters with official Brazilian IBGE microdata.\n3. 🎮 Soul Fighter: Memory Game: LoL-themed memory combat game rebuilt in React 19.\n4. 📚 PEX Wiki: Academic knowledge base for Computer Science students with UN SDG mapping.",
       actions: [
+        { label: "Launch StudioOS ↗", url: "https://studio.asterdev.me/" },
         { label: "Open Ideal Calc ↗", url: "https://idealcalc.asterdev.me/" },
-        { label: "Play Soul Fighter ↗", url: "https://zastergun.github.io/Soul-Fighter-Memory-Game/" },
-        { label: "Visit PEX Wiki ↗", url: "https://pex-wiki.vercel.app/" },
+        { label: "Play Soul Fighter ↗", url: "https://soulfighter.asterdev.me/" },
       ],
-      suggestions: ["Tell me about Ideal Calc", "Tell me about PEX Wiki", "What is his tech stack?"],
+      suggestions: ["Tell me about StudioOS", "Tell me about Ideal Calc", "What is his tech stack?"],
     },
     es: {
       text: "Aquí están los proyectos destacados en el portafolio:\n\n1. 📊 Ideal Calc: Calculadora demográfica interactiva con microdatos del IBGE.\n2. 🎮 Soul Fighter: Memory Game: Juego de memoria temático de LoL en JavaScript vanilla.\n3. 📚 PEX Wiki: Hub de proyectos académicos alineados con los ODS de la ONU.\n4. 📱 Mobile Demo: Aplicación móvil en React Native.",
@@ -1058,6 +1058,129 @@ export const BOT_RESPONSES: Record<IntentId, Record<BotLanguage, LocalizedIntent
       text: "App Mobile Demo adalah bukti konsep aplikasi mobile dengan React Native yang berfokus pada navigasi gestur yang halus.",
       actions: [{ label: "Kode di GitHub ↗", url: "https://github.com/zAstergun/app-mobile-demo" }],
       suggestions: ["Lihat proyek lain", "Apa tech stack-nya?", "Unduh Resume"],
+    },
+  },
+
+  PROJECT_STUDIO_OS: {
+    br: {
+      text: "O StudioOS é o Sistema Operacional completo para criadores de conteúdo. Centraliza 12 ferramentas inteligentes conectadas ao tom de voz do canal: validação com Rank de Ideia, gerador de títulos e hooks de retenção, roteirização com teleprompter em tela cheia, briefing de thumbnails e score pré-upload.\n\nConstruído com Astro 7.3, React 19, Tailwind CSS v4, Supabase Auth/Postgres e Cloudflare Workers.",
+      actions: [
+        { label: "Acessar StudioOS ↗", url: "https://studio.asterdev.me/" },
+        { label: "Código no GitHub ↗", url: "https://github.com/zAstergun/StudioOS" },
+      ],
+      suggestions: ["Ver outros projetos", "Qual a stack técnica?", "Como entrar em contato?"],
+    },
+    pt: {
+      text: "O StudioOS é o Sistema Operativo completo para criadores de conteúdo. Centraliza 12 ferramentas inteligentes ligadas ao tom de voz do canal: validação com Rank de Ideia, gerador de títulos e hooks, teleprompter em ecrã inteiro e pontuação de publicações.\n\nConstruído com Astro 7.3, React 19, Tailwind CSS v4, Supabase e Cloudflare Workers.",
+      actions: [
+        { label: "Aceder ao StudioOS ↗", url: "https://studio.asterdev.me/" },
+        { label: "Código no GitHub ↗", url: "https://github.com/zAstergun/StudioOS" },
+      ],
+      suggestions: ["Ver outros projetos", "Qual a stack técnica?", "Como entrar em contacto?"],
+    },
+    en: {
+      text: "StudioOS is the comprehensive Operating System for serious content creators. It unifies 12 smart tools calibrated to your channel's unique voice: Idea Ranking, High-CTR Title & Hook Generators, Scripting & Fullscreen Teleprompter, Thumbnail Briefing, Viral Recipe, and Post Scoring.\n\nEngineered with Astro 7.3, React 19, Tailwind CSS v4, Supabase Auth/Postgres, and Cloudflare Workers.",
+      actions: [
+        { label: "Launch StudioOS ↗", url: "https://studio.asterdev.me/" },
+        { label: "GitHub Repository ↗", url: "https://github.com/zAstergun/StudioOS" },
+      ],
+      suggestions: ["Show other projects", "What is his tech stack?", "Contact info"],
+    },
+    es: {
+      text: "StudioOS es el Sistema Operativo para creadores de contenido. Centraliza 12 herramientas inteligentes conectadas al tono de voz del canal: validación con Rank de Idea, generadores de títulos y hooks, guion con teleprompter en pantalla completa, briefing de miniaturas y puntuación de publicaciones.\n\nConstruido con Astro 7.3, React 19, Tailwind CSS v4, Supabase y Cloudflare Workers.",
+      actions: [
+        { label: "Abrir StudioOS ↗", url: "https://studio.asterdev.me/" },
+        { label: "Código en GitHub ↗", url: "https://github.com/zAstergun/StudioOS" },
+      ],
+      suggestions: ["Ver otros proyectos", "¿Cuál es su stack?", "Contacto"],
+    },
+    fr: {
+      text: "StudioOS est le Système d'Exploitation pour les créateurs de contenu. Il réunit 12 outils intelligents calibrés sur l'identité de votre chaîne : Rank d'Idée, Générateurs de Titres et d'Accroches, Téléprompteur plein écran, Briefing de Miniature et Score de Publication.\n\nConçu avec Astro 7.3, React 19, Tailwind CSS v4, Supabase et Cloudflare Workers.",
+      actions: [
+        { label: "Ouvrir StudioOS ↗", url: "https://studio.asterdev.me/" },
+        { label: "Code sur GitHub ↗", url: "https://github.com/zAstergun/StudioOS" },
+      ],
+      suggestions: ["Voir d'autres projets", "Quel est son stack ?", "Contact"],
+    },
+    de: {
+      text: "StudioOS ist das Betriebssystem für Content Creator. Es bündelt 12 intelligente Werkzeuge: Ideen-Ranking, Klickstarke Titel- & Hook-Generatoren, Vollbild-Teleprompter, Thumbnail-Briefing und Beitragsbewertung.\n\nEntwickelt mit Astro 7.3, React 19, Tailwind CSS v4, Supabase und Cloudflare Workers.",
+      actions: [
+        { label: "StudioOS öffnen ↗", url: "https://studio.asterdev.me/" },
+        { label: "Code auf GitHub ↗", url: "https://github.com/zAstergun/StudioOS" },
+      ],
+      suggestions: ["Andere Projekte ansehen", "Tech-Stack ansehen", "Kontakt"],
+    },
+    it: {
+      text: "StudioOS è il Sistema Operativo per creator di contenuti. Unifica 12 strumenti intelligenti calibrati sul canale: Rank di Idee, Generatori di Titoli e Hook, Script con Teleprompter a schermo intero e Punteggio Post.\n\nRealizzato con Astro 7.3, React 19, Tailwind CSS v4, Supabase e Cloudflare Workers.",
+      actions: [
+        { label: "Apri StudioOS ↗", url: "https://studio.asterdev.me/" },
+        { label: "Codice su GitHub ↗", url: "https://github.com/zAstergun/StudioOS" },
+      ],
+      suggestions: ["Vedi altri progetti", "Qual è il suo stack?", "Contatto"],
+    },
+    nl: {
+      text: "StudioOS is het complete Besturingssysteem voor contentmakers. Het centraliseert 12 slimme tools afgestemd op je kanaal: Idee Ranking, Titels & Hooks met hoge retentie, Volledig scherm teleprompter en Post Scoring.\n\nGebouwd met Astro 7.3, React 19, Tailwind CSS v4, Supabase en Cloudflare Workers.",
+      actions: [
+        { label: "Open StudioOS ↗", url: "https://studio.asterdev.me/" },
+        { label: "Code op GitHub ↗", url: "https://github.com/zAstergun/StudioOS" },
+      ],
+      suggestions: ["Andere projecten bekijken", "Tech-stack bekijken", "Contact"],
+    },
+    ru: {
+      text: "StudioOS — операционная система для создателей контента. Объединяет 12 смарт-инструментов: рейтинг идей, генераторы заголовков и хуков, полноэкранный телесуфлер, бриф миниатюр и аудит постов.\n\nРазработано на Astro 7.3, React 19, Tailwind CSS v4, Supabase и Cloudflare Workers.",
+      actions: [
+        { label: "Открыть StudioOS ↗", url: "https://studio.asterdev.me/" },
+        { label: "Репозиторий GitHub ↗", url: "https://github.com/zAstergun/StudioOS" },
+      ],
+      suggestions: ["Другие проекты", "Какой стек технологий?", "Контакты"],
+    },
+    ar: {
+      text: "StudioOS هو نظام التشغيل الشامل لصناع المحتوى. يدمج 12 أداة ذكية: تقييم الأفكار، توليد العناوين والخطافات، ملقن نصوص بملء الشاشة، وتصميم الصور المصغرة.\n\nمبني باستخدام Astro 7.3 وReact 19 وTailwind CSS v4 وSupabase وCloudflare Workers.",
+      actions: [
+        { label: "فتح StudioOS ↗", url: "https://studio.asterdev.me/" },
+        { label: "الكود على GitHub ↗", url: "https://github.com/zAstergun/StudioOS" },
+      ],
+      suggestions: ["مشاريع أخرى", "المكدس التقني", "التواصل مع Aster"],
+    },
+    jp: {
+      text: "StudioOSは本気でコンテンツを創るクリエイターのための専用OSです。チャンネルのトーン＆マナーに最適化された12のスマートツールを集約：アイデアRank評価、高CTRタイトル＆フック生成、全画面テレプロンプター付き台本作成、サムネイル設計。\n\nAstro 7.3、React 19、Tailwind CSS v4、Supabase、Cloudflare Workersで構築。",
+      actions: [
+        { label: "StudioOSを開く ↗", url: "https://studio.asterdev.me/" },
+        { label: "GitHub ↗", url: "https://github.com/zAstergun/StudioOS" },
+      ],
+      suggestions: ["他のプロジェクトを見る", "技術スタックは？", "連絡先"],
+    },
+    cn: {
+      text: "StudioOS 是面向专业内容创作者的操作系统。集成12款与频道调性深度联动的智能工具：灵感评级、高CTR标题与留存黄金开头生成、全屏提词器剧本创作、缩略图设计简报与发布前评分。\n\n基于 Astro 7.3、React 19、Tailwind CSS v4、Supabase 和 Cloudflare Workers 构建。",
+      actions: [
+        { label: "打开 StudioOS ↗", url: "https://studio.asterdev.me/" },
+        { label: "GitHub 源码 ↗", url: "https://github.com/zAstergun/StudioOS" },
+      ],
+      suggestions: ["查看其他项目", "技术栈是什么？", "联系方式"],
+    },
+    kr: {
+      text: "StudioOS는 콘텐츠 크리에이터를 위한 올인원 운영체제입니다. 채널 맞춤형 12가지 스마트 도구 통합: 아이디어 랭크 평가, 고유입 제목 및 훅 생성기, 전체 화면 프롬프터 대본 작성, 썸네일 브리핑, 게시물 점수 평가.\n\nAstro 7.3, React 19, Tailwind CSS v4, Supabase, Cloudflare Workers 기반 구축.",
+      actions: [
+        { label: "StudioOS 열기 ↗", url: "https://studio.asterdev.me/" },
+        { label: "GitHub 저장소 ↗", url: "https://github.com/zAstergun/StudioOS" },
+      ],
+      suggestions: ["다른 프로젝트 보기", "기술 스택 확인", "연락처"],
+    },
+    vn: {
+      text: "StudioOS là Hệ Điều Hành toàn diện dành cho nhà sáng tạo nội dung. Đồng bộ 12 công cụ thông minh chuẩn hóa theo phong cách kênh: Đánh giá Rank Ý Tưởng, Tạo Tiêu Đề & Hook Giữ Chân, Kịch Bản & Máy Nhắc Chữ Toàn Màn Hình, Brief Thumbnail và Chấm Điểm Bài Đăng.\n\nPhát triển với Astro 7.3, React 19, Tailwind CSS v4, Supabase và Cloudflare Workers.",
+      actions: [
+        { label: "Mở StudioOS ↗", url: "https://studio.asterdev.me/" },
+        { label: "Mã nguồn GitHub ↗", url: "https://github.com/zAstergun/StudioOS" },
+      ],
+      suggestions: ["Xem các dự án khác", "Stack công nghệ là gì?", "Liên hệ"],
+    },
+    id: {
+      text: "StudioOS adalah Sistem Operasi komprehensif untuk kreator konten profesional. Menyatukan 12 alat pintar: Peringkat Ide, Pembuat Judul & Hook Retensi Tinggi, Naskah & Teleprompter Layar Penuh, Brief Thumbnail, dan Skor Postingan.\n\nDibangun dengan Astro 7.3, React 19, Tailwind CSS v4, Supabase, dan Cloudflare Workers.",
+      actions: [
+        { label: "Buka StudioOS ↗", url: "https://studio.asterdev.me/" },
+        { label: "Kode di GitHub ↗", url: "https://github.com/zAstergun/StudioOS" },
+      ],
+      suggestions: ["Lihat proyek lain", "Apa tech stack-nya?", "Kontak"],
     },
   },
 

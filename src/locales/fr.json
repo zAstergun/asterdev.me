@@ -51,6 +51,9 @@
     "tagArch": "Architecture",
     "btnSourceCode": "Code Source",
     "chatbotName": "AsterBot",
-    "chatbotSummary": "Assistant conversationnel avec classificateur d'intentions heuristique. Posez des questions sur moi et mes projets."
+    "chatbotSummary": "Assistant conversationnel avec classificateur d'intentions heuristique. Posez des questions sur moi et mes projets.",
+    "studioName": "StudioOS",
+    "studioSummary": "Système d'Exploitation complet pour créateurs de contenu. Centralise 12 outils intelligents calibrés sur la voix du canal (Rank d'Idée, Générateurs de Titres, Accroches de Rétention, Téléprompteur plein écran, Briefing de Miniature, Humanisateur et Score de Post). Conçu avec Astro 7.3, React 19, Tailwind CSS v4, Supabase et Cloudflare Workers.",
+    "studioLinkOpen": "Ouvrir StudioOS"
   }
 }

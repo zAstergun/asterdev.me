@@ -51,6 +51,9 @@
     "tagArch": "架构",
     "btnSourceCode": "源代码",
     "chatbotName": "AsterBot",
-    "chatbotSummary": "搭载启发式意图分类器的对话助手。欢迎随时提问关于我和我的项目。"
+    "chatbotSummary": "搭载启发式意图分类器的对话助手。欢迎随时提问关于我和我的项目。",
+    "studioName": "StudioOS",
+    "studioSummary": "面向专业内容创作者的操作系统。集成12款与频道调性深度联动的智能工具（灵感评级、高CTR标题、留存黄金开头生成、全屏提词器剧本创作、缩略图设计简报与发布前评分）。基于 Astro 7.3、React 19、Tailwind CSS v4、Supabase 和 Cloudflare Workers 构建。",
+    "studioLinkOpen": "打开 StudioOS"
   }
 }

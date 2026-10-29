@@ -51,6 +51,9 @@
     "tagComp": "Competición",
     "tagCert": "Certificación",
     "tagArch": "Arquitectura",
-    "btnSourceCode": "Código Fuente"
+    "btnSourceCode": "Código Fuente",
+    "studioName": "StudioOS",
+    "studioSummary": "Sistema Operativo para creadores de contenido. Centraliza 12 herramientas inteligentes conectadas al tono de voz del canal (Rank de Idea, Generadores de Títulos, Hooks de Retención, Guion & Teleprompter, Briefing de Miniaturas, Humanizador y Score de Post). Desarrollado con Astro 7.3, React 19, Tailwind CSS v4, Supabase y Cloudflare Workers.",
+    "studioLinkOpen": "Abrir StudioOS"
   }
 }

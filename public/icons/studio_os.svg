@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">Logo StudioOS</title>
+  <rect x="5" y="5" width="54" height="54" rx="9" fill="#f7b733" transform="rotate(-7 32 32)" />
+  <g fill="none" stroke="#141414" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.6">
+    <path d="m32 16 16 8v17l-16 8-16-8V24z" />
+    <path d="m32 32 16-8M32 32v17M32 32l-16-8" />
+  </g>
+</svg>

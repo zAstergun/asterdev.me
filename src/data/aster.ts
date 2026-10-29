@@ -138,6 +138,9 @@ export type TranslationDict = {
     pexName: string;
     pexSummary: string;
     pexLinkVisit: string;
+    studioName?: string;
+    studioSummary?: string;
+    studioLinkOpen?: string;
     darkName: string;
     mobileName: string;
     demoName: string;
@@ -331,6 +334,24 @@ export function getHomeItems(lang: Language, itemsText: TranslationDict["items"]
           previewMedia: "/previews/soulfighter-gameplay.webp",
           lang,
           appUrl: "https://soulfighter.asterdev.me/",
+        },
+        {
+          type: "project",
+          id: "studio-os",
+          name: itemsText.studioName || "StudioOS",
+          icon: "/icons/studio_os.svg",
+          gradient: ["#f7b733", "#fc4a1a"],
+          summary:
+            itemsText.studioSummary ||
+            "Sistema Operacional para quem cria conteúdo a sério. Centraliza 12 ferramentas inteligentes conectadas ao mesmo cérebro calibrado com métricas reais, retenção projetada e zero achismo.",
+          links: [
+            { title: itemsText.studioLinkOpen || "Acessar StudioOS", url: "https://studio.asterdev.me/", icon: "external-link" },
+            { title: itemsText.btnSourceCode, url: "https://github.com/zAstergun/StudioOS", icon: "file-code" },
+          ],
+          tags: ["Astro 7", "React 19", "Tailwind CSS v4", "Supabase", "Cloudflare"],
+          previewMedia: "/previews/studioos.png",
+          lang,
+          appUrl: "https://studio.asterdev.me/",
         },
         {
           type: "project",

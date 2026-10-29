@@ -51,6 +51,9 @@
     "tagArch": "Kiến trúc",
     "btnSourceCode": "Mã nguồn",
     "chatbotName": "AsterBot",
-    "chatbotSummary": "Trợ lý đàm thoại với Bộ phân loại ý định heuristic. Đặt câu hỏi về tôi và các dự án của tôi."
+    "chatbotSummary": "Trợ lý đàm thoại với Bộ phân loại ý định heuristic. Đặt câu hỏi về tôi và các dự án của tôi.",
+    "studioName": "StudioOS",
+    "studioSummary": "Hệ Điều Hành toàn diện dành cho nhà sáng tạo nội dung. Đồng bộ 12 công cụ thông minh theo phong cách kênh (Đánh giá Rank Ý Tưởng, Tạo Tiêu Đề, Hook Giữ Chân, Kịch Bản & Máy Nhắc Chữ, Brief Thumbnail và Chấm Điểm Bài Đăng). Phát triển với Astro 7.3, React 19, Tailwind CSS v4, Supabase và Cloudflare Workers.",
+    "studioLinkOpen": "Mở StudioOS"
   }
 }

@@ -15,6 +15,7 @@ export type IntentId =
   | "PROJECT_SOUL_FIGHTER"
   | "PROJECT_PEX_WIKI"
   | "PROJECT_MOBILE_DEMO"
+  | "PROJECT_STUDIO_OS"
   | "BLOG_HACKATHONS"
   | "EDUCATION"
   | "RESUME_CV"
@@ -361,6 +362,28 @@ const INTENT_DEFINITIONS: IntentDefinition[] = [
       { term: "react native", weight: 5 },
       { term: "mobile", weight: 3 },
       { term: "movil", weight: 3 },
+    ],
+  },
+  {
+    id: "PROJECT_STUDIO_OS",
+    patterns: [
+      /studio\s*os|studioos/,
+      /studio\.asterdev\.me/,
+      /sistema operacional (do|para) criador/,
+      /creator (os|operating system)/,
+      /teleprompter|rank de ideia|gerador de hooks?/,
+    ],
+    keywords: [
+      { term: "studioos", weight: 9 },
+      { term: "studio os", weight: 9 },
+      { term: "studio", weight: 6 },
+      { term: "teleprompter", weight: 6 },
+      { term: "rank de ideia", weight: 7 },
+      { term: "criador de conteudo", weight: 6 },
+      { term: "content creator", weight: 6 },
+      { term: "creator os", weight: 8 },
+      { term: "astro 7", weight: 5 },
+      { term: "supabase auth", weight: 5 },
     ],
   },
   {

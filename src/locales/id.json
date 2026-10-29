@@ -51,6 +51,9 @@
     "tagArch": "Arsitektur",
     "btnSourceCode": "Kode Sumber",
     "chatbotName": "AsterBot",
-    "chatbotSummary": "Asisten percakapan dengan Pengklasifikasi Niat Heuristik. Ajukan pertanyaan tentang saya dan proyek saya."
+    "chatbotSummary": "Asisten percakapan dengan Pengklasifikasi Niat Heuristik. Ajukan pertanyaan tentang saya dan proyek saya.",
+    "studioName": "StudioOS",
+    "studioSummary": "Sistem Operasi komprehensif untuk kreator konten profesional. Menyatukan 12 alat pintar yang disesuaikan dengan saluran Anda (Peringkat Ide, Pembuat Judul, Hook Retensi, Naskah & Teleprompter, Brief Thumbnail, dan Skor Postingan). Dibangun dengan Astro 7.3, React 19, Tailwind CSS v4, Supabase, dan Cloudflare Workers.",
+    "studioLinkOpen": "Buka StudioOS"
   }
 }

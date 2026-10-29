@@ -51,6 +51,9 @@
     "tagComp": "Competition",
     "tagCert": "Certification",
     "tagArch": "Architecture",
-    "btnSourceCode": "Source Code"
+    "btnSourceCode": "Source Code",
+    "studioName": "StudioOS",
+    "studioSummary": "Comprehensive Operating System for serious content creators. Centralizes 12 intelligent tools calibrated to your channel's unique voice (Idea Ranking, High-CTR Titles, Retention Hooks, Scripting & Teleprompter, Thumbnail Briefs, AI Humanizer, and Post Scorecard). Built with Astro 7.3, React 19, Tailwind CSS v4, Supabase Auth/Postgres, and Cloudflare Workers.",
+    "studioLinkOpen": "Launch StudioOS"
   }
 }

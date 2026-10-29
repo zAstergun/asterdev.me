@@ -51,6 +51,9 @@
     "tagArch": "아키텍처",
     "btnSourceCode": "소스 코드",
     "chatbotName": "AsterBot",
-    "chatbotSummary": "휴리스틱 의도 분류기가 탑재된 대화형 어시스턴트입니다. 저와 제 프로젝트에 대해 자유롭게 질문해보세요."
+    "chatbotSummary": "휴리스틱 의도 분류기가 탑재된 대화형 어시스턴트입니다. 저와 제 프로젝트에 대해 자유롭게 질문해보세요.",
+    "studioName": "StudioOS",
+    "studioSummary": "콘텐츠 크리에이터를 위한 올인원 운영체제. 채널 맞춤형 12가지 스마트 도구 통합 (아이디어 랭크 평가, 고유입 제목 및 훅 생성기, 전체 화면 프롬프터 대본 작성, 썸네일 브리핑, 게시물 점수 평가). Astro 7.3, React 19, Tailwind CSS v4, Supabase, Cloudflare Workers 기반 구축.",
+    "studioLinkOpen": "StudioOS 열기"
   }
 }

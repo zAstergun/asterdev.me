@@ -57,6 +57,14 @@ describe("Heuristic Intent Classifier", () => {
     expect(res.intent).toBe("PROJECT_PEX_WIKI");
   });
 
+  it("classifies StudioOS project", () => {
+    const res = classifyIntent("Como funciona o StudioOS para criadores de conteúdo?", "br");
+    expect(res.intent).toBe("PROJECT_STUDIO_OS");
+    expect(res.actions).toBeDefined();
+    expect(res.actions?.[0].url).toContain("studio.asterdev.me");
+    expect(res.actions?.[1].url).toContain("StudioOS");
+  });
+
   it("classifies resume/CV requests", () => {
     const res = classifyIntent("Quero baixar o currículo em PDF", "br");
     expect(res.intent).toBe("RESUME_CV");

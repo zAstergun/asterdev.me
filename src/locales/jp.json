@@ -51,6 +51,9 @@
     "tagArch": "アーキテクチャ",
     "btnSourceCode": "ソースコード",
     "chatbotName": "AsterBot",
-    "chatbotSummary": "ヒューリスティック意図分類器を搭載した対話型アシスタント。私や私のプロジェクトについて何でも質問してください。"
+    "chatbotSummary": "ヒューリスティック意図分類器を搭載した対話型アシスタント。私や私のプロジェクトについて何でも質問してください。",
+    "studioName": "StudioOS",
+    "studioSummary": "コンテンツクリエイターのための専用OS。チャンネルのトーンに最適化された12のスマートツールを集約（アイデアRank評価、高CTRタイトル、フック生成、全画面テレプロンプター付き台本作成、サムネイル設計、投稿スコア判定）。Astro 7.3、React 19、Tailwind CSS v4、Supabase、Cloudflare Workersで構築。",
+    "studioLinkOpen": "StudioOSを開く"
   }
 }

@@ -51,6 +51,9 @@
     "tagArch": "Architectuur",
     "btnSourceCode": "Broncode",
     "chatbotName": "AsterBot",
-    "chatbotSummary": "Conversationele assistent met heuristische intentieclassificatie. Stel vragen over mij en mijn projecten."
+    "chatbotSummary": "Conversationele assistent met heuristische intentieclassificatie. Stel vragen over mij en mijn projecten.",
+    "studioName": "StudioOS",
+    "studioSummary": "Het complete Besturingssysteem voor contentmakers. Centraliseert 12 slimme tools afgestemd op de unieke stem van je kanaal (Idee Ranking, Titels & Hooks, Teleprompter, Thumbnail Briefing, Humanizer en Post Scorecard). Gebouwd met Astro 7.3, React 19, Tailwind CSS v4, Supabase en Cloudflare Workers.",
+    "studioLinkOpen": "Open StudioOS"
   }
 }
